@@ -1,0 +1,9 @@
+{
+  "name": "luxseetarot",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "stripe": "^17.7.0"
+  }
+}
