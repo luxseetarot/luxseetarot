@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe } from './_lib/unlock.js';
 import { sendCreditsEmail } from './_lib/email.js';
+import { verifyTurnstileToken } from './_lib/turnstile.js';
 
 function buildSystemPrompt(mode) {
   const isFull = mode === 'full';
@@ -50,16 +51,21 @@ export default async function handler(req, res) {
       return res.status(429).json({ ok: false, error: 'Troppe richieste. Riprova tra un po\'.' });
     }
 
-    const { name, birthDate, question, cards, mode = 'teaser', unlockToken } = req.body || {};
+    const { name, birthDate, question, cards, mode = 'teaser', unlockToken, turnstileToken } = req.body || {};
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) return res.status(500).json({ ok: false, error: 'Chiave API non configurata.' });
     if (!name || !question || !Array.isArray(cards) || cards.length < 1) {
       return res.status(400).json({ ok: false, error: 'Dati lettura incompleti.' });
     }
 
+    const isFull = mode === 'full';
+    if (!isFull) {
+      const bot = await verifyTurnstileToken(turnstileToken, ip);
+      if (!bot.ok) return res.status(403).json({ ok: false, error: bot.error || 'Verifica anti-bot fallita.' });
+    }
+
     let remainingCredits = null;
     let nextToken = null;
-    const isFull = mode === 'full';
 
     if (isFull) {
       const unlocked = verifyUnlockToken(unlockToken);

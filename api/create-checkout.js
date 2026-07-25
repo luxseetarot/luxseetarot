@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { cors } from './_lib/unlock.js';
+import { verifyTurnstileToken } from './_lib/turnstile.js';
 
 const PRODUCTS = {
   full: {
@@ -25,7 +26,12 @@ export default async function handler(req, res) {
     const secret = process.env.STRIPE_SECRET_KEY;
     if (!secret) return res.status(500).json({ ok: false, error: 'Stripe non configurato.' });
 
-    const { product = 'full', origin, email, name, marketing = false } = req.body || {};
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
+    const { product = 'full', origin, email, name, marketing = false, turnstileToken } = req.body || {};
+
+    const bot = await verifyTurnstileToken(turnstileToken, ip);
+    if (!bot.ok) return res.status(403).json({ ok: false, error: bot.error || 'Verifica anti-bot fallita.' });
+
     const item = PRODUCTS[product];
     if (!item) return res.status(400).json({ ok: false, error: 'Prodotto non valido.' });
 
