@@ -25,7 +25,7 @@ export default async function handler(req, res) {
     const secret = process.env.STRIPE_SECRET_KEY;
     if (!secret) return res.status(500).json({ ok: false, error: 'Stripe non configurato.' });
 
-    const { product = 'full', origin, email, name } = req.body || {};
+    const { product = 'full', origin, email, name, marketing = false } = req.body || {};
     const item = PRODUCTS[product];
     if (!item) return res.status(400).json({ ok: false, error: 'Prodotto non valido.' });
 
@@ -61,6 +61,7 @@ export default async function handler(req, res) {
         credits_used: '0',
         email: cleanEmail,
         name: String(name || '').slice(0, 80),
+        marketing: marketing ? '1' : '0',
       },
       success_url: `${base}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}/?checkout=cancel`,
