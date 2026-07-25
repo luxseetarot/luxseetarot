@@ -1,13 +1,18 @@
 export async function sendCreditsEmail({ to, name, remaining, max, sessionId, kind }) {
-  const apiKey = process.env.RESEND_API_KEY;
-  const from = process.env.EMAIL_FROM || 'Luxseetarot <onboarding@resend.dev>';
+  const apiKey =
+    (process.env.BREVO_API_KEY || process.env.BREVO_API_KEY_V3 || '').trim();
+  const fromEmail =
+    (process.env.BREVO_SENDER_EMAIL || process.env.EMAIL_FROM || '').trim() ||
+    'noreply@luxseetarot.com';
+  const fromName = (process.env.BREVO_SENDER_NAME || 'Luxseetarot').trim();
+
   if (!apiKey || !to) {
-    console.warn('Email skipped: missing RESEND_API_KEY or recipient');
+    console.warn('Email skipped: missing BREVO_API_KEY or recipient');
     return { ok: false, skipped: true };
   }
 
-  const site = process.env.SITE_URL || 'https://luxseetarot.vercel.app';
-  const recoverUrl = `${site.replace(/\/$/, '')}/?recover=${encodeURIComponent(sessionId)}`;
+  const site = (process.env.SITE_URL || 'https://luxseetarot.vercel.app').replace(/\/$/, '');
+  const recoverUrl = `${site}/?recover=${encodeURIComponent(sessionId)}`;
   const title =
     kind === 'purchase'
       ? 'Il tuo pack Luxseetarot è attivo'
@@ -25,23 +30,24 @@ export async function sendCreditsEmail({ to, name, remaining, max, sessionId, ki
     </div>
   `;
 
-  const res = await fetch('https://api.resend.com/emails', {
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'api-key': apiKey,
       'Content-Type': 'application/json',
+      Accept: 'application/json',
     },
     body: JSON.stringify({
-      from,
-      to: [to],
+      sender: { email: fromEmail, name: fromName },
+      to: [{ email: String(to).trim().toLowerCase() }],
       subject: `${title} — ${remaining}/${max} crediti`,
-      html,
+      htmlContent: html,
     }),
   });
 
   if (!res.ok) {
     const err = await res.text();
-    console.error('Resend error:', err);
+    console.error('Brevo error:', err);
     return { ok: false, error: err };
   }
   return { ok: true };
