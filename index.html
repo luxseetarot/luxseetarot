@@ -348,7 +348,6 @@
       <h2 class="subtitle-h">Scegli tre carte</h2>
 
       <p class="subtitle" style="margin-bottom:0">Tre carte. Una domanda. La risposta che cerchi, chiara e diretta. (<span id="sel-count">0</span> / 3)</p>
-      <p class="disclaimer" style="margin-top:10px">Nella versione completa potrai scaricare un PDF con teaser + lettura, così la rileggi senza fretta.</p>
 
     </div>
 
@@ -390,11 +389,7 @@
 
       <div class="cta-title">APPROFONDISCI LA LETTURA</div>
 
-      <p class="cta-text">Questa è una versione teaser. Nella completa scarichi anche il PDF (teaser + lettura) per rileggerla con calma. Sblocca ora.</p>
-
-      <div class="pdf-row">
-        <button type="button" class="ghost-btn" id="btn-pdf-teaser">SCARICA / STAMPA PDF TEASER</button>
-      </div>
+      <p class="cta-text">Questa è solo un'anteprima. Nella versione completa ricevi la lettura intera e puoi scaricare un PDF (anteprima + lettura) per rileggerla senza fretta. Sblocca ora.</p>
 
       <div class="cta-actions">
         <button type="button" class="gold-btn" id="btn-unlock-full">SBLOCCA LETTURA COMPLETA — €4,90</button>
@@ -402,15 +397,13 @@
         <button type="button" class="ghost-btn" id="btn-use-credit" style="display:none">USA 1 CREDITO PER LA VERSIONE COMPLETA</button>
       </div>
 
-      <button class="restart" id="restart">◦ Nuova lettura ◦</button>
-
     </div>
 
     <div class="cta-box" id="cta-full">
 
       <div class="cta-title">LETTURA COMPLETA PRONTA</div>
 
-      <p class="cta-text">Scarica o stampa il PDF con le tue carte, il teaser e la lettura completa. Oppure continua con il pack da 5 letture.</p>
+      <p class="cta-text">Scarica o stampa il PDF con le tue carte, l'anteprima e la lettura completa. Oppure continua con il pack da 5 letture.</p>
 
       <div class="pdf-row">
         <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA / STAMPA PDF</button>
@@ -419,8 +412,6 @@
       <div class="cta-actions">
         <button type="button" class="ghost-btn" id="btn-upsell-pack">PACK 5 LETTURE — €9,90</button>
       </div>
-
-      <button class="restart" id="restart-full">◦ Nuova lettura ◦</button>
 
     </div>
 
@@ -642,7 +633,7 @@
     var body = '';
     if(isFull){
       if(state.teaserText){
-        body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte I · Teaser</h2>'+textToHtmlParagraphs(state.teaserText);
+        body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte I · Anteprima</h2>'+textToHtmlParagraphs(state.teaserText);
         body += '<hr style="border:none;border-top:1px solid rgba(212,175,106,.3);margin:18px 0"/>';
       }
       body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte II · Completa</h2>'+textToHtmlParagraphs(state.fullText);
@@ -1231,30 +1222,13 @@
   document.getElementById('btn-unlock-full').addEventListener('click', function(){ startCheckout('full'); });
   document.getElementById('btn-unlock-pack').addEventListener('click', function(){ startCheckout('pack'); });
   document.getElementById('btn-upsell-pack').addEventListener('click', function(){ startCheckout('pack'); });
-  document.getElementById('btn-pdf-teaser').addEventListener('click', function(){ downloadReadingPdf('teaser'); });
   document.getElementById('btn-pdf-full').addEventListener('click', function(){ downloadReadingPdf('full'); });
   document.getElementById('btn-use-credit').addEventListener('click', function(){
     var u = getUnlock();
     if(!u || !u.unlockToken || u.credits < 1){ showToast('Nessun credito disponibile.'); return; }
-    if(!state.form || !state.lastCards){ showToast('Avvia prima una lettura teaser.'); return; }
+    if(!state.form || !state.lastCards){ showToast('Avvia prima una lettura.'); return; }
     fetchReading('full', u.unlockToken);
   });
-
-  function resetToStart(){
-    state.form=null;
-    state.lastCards=null;
-    state.teaserText=null;
-    state.fullText=null;
-    state.deck = shuffle(DECK);
-    state.selected=[];
-    form.reset();
-    if(ctaFullEl) ctaFullEl.classList.remove('show');
-    ctaEl.classList.remove('show');
-    showPhase('phase-input');
-  }
-
-  document.getElementById('restart').addEventListener('click', resetToStart);
-  document.getElementById('restart-full').addEventListener('click', resetToStart);
 
   refreshCreditsUI();
   handleCheckoutReturn();
