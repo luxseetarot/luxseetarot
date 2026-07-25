@@ -224,6 +224,13 @@
   .credits-pill.show{display:inline-block}
   .checkout-toast{display:none;max-width:560px;margin:16px auto;padding:12px 16px;border-radius:12px;border:1px solid var(--gold-soft);background:rgba(20,16,40,.9);text-align:center;color:var(--fg);font-size:14px}
   .checkout-toast.show{display:block}
+  .pay-bridge{display:none;position:fixed;inset:0;z-index:10000;background:radial-gradient(ellipse at center,#15122a 0%,#050410 100%);align-items:center;justify-content:center;padding:24px;text-align:center}
+  .pay-bridge.show{display:flex}
+  .pay-bridge-inner{max-width:480px}
+  .pay-bridge h2{font-family:'Cinzel',serif;color:var(--gold);font-size:clamp(22px,4vw,32px);letter-spacing:.06em;margin:12px 0 14px}
+  .pay-bridge p{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:18px;line-height:1.5;margin:0 0 28px}
+  .pdf-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:16px 0 8px}
+  .pdf-row .ghost-btn,.pdf-row .gold-btn{flex:1 1 200px}
 
   .cta-box.show{opacity:1;transform:translateY(0)}
 
@@ -376,6 +383,10 @@
 
       <p class="cta-text">Questa è una versione teaser. Sblocca la lettura completa digitale, con chiusure più chiare e un prossimo passo concreto.</p>
 
+      <div class="pdf-row">
+        <button type="button" class="ghost-btn" id="btn-pdf-teaser">SCARICA PDF TEASER</button>
+      </div>
+
       <div class="cta-actions">
         <button type="button" class="gold-btn" id="btn-unlock-full">SBLOCCA LETTURA COMPLETA — €4,90</button>
         <button type="button" class="ghost-btn" id="btn-unlock-pack">PACK 5 LETTURE — €9,90</button>
@@ -383,6 +394,25 @@
       </div>
 
       <button class="restart" id="restart">◦ Nuova lettura ◦</button>
+
+    </div>
+
+    <div class="cta-box" id="cta-full">
+
+      <div class="cta-title">LETTURA COMPLETA PRONTA</div>
+
+      <p class="cta-text">Puoi scaricare il PDF di questa lettura. Se vuoi continuare il viaggio, il pack ti dà 5 letture complete a un prezzo migliore.</p>
+
+      <div class="pdf-row">
+        <button type="button" class="ghost-btn" id="btn-pdf-teaser-after">PDF TEASER GRATUITO</button>
+        <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA PDF COMPLETA</button>
+      </div>
+
+      <div class="cta-actions">
+        <button type="button" class="gold-btn" id="btn-upsell-pack">PACK 5 LETTURE — €9,90</button>
+      </div>
+
+      <button class="restart" id="restart-full">◦ Nuova lettura ◦</button>
 
     </div>
 
@@ -394,9 +424,22 @@
 
 
 
+<div id="pay-bridge" class="pay-bridge" aria-live="polite">
+  <div class="pay-bridge-inner">
+    <div class="phase-tag">PAGAMENTO CONFERMATO</div>
+    <h2>Ti porto alla lettura che hai acquistato</h2>
+    <p id="pay-bridge-text">Sto preparando la tua lettura completa Luxseetarot. Tra pochi secondi la vedrai qui.</p>
+    <div class="loader" style="display:block"><span class="spinner"></span>Reindirizzamento in corso...</div>
+  </div>
+</div>
+
 <div class="checkout-toast" id="checkout-toast"></div>
 <div class="credits-pill" id="credits-pill"></div>
 <footer>Luxseetarot · 2026 · Letture simboliche digitali · Intrattenimento</footer>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 
 
@@ -502,10 +545,11 @@
 
 
 
-  var state = { form:null, deck:shuffle(DECK), selected:[], lastCards:null, mode:'teaser' };
+  var state = { form:null, deck:shuffle(DECK), selected:[], lastCards:null, mode:'teaser', teaserText:null, fullText:null };
 
   var POSITIONS = ['Passato','Presente','Futuro'];
   var STORAGE_KEY = 'luxsee_unlock';
+  var ctaFullEl = null;
 
   function getUnlock(){
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null'); } catch(e){ return null; }
@@ -536,11 +580,63 @@
     t.classList.add('show');
     setTimeout(function(){ t.classList.remove('show'); }, 6000);
   }
+  function showPayBridge(product){
+    var bridge = document.getElementById('pay-bridge');
+    var txt = document.getElementById('pay-bridge-text');
+    if(txt){
+      txt.textContent = product === 'pack'
+        ? 'Pagamento ricevuto. Sto aprendo la lettura completa inclusa nel tuo pack.'
+        : 'Pagamento ricevuto. Sto aprendo la lettura completa da €4,90 che hai appena acquistato.';
+    }
+    if(bridge) bridge.classList.add('show');
+  }
+  function hidePayBridge(){
+    var bridge = document.getElementById('pay-bridge');
+    if(bridge) bridge.classList.remove('show');
+  }
+  function escapeHtml(s){
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function downloadReadingPdf(kind){
+    var isFull = kind === 'full';
+    var text = isFull ? state.fullText : state.teaserText;
+    if(!text){ showToast('Nessuna lettura da scaricare ancora.'); return; }
+    if(typeof html2pdf === 'undefined'){ showToast('Download PDF non disponibile. Ricarica la pagina.'); return; }
+    var name = (state.form && state.form.name) ? state.form.name : 'Consultante';
+    var question = (state.form && state.form.question) ? state.form.question : '';
+    var cards = (state.lastCards || []).join(' · ');
+    var title = isFull ? 'Lettura completa Luxseetarot' : 'Lettura teaser Luxseetarot';
+    var body = escapeHtml(text).replace(/\n/g, '<br/>');
+    var el = document.createElement('div');
+    el.style.padding = '24px';
+    el.style.fontFamily = 'Georgia, serif';
+    el.style.color = '#1a1428';
+    el.style.lineHeight = '1.55';
+    el.style.fontSize = '12pt';
+    el.innerHTML =
+      '<h1 style="font-size:18pt;margin:0 0 8px">'+escapeHtml(title)+'</h1>'+
+      '<p style="margin:0 0 4px;font-size:10pt;color:#555">Per: '+escapeHtml(name)+'</p>'+
+      (question ? '<p style="margin:0 0 4px;font-size:10pt;color:#555">Domanda: '+escapeHtml(question)+'</p>' : '')+
+      (cards ? '<p style="margin:0 0 16px;font-size:10pt;color:#555">Carte: '+escapeHtml(cards)+'</p>' : '')+
+      '<div>'+body+'</div>'+
+      '<p style="margin-top:24px;font-size:9pt;color:#777">Luxseetarot · Lettura simbolica digitale · Intrattenimento e riflessione. Non sostituisce consigli medici, legali o finanziari.</p>';
+    var filename = (isFull ? 'luxseetarot-completa' : 'luxseetarot-teaser') + '-' + Date.now() + '.pdf';
+    html2pdf().set({
+      margin: 12,
+      filename: filename,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    }).from(el).save();
+  }
   function startCheckout(product){
     if(state.form && state.lastCards){
       sessionStorage.setItem('luxsee_pending', JSON.stringify({
         form: state.form,
-        cards: state.lastCards
+        cards: state.lastCards,
+        teaserText: state.teaserText || null,
+        fullText: state.fullText || null,
+        skipAutoFull: !!(state.fullText && product === 'pack')
       }));
     }
     fetch('/api/create-checkout', {
@@ -558,6 +654,12 @@
     loaderEl.style.display='block';
     readingEl.innerHTML='';
     ctaEl.classList.remove('show');
+    if(ctaFullEl) ctaFullEl.classList.remove('show');
+    if(mode === 'full'){
+      loaderEl.innerHTML = '<span class="spinner"></span>Sto preparando la lettura che hai acquistato...';
+    } else {
+      loaderEl.innerHTML = '<span class="spinner"></span>Sto leggendo le carte...';
+    }
     return fetch('/api/reading', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
@@ -574,6 +676,7 @@
       return new Promise(function(resolve){
         setTimeout(function(){
           loaderEl.style.display='none';
+          hidePayBridge();
           if(res.ok){
             if(typeof res.remainingCredits === 'number'){
               var u = getUnlock();
@@ -584,10 +687,16 @@
                 else setUnlock(u);
               }
             }
+            if(res.mode === 'full') state.fullText = res.reading;
+            else state.teaserText = res.reading;
             var html = renderMarkdown(res.reading);
             typewriter(html, readingEl, function(){
-              if(res.mode !== 'full') ctaEl.classList.add('show');
-              else showToast('Lettura completa sbloccata.');
+              if(res.mode === 'full'){
+                if(ctaFullEl) ctaFullEl.classList.add('show');
+                showToast('Ecco la lettura completa che hai acquistato.');
+              } else {
+                ctaEl.classList.add('show');
+              }
               refreshCreditsUI();
             });
           } else {
@@ -598,6 +707,7 @@
         }, wait);
       });
     }).catch(function(){
+      hidePayBridge();
       loaderEl.style.display='none';
       readingEl.innerHTML='<p style="text-align:center;color:#ff8a8a">Connessione interrotta. Riprova.</p>';
     });
@@ -607,46 +717,80 @@
     var status = params.get('checkout');
     var sessionId = params.get('session_id');
     if(status === 'cancel'){
-      showToast('Pagamento annullato.');
+      showToast('Pagamento annullato. Sei tornato alla lettura teaser.');
       history.replaceState({}, '', window.location.pathname);
       return;
     }
     if(status !== 'success' || !sessionId) return;
+
+    showPayBridge('full');
+    document.querySelectorAll('section.phase').forEach(function(s){
+      s.classList.remove('active'); s.classList.remove('visible');
+    });
+
     fetch('/api/verify-session', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ sessionId: sessionId })
     }).then(function(r){ return r.json(); }).then(function(res){
       history.replaceState({}, '', window.location.pathname);
-      if(!res.ok){ showToast(res.error || 'Verifica pagamento fallita.'); return; }
+      if(!res.ok){
+        hidePayBridge();
+        showToast(res.error || 'Verifica pagamento fallita.');
+        return;
+      }
       setUnlock({ unlockToken: res.unlockToken, credits: res.credits, sessionId: sessionId, exp: res.exp });
-      showToast(res.product === 'pack' ? 'Pack attivato: 5 crediti.' : 'Sblocco attivo: 1 credito.');
+      showPayBridge(res.product || 'full');
+
       var pending = null;
       try { pending = JSON.parse(sessionStorage.getItem('luxsee_pending') || 'null'); } catch(e){}
       if(pending && pending.form && pending.cards){
         state.form = pending.form;
         state.lastCards = pending.cards;
+        if(pending.teaserText) state.teaserText = pending.teaserText;
+        if(pending.fullText) state.fullText = pending.fullText;
         sessionStorage.removeItem('luxsee_pending');
-        showPhase('phase-reveal');
-        threeCards.innerHTML='';
-        pending.cards.forEach(function(name, i){
-          var w = document.createElement('div');
-          w.className='flip flipped';
-          var sym = SYMBOLS[name] || sig('<circle cx="32" cy="32" r="20"/>');
-          w.innerHTML =
-            '<div class="flip-inner">'+
-              '<div class="flip-face front"></div>'+
-              '<div class="flip-face back">'+
-                '<div class="pos">'+POSITIONS[i]+'</div>'+
-                '<div class="sigil">'+sym+'</div>'+
-                '<div class="name">'+name+'</div>'+
-              '</div>'+
-            '</div>';
-          threeCards.appendChild(w);
-        });
-        fetchReading('full', res.unlockToken);
+
+        setTimeout(function(){
+          var reveal = document.getElementById('phase-reveal');
+          reveal.classList.add('active');
+          void reveal.offsetWidth;
+          reveal.classList.add('visible');
+          threeCards.innerHTML='';
+          pending.cards.forEach(function(name, i){
+            var w = document.createElement('div');
+            w.className='flip flipped';
+            var sym = SYMBOLS[name] || sig('<circle cx="32" cy="32" r="20"/>');
+            w.innerHTML =
+              '<div class="flip-inner">'+
+                '<div class="flip-face front"></div>'+
+                '<div class="flip-face back">'+
+                  '<div class="pos">'+POSITIONS[i]+'</div>'+
+                  '<div class="sigil">'+sym+'</div>'+
+                  '<div class="name">'+name+'</div>'+
+                '</div>'+
+              '</div>';
+            threeCards.appendChild(w);
+          });
+
+          if(pending.skipAutoFull && state.fullText){
+            hidePayBridge();
+            readingEl.innerHTML = renderMarkdown(state.fullText);
+            if(ctaFullEl) ctaFullEl.classList.add('show');
+            showToast('Pack attivato: 5 crediti disponibili.');
+            refreshCreditsUI();
+          } else {
+            fetchReading('full', res.unlockToken);
+          }
+        }, 1600);
+      } else {
+        hidePayBridge();
+        showToast(res.product === 'pack'
+          ? 'Pack attivato. Avvia una nuova lettura e usa un credito.'
+          : 'Pagamento ok. Avvia una lettura e usa il credito per la versione completa.');
       }
     }).catch(function(){
+      hidePayBridge();
       showToast('Verifica pagamento non riuscita.');
     });
   }
@@ -912,6 +1056,7 @@
   var readingEl = document.getElementById('reading');
 
   var ctaEl = document.getElementById('cta');
+  ctaFullEl = document.getElementById('cta-full');
 
 
 
@@ -1020,6 +1165,10 @@
 
   document.getElementById('btn-unlock-full').addEventListener('click', function(){ startCheckout('full'); });
   document.getElementById('btn-unlock-pack').addEventListener('click', function(){ startCheckout('pack'); });
+  document.getElementById('btn-upsell-pack').addEventListener('click', function(){ startCheckout('pack'); });
+  document.getElementById('btn-pdf-teaser').addEventListener('click', function(){ downloadReadingPdf('teaser'); });
+  document.getElementById('btn-pdf-teaser-after').addEventListener('click', function(){ downloadReadingPdf('teaser'); });
+  document.getElementById('btn-pdf-full').addEventListener('click', function(){ downloadReadingPdf('full'); });
   document.getElementById('btn-use-credit').addEventListener('click', function(){
     var u = getUnlock();
     if(!u || !u.unlockToken || u.credits < 1){ showToast('Nessun credito disponibile.'); return; }
@@ -1027,16 +1176,21 @@
     fetchReading('full', u.unlockToken);
   });
 
-  document.getElementById('restart').addEventListener('click', function(){
-
+  function resetToStart(){
     state.form=null;
     state.lastCards=null;
+    state.teaserText=null;
+    state.fullText=null;
     state.deck = shuffle(DECK);
     state.selected=[];
     form.reset();
+    if(ctaFullEl) ctaFullEl.classList.remove('show');
+    ctaEl.classList.remove('show');
     showPhase('phase-input');
+  }
 
-  });
+  document.getElementById('restart').addEventListener('click', resetToStart);
+  document.getElementById('restart-full').addEventListener('click', resetToStart);
 
   refreshCreditsUI();
   handleCheckoutReturn();
