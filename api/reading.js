@@ -92,8 +92,18 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     if (!response.ok) {
-      console.error('OpenAI Error:', data);
-      return res.status(500).json({ ok: false, error: 'Errore dal servizio AI.' });
+      console.error('OpenAI Error:', JSON.stringify(data));
+      const code = data?.error?.code || data?.error?.type || '';
+      const status = response.status;
+      let msg = 'Errore dal servizio AI.';
+      if (status === 401 || code === 'invalid_api_key') {
+        msg = 'Chiave OpenAI non valida. Controlla OPENAI_API_KEY su Vercel.';
+      } else if (status === 429 || code === 'rate_limit_exceeded') {
+        msg = 'Troppe richieste ad OpenAI. Riprova tra un minuto.';
+      } else if (code === 'insufficient_quota') {
+        msg = 'Credito OpenAI esaurito. Ricarica il piano su platform.openai.com.';
+      }
+      return res.status(500).json({ ok: false, error: msg });
     }
 
     let reading = data.choices[0].message.content.trim();
