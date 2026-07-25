@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="it">
 
@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>Luxseetarot — Lettura dei Tarocchi</title>
+<title>Luxseetarot â€” Lettura dei Tarocchi</title>
 
 <meta name="description" content="Letture simboliche digitali Luxseetarot. Intrattenimento e riflessione, generate digitalmente." />
 
@@ -150,7 +150,7 @@
 
   .fan-card .back::before{content:"";position:absolute;inset:6px;border:1px solid var(--gold-faint);border-radius:8px}
 
-  .fan-card .back::after{content:"✦";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:30px;text-shadow:0 0 14px rgba(212,175,106,.6)}
+  .fan-card .back::after{content:"âœ¦";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:30px;text-shadow:0 0 14px rgba(212,175,106,.6)}
 
   .fan-card.selected{filter:drop-shadow(0 0 24px rgba(212,175,106,.55))}
 
@@ -366,7 +366,7 @@
 
     <div class="reveal-btn-wrap" id="reveal-btn-wrap">
 
-      <button class="gold-btn" id="reveal-btn">✦ SCOPRI LA RISPOSTA</button>
+      <button class="gold-btn" id="reveal-btn">âœ¦ SCOPRI LA RISPOSTA</button>
 
     </div>
 
@@ -400,11 +400,11 @@
 
       <div class="cta-title">APPROFONDISCI LA LETTURA</div>
 
-      <p class="cta-text">Questa è solo un'anteprima. Nella versione completa ricevi la lettura intera e puoi scaricare un PDF (anteprima + lettura) per rileggerla senza fretta. Sblocca ora.</p>
+      <p class="cta-text">Questa Ã¨ solo un'anteprima. Nella versione completa ricevi la lettura intera e puoi scaricare un PDF (anteprima + lettura) per rileggerla senza fretta. Sblocca ora.</p>
 
       <div class="cta-actions">
-        <button type="button" class="gold-btn" id="btn-unlock-full">SBLOCCA LETTURA COMPLETA — €4,90</button>
-        <button type="button" class="ghost-btn" id="btn-unlock-pack">PACK 5 LETTURE — €9,90</button>
+        <button type="button" class="gold-btn" id="btn-unlock-full">SBLOCCA LETTURA COMPLETA â€” â‚¬4,90</button>
+        <button type="button" class="ghost-btn" id="btn-unlock-pack">PACK 5 LETTURE â€” â‚¬9,90</button>
         <button type="button" class="ghost-btn" id="btn-use-credit" style="display:none">USA 1 CREDITO PER LA VERSIONE COMPLETA</button>
       </div>
 
@@ -421,7 +421,7 @@
       </div>
 
       <div class="cta-actions">
-        <button type="button" class="ghost-btn" id="btn-upsell-pack">PACK 5 LETTURE — €9,90</button>
+        <button type="button" class="ghost-btn" id="btn-upsell-pack">PACK 5 LETTURE â€” â‚¬9,90</button>
       </div>
 
     </div>
@@ -445,7 +445,7 @@
 
 <div class="checkout-toast" id="checkout-toast"></div>
 <div class="credits-pill" id="credits-pill"></div>
-<footer>Luxseetarot · 2026 · Letture simboliche digitali · Intrattenimento</footer>
+<footer>Luxseetarot Â· 2026 Â· Letture simboliche digitali Â· Intrattenimento</footer>
 
 
 
@@ -497,7 +497,7 @@
 
   ];
 
-  // Stylized, serious sigils — alchemical / hermetic linework. All 64x64 viewBox.
+  // Stylized, serious sigils â€” alchemical / hermetic linework. All 64x64 viewBox.
 
   function sig(inner){ return '<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">'+inner+'</svg>'; }
 
@@ -639,7 +639,7 @@
     if(txt){
       txt.textContent = product === 'pack'
         ? 'Pagamento ricevuto. Sto aprendo la lettura completa inclusa nel tuo pack.'
-        : 'Pagamento ricevuto. Sto aprendo la lettura completa da €4,90 che hai appena acquistato.';
+        : 'Pagamento ricevuto. Sto aprendo la lettura completa da â‚¬4,90 che hai appena acquistato.';
     }
     if(bridge) bridge.classList.add('show');
   }
@@ -687,10 +687,10 @@
     var body = '';
     if(isFull){
       if(state.teaserText){
-        body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte I · Anteprima</h2>'+textToHtmlParagraphs(state.teaserText);
+        body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte I Â· Anteprima</h2>'+textToHtmlParagraphs(state.teaserText);
         body += '<hr style="border:none;border-top:1px solid rgba(212,175,106,.3);margin:18px 0"/>';
       }
-      body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte II · Completa</h2>'+textToHtmlParagraphs(state.fullText);
+      body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte II Â· Completa</h2>'+textToHtmlParagraphs(state.fullText);
     } else {
       body += textToHtmlParagraphs(state.teaserText);
     }
