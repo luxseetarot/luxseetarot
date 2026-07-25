@@ -1,6 +1,5 @@
 import crypto from 'crypto';
 
-const usageBySession = new Map();
 const readingHits = new Map();
 
 export function getUnlockSecret() {
@@ -31,15 +30,47 @@ export function verifyUnlockToken(token) {
   }
 }
 
-export function consumeCredit(sessionId, maxCredits) {
-  const used = usageBySession.get(sessionId) || 0;
-  if (used >= maxCredits) return { ok: false, remaining: 0 };
-  const next = used + 1;
-  usageBySession.set(sessionId, next);
-  return { ok: true, remaining: Math.max(0, maxCredits - next) };
+/** Crediti persistenti su metadata Stripe (sopravvive a cookie cancellati se hai sessionId/email). */
+export async function getSessionCredits(stripe, sessionId) {
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  if (session.payment_status !== 'paid') {
+    return { ok: false, error: 'Pagamento non completato.' };
+  }
+  const max = parseInt(session.metadata?.credits || '1', 10) || 1;
+  const used = parseInt(session.metadata?.credits_used || '0', 10) || 0;
+  return {
+    ok: true,
+    session,
+    max,
+    used,
+    remaining: Math.max(0, max - used),
+    product: session.metadata?.product || 'full',
+    email: session.customer_details?.email || session.customer_email || session.metadata?.email || '',
+  };
 }
 
-/** Soft rate limit per IP (best-effort su serverless). */
+export async function consumeCreditStripe(stripe, sessionId) {
+  const info = await getSessionCredits(stripe, sessionId);
+  if (!info.ok) return info;
+  if (info.remaining <= 0) return { ok: false, remaining: 0, max: info.max, used: info.used, email: info.email };
+  const nextUsed = info.used + 1;
+  const remaining = Math.max(0, info.max - nextUsed);
+  await stripe.checkout.sessions.update(sessionId, {
+    metadata: {
+      ...(info.session.metadata || {}),
+      credits_used: String(nextUsed),
+    },
+  });
+  return {
+    ok: true,
+    remaining,
+    max: info.max,
+    used: nextUsed,
+    email: info.email,
+    product: info.product,
+  };
+}
+
 export function checkRateLimit(ip, { max = 20, windowMs = 60 * 60 * 1000 } = {}) {
   const key = ip || 'unknown';
   const now = Date.now();

@@ -134,11 +134,11 @@
 
   /* Fan of cards */
 
-  .fan-wrap{position:relative;width:100%;max-width:1200px;height:240px;margin:32px auto 0;display:block;overflow:visible;padding:0 12px}
+  .fan-wrap{position:relative;width:100%;max-width:1200px;height:300px;margin:32px auto 0;display:block;overflow:visible;padding:0 12px}
 
-  @media(min-width:640px){.fan-wrap{height:320px}}
+  @media(min-width:640px){.fan-wrap{height:380px}}
 
-  @media(min-width:1024px){.fan-wrap{height:380px}}
+  @media(min-width:1024px){.fan-wrap{height:440px}}
 
   .fan-card{position:absolute;top:20px;left:50%;width:50px;height:80px;border-radius:8px;cursor:pointer;transition:transform .6s cubic-bezier(.22,1,.36,1),filter .3s;transform-origin:50% 100%;will-change:transform;border:none;background:none;padding:0;margin-left:-25px}
 
@@ -310,6 +310,14 @@
 
       <div class="field">
 
+        <label for="email">Email</label>
+
+        <input id="email" name="email" type="email" maxlength="120" placeholder="La tua email (per ricevuta e crediti)" required />
+
+      </div>
+
+      <div class="field">
+
         <label for="q">La tua domanda</label>
 
         <textarea id="q" name="q" maxlength="600" rows="4" placeholder="Scrivi qui le tue domande" required></textarea>
@@ -340,6 +348,7 @@
       <h2 class="subtitle-h">Scegli tre carte</h2>
 
       <p class="subtitle" style="margin-bottom:0">Tre carte. Una domanda. La risposta che cerchi, chiara e diretta. (<span id="sel-count">0</span> / 3)</p>
+      <p class="disclaimer" style="margin-top:10px">Nella versione completa potrai scaricare un PDF con teaser + lettura, così la rileggi senza fretta.</p>
 
     </div>
 
@@ -381,10 +390,10 @@
 
       <div class="cta-title">APPROFONDISCI LA LETTURA</div>
 
-      <p class="cta-text">Questa è una versione teaser. Sblocca la lettura completa digitale, con chiusure più chiare e un prossimo passo concreto.</p>
+      <p class="cta-text">Questa è una versione teaser. Nella completa scarichi anche il PDF (teaser + lettura) per rileggerla con calma. Sblocca ora.</p>
 
       <div class="pdf-row">
-        <button type="button" class="ghost-btn" id="btn-pdf-teaser">SCARICA PDF TEASER</button>
+        <button type="button" class="ghost-btn" id="btn-pdf-teaser">SCARICA / STAMPA PDF TEASER</button>
       </div>
 
       <div class="cta-actions">
@@ -401,10 +410,10 @@
 
       <div class="cta-title">LETTURA COMPLETA PRONTA</div>
 
-      <p class="cta-text">Scarica il PDF con le tue carte, il teaser iniziale e la lettura completa. Oppure continua con il pack da 5 letture.</p>
+      <p class="cta-text">Scarica o stampa il PDF con le tue carte, il teaser e la lettura completa. Oppure continua con il pack da 5 letture.</p>
 
       <div class="pdf-row">
-        <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA PDF DELLA LETTURA</button>
+        <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA / STAMPA PDF</button>
       </div>
 
       <div class="cta-actions">
@@ -438,7 +447,7 @@
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 
 
 
@@ -625,72 +634,51 @@
     var isFull = kind === 'full';
     if(isFull && !state.fullText){ showToast('Nessuna lettura completa da scaricare.'); return; }
     if(!isFull && !state.teaserText){ showToast('Nessuna lettura teaser da scaricare.'); return; }
-    if(typeof html2pdf === 'undefined'){ showToast('Download PDF non disponibile. Ricarica la pagina.'); return; }
 
     var name = (state.form && state.form.name) ? state.form.name : 'Consultante';
     var question = (state.form && state.form.question) ? state.form.question : '';
     var title = isFull ? 'Lettura Luxseetarot' : 'Lettura teaser Luxseetarot';
-
-    var sections = '';
-    sections += buildPdfCardsHtml();
+    var cardsHtml = buildPdfCardsHtml();
+    var body = '';
     if(isFull){
       if(state.teaserText){
-        sections +=
-          '<div style="margin:8px 0 6px;font-family:Georgia,serif;letter-spacing:.18em;text-transform:uppercase;font-size:9pt;color:rgba(212,175,106,.7);">Parte I · Teaser gratuito</div>'+
-          textToHtmlParagraphs(state.teaserText)+
-          '<div style="height:1px;background:rgba(212,175,106,.25);margin:18px 0;"></div>';
+        body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte I · Teaser</h2>'+textToHtmlParagraphs(state.teaserText);
+        body += '<hr style="border:none;border-top:1px solid rgba(212,175,106,.3);margin:18px 0"/>';
       }
-      sections +=
-        '<div style="margin:8px 0 6px;font-family:Georgia,serif;letter-spacing:.18em;text-transform:uppercase;font-size:9pt;color:rgba(212,175,106,.7);">Parte II · Lettura completa</div>'+
-        textToHtmlParagraphs(state.fullText);
+      body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte II · Completa</h2>'+textToHtmlParagraphs(state.fullText);
     } else {
-      sections += textToHtmlParagraphs(state.teaserText);
+      body += textToHtmlParagraphs(state.teaserText);
     }
 
-    var wrap = document.createElement('div');
-    wrap.id = 'luxsee-pdf-root';
-    wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:720px;padding:0;margin:0;background:#0b0a14;z-index:-1;';
-    wrap.innerHTML =
-      '<div style="width:680px;padding:36px 32px;background:#0b0a14;color:#ece6d8;box-sizing:border-box;">'+
-        '<div style="text-align:center;margin-bottom:8px;font-family:Georgia,serif;letter-spacing:.45em;font-size:10pt;color:rgba(212,175,106,.7);">LUXSEETAROT</div>'+
-        '<h1 style="text-align:center;font-family:Georgia,serif;font-weight:600;font-size:22pt;color:#d4af6a;margin:0 0 10px;letter-spacing:.04em;">'+escapeHtml(title)+'</h1>'+
-        '<p style="text-align:center;font-family:Georgia,serif;font-style:italic;font-size:11pt;color:#9a91a8;margin:0 0 4px;">Per '+escapeHtml(name)+'</p>'+
-        (question ? '<p style="text-align:center;font-family:Georgia,serif;font-size:10pt;color:#9a91a8;margin:0 0 8px;">Domanda: '+escapeHtml(question)+'</p>' : '')+
-        '<div style="height:1px;background:rgba(212,175,106,.35);margin:16px auto 8px;width:60%;"></div>'+
-        sections+
-        '<div style="height:1px;background:rgba(212,175,106,.25);margin:22px 0 12px;"></div>'+
-        '<p style="text-align:center;font-family:Georgia,serif;font-size:8pt;color:#9a91a8;line-height:1.45;margin:0;">Lettura simbolica digitale · Intrattenimento e riflessione.<br/>Non sostituisce consigli medici, legali o finanziari.</p>'+
-      '</div>';
+    var html =
+      '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"/><title>'+escapeHtml(title)+'</title>'+
+      '<style>@page{margin:14mm}body{margin:0;background:#0b0a14;color:#ece6d8;font-family:Georgia,serif}'+
+      '.sheet{max-width:720px;margin:0 auto;padding:28px 24px}h1{color:#d4af6a;text-align:center;font-size:22pt}'+
+      '.brand{text-align:center;letter-spacing:.4em;color:rgba(212,175,106,.75);font-size:10pt}'+
+      '.meta{text-align:center;color:#9a91a8;font-style:italic}p{line-height:1.55;font-size:11pt}'+
+      '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
+      '<div class="sheet">'+
+      '<div class="brand">LUXSEETAROT</div>'+
+      '<h1>'+escapeHtml(title)+'</h1>'+
+      '<p class="meta">Per '+escapeHtml(name)+'</p>'+
+      (question?'<p class="meta">Domanda: '+escapeHtml(question)+'</p>':'')+
+      cardsHtml+body+
+      '<p class="meta" style="margin-top:24px;font-size:9pt">Intrattenimento e riflessione simbolica. Non sostituisce consigli medici, legali o finanziari.</p>'+
+      '</div><script>window.onload=function(){setTimeout(function(){window.print();},250);}<\\/script></body></html>';
 
-    document.body.appendChild(wrap);
-    showToast('Preparazione PDF...');
-
-    var opt = {
-      margin: [8, 8, 8, 8],
-      filename: (isFull ? 'luxseetarot-lettura' : 'luxseetarot-teaser') + '-' + Date.now() + '.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#0b0a14',
-        logging: false,
-        windowWidth: 720
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'] }
-    };
-
-    var target = wrap.firstElementChild;
-    html2pdf().set(opt).from(target).save().then(function(){
-      if(wrap.parentNode) wrap.parentNode.removeChild(wrap);
-      showToast('PDF scaricato.');
-    }).catch(function(err){
-      console.error(err);
-      if(wrap.parentNode) wrap.parentNode.removeChild(wrap);
-      showToast('Errore durante la creazione del PDF.');
-    });
+    var w = window.open('', '_blank');
+    if(!w){ showToast('Consenti i popup per scaricare/stampare il PDF.'); return; }
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    showToast('Nella finestra di stampa scegli "Salva come PDF".');
   }
   function startCheckout(product){
+    var email = (state.form && state.form.email) ? state.form.email : '';
+    if(!email || email.indexOf('@') < 0){
+      showToast('Inserisci una email valida nella Fase I prima di pagare.');
+      return;
+    }
     if(state.form && state.lastCards){
       sessionStorage.setItem('luxsee_pending', JSON.stringify({
         form: state.form,
@@ -703,7 +691,12 @@
     fetch('/api/create-checkout', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ product: product, origin: window.location.origin })
+      body: JSON.stringify({
+        product: product,
+        origin: window.location.origin,
+        email: email,
+        name: state.form.name || ''
+      })
     }).then(function(r){ return r.json(); }).then(function(res){
       if(res.ok && res.url) window.location.href = res.url;
       else showToast(res.error || 'Pagamento non disponibile al momento.');
@@ -800,7 +793,16 @@
         showToast(res.error || 'Verifica pagamento fallita.');
         return;
       }
-      setUnlock({ unlockToken: res.unlockToken, credits: res.credits, sessionId: sessionId, exp: res.exp });
+      setUnlock({
+        unlockToken: res.unlockToken,
+        credits: res.credits,
+        maxCredits: res.maxCredits || res.credits,
+        sessionId: res.sessionId || sessionId,
+        exp: res.exp,
+        email: res.email || ''
+      });
+      if(res.emailSent) showToast('Ti abbiamo inviato un\'email con i crediti rimanenti.');
+      else if(res.email) showToast('Pagamento ok. Controlla anche spam; l\'email crediti richiede RESEND su Vercel.');
       showPayBridge(res.product || 'full');
 
       var pending = null;
@@ -858,7 +860,7 @@
 
   var veil = document.getElementById('veil');
 
-  function showPhase(id){
+  function showPhase(id, afterVisible){
 
     veil.classList.add('on');
 
@@ -876,8 +878,6 @@
 
       window.scrollTo({top:0,behavior:'smooth'});
 
-      // force reflow then reveal
-
       void el.offsetWidth;
 
       setTimeout(function(){
@@ -885,6 +885,12 @@
         el.classList.add('visible');
 
         veil.classList.remove('on');
+
+        if(id === 'phase-select'){
+          requestAnimationFrame(function(){ layoutFan(); });
+          setTimeout(layoutFan, 50);
+        }
+        if(typeof afterVisible === 'function') afterVisible();
 
       }, 200);
 
@@ -912,11 +918,13 @@
 
     var birth = document.getElementById('birth').value.trim();
 
+    var email = document.getElementById('email').value.trim().toLowerCase();
+
     var q = document.getElementById('q').value.trim();
 
-    if(!name || !birth || q.length<3){
+    if(!name || !birth || !email || email.indexOf('@') < 0 || q.length<3){
 
-      formErr.textContent='Completa tutti i campi per proseguire.';
+      formErr.textContent='Completa tutti i campi (email inclusa) per proseguire.';
 
       formErr.style.display='block';
 
@@ -926,7 +934,7 @@
 
     formErr.style.display='none';
 
-    state.form = { name:name, birthDate:birth, question:q };
+    state.form = { name:name, birthDate:birth, email:email, question:q };
 
     state.deck = shuffle(DECK);
 
@@ -996,7 +1004,15 @@
 
     var cardW = sample ? sample.offsetWidth : 60;
 
-    // reserve room for rotation + selected lift/scale at the edges
+    if(lifted){
+      var selIndex = state.selected.indexOf(idx);
+      var nSel = state.selected.length;
+      var spacing = Math.min(cardW * 1.4, Math.max(72, wrapW / 4.2));
+      var rowW = spacing * Math.max(0, nSel - 1);
+      var xSel = -rowW / 2 + selIndex * spacing;
+      var ySel = -Math.max(100, cardW * 1.15);
+      return 'translate('+xSel+'px,'+ySel+'px) rotate(0deg) scale(1.12)';
+    }
 
     var safety = cardW * 0.6;
 
@@ -1004,31 +1020,19 @@
 
     var stepX = available / (total - 1);
 
-    // cap to avoid huge gaps on very wide screens
-
     stepX = Math.min(stepX, cardW * 0.85);
 
     var x = offset * stepX;
 
-    // rotation: cards tangent to arc, total spread ~70deg
-
     var spread = 70;
 
-    var angle = (offset / mid) * (spread / 2);
+    var angle = mid === 0 ? 0 : (offset / mid) * (spread / 2);
 
-    // parabolic upward bow so center cards sit higher
+    var bow = mid === 0 ? 0 : (offset*offset) / (mid*mid);
 
-    var bow = (offset*offset) / (mid*mid); // 0 at center, 1 at edges
+    var y = bow * (cardW * 0.45);
 
-    var y = bow * (cardW * 0.45); // edge cards lower
-
-    var lift = lifted ? -Math.max(60, cardW*0.7) : 0;
-
-    var scale = lifted ? 1.1 : 1;
-
-    var rot = lifted ? 0 : angle;
-
-    return 'translate('+x+'px,'+(y+lift)+'px) rotate('+rot+'deg) scale('+scale+')';
+    return 'translate('+x+'px,'+y+'px) rotate('+angle+'deg) scale(1)';
 
   }
 
@@ -1254,6 +1258,30 @@
 
   refreshCreditsUI();
   handleCheckoutReturn();
+  handleRecover();
+
+  function handleRecover(){
+    var params = new URLSearchParams(window.location.search);
+    var recoverId = params.get('recover');
+    if(!recoverId) return;
+    fetch('/api/verify-session', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ sessionId: recoverId, sendEmail: false })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      history.replaceState({}, '', window.location.pathname);
+      if(!res.ok){ showToast(res.error || 'Recupero crediti non riuscito.'); return; }
+      setUnlock({
+        unlockToken: res.unlockToken,
+        credits: res.credits,
+        maxCredits: res.maxCredits || res.credits,
+        sessionId: res.sessionId || recoverId,
+        exp: res.exp,
+        email: res.email || ''
+      });
+      showToast('Crediti recuperati: '+res.credits+' disponibili.');
+    }).catch(function(){ showToast('Recupero crediti non riuscito.'); });
+  }
 
 })();
 

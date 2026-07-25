@@ -1,6 +1,7 @@
-import { checkRateLimit, consumeCredit, cors, verifyUnlockToken, signUnlock } from './_lib/unlock.js';
+import Stripe from 'stripe';
+import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe } from './_lib/unlock.js';
+import { sendCreditsEmail } from './_lib/email.js';
 
-/** Prompt medium (compresso, stesse caratteristiche). mode: teaser | full */
 function buildSystemPrompt(mode) {
   const isFull = mode === 'full';
   return `
@@ -58,7 +59,10 @@ export default async function handler(req, res) {
       if (!unlocked) {
         return res.status(402).json({ ok: false, error: 'Sblocco non valido o scaduto. Acquista la lettura completa.' });
       }
-      const consumed = consumeCredit(unlocked.sessionId, unlocked.credits);
+      const stripeKey = process.env.STRIPE_SECRET_KEY;
+      if (!stripeKey) return res.status(500).json({ ok: false, error: 'Stripe non configurato.' });
+      const stripe = new Stripe(stripeKey);
+      const consumed = await consumeCreditStripe(stripe, unlocked.sessionId);
       if (!consumed.ok) {
         return res.status(402).json({ ok: false, error: 'Crediti esauriti. Acquista un nuovo pack.' });
       }
@@ -66,6 +70,17 @@ export default async function handler(req, res) {
       nextToken = remainingCredits > 0
         ? signUnlock({ sessionId: unlocked.sessionId, credits: unlocked.credits, exp: unlocked.exp })
         : null;
+
+      if (consumed.email) {
+        sendCreditsEmail({
+          to: consumed.email,
+          name,
+          remaining: consumed.remaining,
+          max: consumed.max,
+          sessionId: unlocked.sessionId,
+          kind: 'usage',
+        }).catch((e) => console.error('Email usage error:', e));
+      }
     }
 
     const systemPrompt = buildSystemPrompt(isFull ? 'full' : 'teaser');

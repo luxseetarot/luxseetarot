@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
-import { cors, signUnlock } from './_lib/unlock.js';
+import { cors, signUnlock, getSessionCredits } from './_lib/unlock.js';
+import { sendCreditsEmail } from './_lib/email.js';
 
 export default async function handler(req, res) {
   cors(res);
@@ -10,26 +11,42 @@ export default async function handler(req, res) {
     const secret = process.env.STRIPE_SECRET_KEY;
     if (!secret) return res.status(500).json({ ok: false, error: 'Stripe non configurato.' });
 
-    const { sessionId } = req.body || {};
+    const { sessionId, sendEmail = true } = req.body || {};
     if (!sessionId) return res.status(400).json({ ok: false, error: 'sessionId mancante.' });
 
     const stripe = new Stripe(secret);
-    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    const info = await getSessionCredits(stripe, sessionId);
+    if (!info.ok) return res.status(402).json({ ok: false, error: info.error || 'Pagamento non completato.' });
 
-    if (session.payment_status !== 'paid') {
-      return res.status(402).json({ ok: false, error: 'Pagamento non completato.' });
-    }
-
-    const credits = parseInt(session.metadata?.credits || '1', 10) || 1;
-    const product = session.metadata?.product || 'full';
     const exp = Date.now() + 30 * 24 * 60 * 60 * 1000;
-    const unlockToken = signUnlock({ sessionId: session.id, credits, exp });
+    const unlockToken = signUnlock({
+      sessionId,
+      credits: info.max,
+      exp,
+    });
+
+    let emailSent = false;
+    if (sendEmail && info.email) {
+      const mail = await sendCreditsEmail({
+        to: info.email,
+        name: info.session.metadata?.name || '',
+        remaining: info.remaining,
+        max: info.max,
+        sessionId,
+        kind: 'purchase',
+      });
+      emailSent = !!mail.ok;
+    }
 
     return res.status(200).json({
       ok: true,
-      credits,
-      product,
+      credits: info.remaining,
+      maxCredits: info.max,
+      product: info.product,
       unlockToken,
+      sessionId,
+      email: info.email,
+      emailSent,
       exp,
     });
   } catch (err) {
