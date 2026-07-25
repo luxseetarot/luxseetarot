@@ -802,7 +802,7 @@
         email: res.email || ''
       });
       if(res.emailSent) showToast('Ti abbiamo inviato un\'email con i crediti rimanenti.');
-      else if(res.email) showToast('Pagamento ok. Controlla anche spam; l\'email crediti richiede RESEND su Vercel.');
+      else if(res.email) showToast('Pagamento ok. Controlla anche spam; per le email crediti serve Brevo su Vercel.');
       showPayBridge(res.product || 'full');
 
       var pending = null;
