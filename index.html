@@ -401,15 +401,14 @@
 
       <div class="cta-title">LETTURA COMPLETA PRONTA</div>
 
-      <p class="cta-text">Puoi scaricare il PDF di questa lettura. Se vuoi continuare il viaggio, il pack ti dà 5 letture complete a un prezzo migliore.</p>
+      <p class="cta-text">Scarica il PDF con le tue carte, il teaser iniziale e la lettura completa. Oppure continua con il pack da 5 letture.</p>
 
       <div class="pdf-row">
-        <button type="button" class="ghost-btn" id="btn-pdf-teaser-after">PDF TEASER GRATUITO</button>
-        <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA PDF COMPLETA</button>
+        <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA PDF DELLA LETTURA</button>
       </div>
 
       <div class="cta-actions">
-        <button type="button" class="gold-btn" id="btn-upsell-pack">PACK 5 LETTURE — €9,90</button>
+        <button type="button" class="ghost-btn" id="btn-upsell-pack">PACK 5 LETTURE — €9,90</button>
       </div>
 
       <button class="restart" id="restart-full">◦ Nuova lettura ◦</button>
@@ -597,37 +596,99 @@
   function escapeHtml(s){
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
+  function textToHtmlParagraphs(text){
+    return escapeHtml(text||'').split(/\n{2,}/).map(function(p){
+      return '<p style="margin:0 0 12px;font-family:Georgia,serif;font-size:11pt;line-height:1.55;color:#ece6d8;">'+p.replace(/\n/g,'<br/>')+'</p>';
+    }).join('');
+  }
+  function buildPdfCardsHtml(){
+    var cards = state.lastCards || [];
+    if(!cards.length) return '';
+    var cells = cards.map(function(name, i){
+      var sym = SYMBOLS[name] || sig('<circle cx="32" cy="32" r="20"/>');
+      // Force gold stroke for PDF capture
+      var svg = String(sym).replace('<svg ', '<svg width="48" height="48" style="display:block;margin:0 auto 8px;" ');
+      if(svg.indexOf('stroke=') === -1){
+        svg = svg.replace('<svg ', '<svg stroke="#d4af6a" fill="none" stroke-width="1.5" ');
+      }
+      return (
+        '<div style="flex:1;min-width:90px;max-width:120px;border:1px solid rgba(212,175,106,.55);border-radius:12px;padding:12px 8px;background:rgba(21,18,42,.95);text-align:center;">'+
+          '<div style="font-family:Georgia,serif;font-size:8pt;letter-spacing:.2em;text-transform:uppercase;color:rgba(212,175,106,.75);margin-bottom:8px;">'+escapeHtml(POSITIONS[i]||'')+'</div>'+
+          svg+
+          '<div style="font-family:Georgia,serif;font-size:10pt;color:#d4af6a;margin-top:6px;">'+escapeHtml(name)+'</div>'+
+        '</div>'
+      );
+    }).join('');
+    return '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:18px 0 22px;">'+cells+'</div>';
+  }
   function downloadReadingPdf(kind){
     var isFull = kind === 'full';
-    var text = isFull ? state.fullText : state.teaserText;
-    if(!text){ showToast('Nessuna lettura da scaricare ancora.'); return; }
+    if(isFull && !state.fullText){ showToast('Nessuna lettura completa da scaricare.'); return; }
+    if(!isFull && !state.teaserText){ showToast('Nessuna lettura teaser da scaricare.'); return; }
     if(typeof html2pdf === 'undefined'){ showToast('Download PDF non disponibile. Ricarica la pagina.'); return; }
+
     var name = (state.form && state.form.name) ? state.form.name : 'Consultante';
     var question = (state.form && state.form.question) ? state.form.question : '';
-    var cards = (state.lastCards || []).join(' · ');
-    var title = isFull ? 'Lettura completa Luxseetarot' : 'Lettura teaser Luxseetarot';
-    var body = escapeHtml(text).replace(/\n/g, '<br/>');
-    var el = document.createElement('div');
-    el.style.padding = '24px';
-    el.style.fontFamily = 'Georgia, serif';
-    el.style.color = '#1a1428';
-    el.style.lineHeight = '1.55';
-    el.style.fontSize = '12pt';
-    el.innerHTML =
-      '<h1 style="font-size:18pt;margin:0 0 8px">'+escapeHtml(title)+'</h1>'+
-      '<p style="margin:0 0 4px;font-size:10pt;color:#555">Per: '+escapeHtml(name)+'</p>'+
-      (question ? '<p style="margin:0 0 4px;font-size:10pt;color:#555">Domanda: '+escapeHtml(question)+'</p>' : '')+
-      (cards ? '<p style="margin:0 0 16px;font-size:10pt;color:#555">Carte: '+escapeHtml(cards)+'</p>' : '')+
-      '<div>'+body+'</div>'+
-      '<p style="margin-top:24px;font-size:9pt;color:#777">Luxseetarot · Lettura simbolica digitale · Intrattenimento e riflessione. Non sostituisce consigli medici, legali o finanziari.</p>';
-    var filename = (isFull ? 'luxseetarot-completa' : 'luxseetarot-teaser') + '-' + Date.now() + '.pdf';
-    html2pdf().set({
-      margin: 12,
-      filename: filename,
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    }).from(el).save();
+    var title = isFull ? 'Lettura Luxseetarot' : 'Lettura teaser Luxseetarot';
+
+    var sections = '';
+    sections += buildPdfCardsHtml();
+    if(isFull){
+      if(state.teaserText){
+        sections +=
+          '<div style="margin:8px 0 6px;font-family:Georgia,serif;letter-spacing:.18em;text-transform:uppercase;font-size:9pt;color:rgba(212,175,106,.7);">Parte I · Teaser gratuito</div>'+
+          textToHtmlParagraphs(state.teaserText)+
+          '<div style="height:1px;background:rgba(212,175,106,.25);margin:18px 0;"></div>';
+      }
+      sections +=
+        '<div style="margin:8px 0 6px;font-family:Georgia,serif;letter-spacing:.18em;text-transform:uppercase;font-size:9pt;color:rgba(212,175,106,.7);">Parte II · Lettura completa</div>'+
+        textToHtmlParagraphs(state.fullText);
+    } else {
+      sections += textToHtmlParagraphs(state.teaserText);
+    }
+
+    var wrap = document.createElement('div');
+    wrap.id = 'luxsee-pdf-root';
+    wrap.style.cssText = 'position:fixed;left:-10000px;top:0;width:720px;padding:0;margin:0;background:#0b0a14;z-index:-1;';
+    wrap.innerHTML =
+      '<div style="width:680px;padding:36px 32px;background:#0b0a14;color:#ece6d8;box-sizing:border-box;">'+
+        '<div style="text-align:center;margin-bottom:8px;font-family:Georgia,serif;letter-spacing:.45em;font-size:10pt;color:rgba(212,175,106,.7);">LUXSEETAROT</div>'+
+        '<h1 style="text-align:center;font-family:Georgia,serif;font-weight:600;font-size:22pt;color:#d4af6a;margin:0 0 10px;letter-spacing:.04em;">'+escapeHtml(title)+'</h1>'+
+        '<p style="text-align:center;font-family:Georgia,serif;font-style:italic;font-size:11pt;color:#9a91a8;margin:0 0 4px;">Per '+escapeHtml(name)+'</p>'+
+        (question ? '<p style="text-align:center;font-family:Georgia,serif;font-size:10pt;color:#9a91a8;margin:0 0 8px;">Domanda: '+escapeHtml(question)+'</p>' : '')+
+        '<div style="height:1px;background:rgba(212,175,106,.35);margin:16px auto 8px;width:60%;"></div>'+
+        sections+
+        '<div style="height:1px;background:rgba(212,175,106,.25);margin:22px 0 12px;"></div>'+
+        '<p style="text-align:center;font-family:Georgia,serif;font-size:8pt;color:#9a91a8;line-height:1.45;margin:0;">Lettura simbolica digitale · Intrattenimento e riflessione.<br/>Non sostituisce consigli medici, legali o finanziari.</p>'+
+      '</div>';
+
+    document.body.appendChild(wrap);
+    showToast('Preparazione PDF...');
+
+    var opt = {
+      margin: [8, 8, 8, 8],
+      filename: (isFull ? 'luxseetarot-lettura' : 'luxseetarot-teaser') + '-' + Date.now() + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#0b0a14',
+        logging: false,
+        windowWidth: 720
+      },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'] }
+    };
+
+    var target = wrap.firstElementChild;
+    html2pdf().set(opt).from(target).save().then(function(){
+      if(wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      showToast('PDF scaricato.');
+    }).catch(function(err){
+      console.error(err);
+      if(wrap.parentNode) wrap.parentNode.removeChild(wrap);
+      showToast('Errore durante la creazione del PDF.');
+    });
   }
   function startCheckout(product){
     if(state.form && state.lastCards){
@@ -1167,7 +1228,6 @@
   document.getElementById('btn-unlock-pack').addEventListener('click', function(){ startCheckout('pack'); });
   document.getElementById('btn-upsell-pack').addEventListener('click', function(){ startCheckout('pack'); });
   document.getElementById('btn-pdf-teaser').addEventListener('click', function(){ downloadReadingPdf('teaser'); });
-  document.getElementById('btn-pdf-teaser-after').addEventListener('click', function(){ downloadReadingPdf('teaser'); });
   document.getElementById('btn-pdf-full').addEventListener('click', function(){ downloadReadingPdf('full'); });
   document.getElementById('btn-use-credit').addEventListener('click', function(){
     var u = getUnlock();
