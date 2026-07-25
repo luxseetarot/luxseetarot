@@ -304,7 +304,7 @@
 
         <label for="birth">Data di nascita</label>
 
-        <input id="birth" name="birth" type="date" required />
+        <input id="birth" name="birth" type="date" min="1920-01-01" max="2015-12-31" required />
 
       </div>
 
@@ -893,6 +893,27 @@
 
   setTimeout(function(){ document.getElementById('phase-input').classList.add('visible'); }, 50);
 
+  (function setupBirthInput(){
+    var birthEl = document.getElementById('birth');
+    if(!birthEl) return;
+    var maxY = new Date().getFullYear() - 12;
+    birthEl.setAttribute('min', '1920-01-01');
+    birthEl.setAttribute('max', maxY + '-12-31');
+    birthEl.addEventListener('change', function(){
+      var v = birthEl.value || '';
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){
+        birthEl.setCustomValidity('Inserisci una data valida (anno a 4 cifre).');
+        return;
+      }
+      var y = parseInt(v.slice(0, 4), 10);
+      if(y < 1920 || y > maxY || String(y).length !== 4){
+        birthEl.setCustomValidity('Anno non valido: usa 4 cifre (es. 1990).');
+      } else {
+        birthEl.setCustomValidity('');
+      }
+    });
+  })();
+
 
 
   // Phase 1
@@ -913,9 +934,12 @@
 
     var q = document.getElementById('q').value.trim();
 
-    if(!name || !birth || !email || email.indexOf('@') < 0 || q.length<3){
+    var yearOk = /^\d{4}-\d{2}-\d{2}$/.test(birth) && birth.slice(0,4).length === 4;
+    var yearNum = yearOk ? parseInt(birth.slice(0,4), 10) : 0;
+    var maxYear = new Date().getFullYear() - 12;
+    if(!name || !birth || !yearOk || yearNum < 1920 || yearNum > maxYear || !email || email.indexOf('@') < 0 || q.length<3){
 
-      formErr.textContent='Completa tutti i campi (email inclusa) per proseguire.';
+      formErr.textContent='Completa tutti i campi. Anno di nascita: 4 cifre (es. 1990).';
 
       formErr.style.display='block';
 
