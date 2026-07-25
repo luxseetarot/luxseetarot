@@ -1,6 +1,6 @@
 import Stripe from 'stripe';
 import { cors, signUnlock, getSessionCredits } from './_lib/unlock.js';
-import { sendCreditsEmail } from './_lib/email.js';
+import { sendCreditsEmail, upsertMarketingContact } from './_lib/email.js';
 
 export default async function handler(req, res) {
   cors(res);
@@ -25,17 +25,24 @@ export default async function handler(req, res) {
       exp,
     });
 
+    const customerName = info.session.metadata?.name || '';
     let emailSent = false;
     if (sendEmail && info.email) {
       const mail = await sendCreditsEmail({
         to: info.email,
-        name: info.session.metadata?.name || '',
+        name: customerName,
         remaining: info.remaining,
         max: info.max,
         sessionId,
         kind: 'purchase',
       });
       emailSent = !!mail.ok;
+    }
+
+    if (info.session.metadata?.marketing === '1' && info.email) {
+      upsertMarketingContact({ email: info.email, name: customerName }).catch((e) =>
+        console.error('Marketing contact error:', e)
+      );
     }
 
     return res.status(200).json({

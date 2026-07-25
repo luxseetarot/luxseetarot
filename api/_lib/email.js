@@ -52,3 +52,40 @@ export async function sendCreditsEmail({ to, name, remaining, max, sessionId, ki
   }
   return { ok: true };
 }
+
+/** Aggiunge/aggiorna contatto Brevo solo se ha accettato le promozioni. */
+export async function upsertMarketingContact({ email, name }) {
+  const apiKey =
+    (process.env.BREVO_API_KEY || process.env.BREVO_API_KEY_V3 || '').trim();
+  if (!apiKey || !email) return { ok: false, skipped: true };
+
+  const listId = parseInt(process.env.BREVO_LIST_ID || '', 10);
+  const body = {
+    email: String(email).trim().toLowerCase(),
+    attributes: {
+      FIRSTNAME: String(name || '').slice(0, 80),
+      MARKETING_OPT_IN: true,
+    },
+    updateEnabled: true,
+  };
+  if (Number.isFinite(listId) && listId > 0) {
+    body.listIds = [listId];
+  }
+
+  const res = await fetch('https://api.brevo.com/v3/contacts', {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok && res.status !== 400) {
+    const err = await res.text();
+    console.error('Brevo contact error:', err);
+    return { ok: false, error: err };
+  }
+  return { ok: true };
+}
