@@ -2,9 +2,9 @@ export async function sendCreditsEmail({ to, name, remaining, max, sessionId, ki
   const apiKey =
     (process.env.BREVO_API_KEY || process.env.BREVO_API_KEY_V3 || '').trim();
   const fromEmail =
-    (process.env.BREVO_SENDER_EMAIL || process.env.EMAIL_FROM || '').trim() ||
-    'noreply@luxseetarot.com';
-  const fromName = (process.env.BREVO_SENDER_NAME || 'Luxseetarot').trim();
+    (process.env.BREVO_SENDER_EMAIL || '').trim() || 'noreply@luxseetarot.com';
+  const fromName =
+    (process.env.BREVO_SENDER_NAME || '').trim() || 'Luxseetarot';
 
   if (!apiKey || !to) {
     console.warn('Email skipped: missing BREVO_API_KEY or recipient');
