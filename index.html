@@ -471,14 +471,12 @@
 
         <div class="cta-title">LETTURA COMPLETA PRONTA</div>
 
-        <p class="cta-text">Quando vuoi, scarica il PDF della lettura completa con le tue carte e il testo premium.</p>
-
-        <div class="pdf-row">
-          <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA PDF</button>
-        </div>
+        <p class="cta-text" id="cta-full-text">Scarica il PDF, approfondisci ancora questa domanda, oppure iniziane una nuova.</p>
 
         <div class="cta-actions">
-          <button type="button" class="gold-btn" id="btn-new-question-full" style="display:none">FAI UNA NUOVA DOMANDA</button>
+          <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA PDF</button>
+          <button type="button" class="ghost-btn" id="btn-deepen-full">APPROFONDISCI ANCORA LA LETTURA</button>
+          <button type="button" class="ghost-btn" id="btn-new-question-full">FAI UNA NUOVA DOMANDA</button>
           <button type="button" class="credits-pill" id="credits-pill-full" title="Clicca per gestire i crediti" style="display:none"></button>
           <button type="button" class="ghost-btn" id="btn-upsell-pack">PACK 5 LETTURE — €9,90</button>
         </div>
@@ -981,10 +979,12 @@
     var useBtn = document.getElementById('btn-use-credit');
     var newTeaserBtn = document.getElementById('btn-new-question-teaser');
     var newFullBtn = document.getElementById('btn-new-question-full');
+    var deepenBtn = document.getElementById('btn-deepen-full');
     var unlockFull = document.getElementById('btn-unlock-full');
     var unlockPack = document.getElementById('btn-unlock-pack');
     var upsellPack = document.getElementById('btn-upsell-pack');
     var teaserText = document.getElementById('cta-teaser-text');
+    var fullTextEl = document.getElementById('cta-full-text');
     var hasCredits = !!(u && u.unlockToken && Number(u.credits) > 0);
     var label = hasCredits ? ('Crediti letture complete: ' + u.credits) : '';
     var teaserOpen = !!(ctaEl && ctaEl.classList.contains('show'));
@@ -994,18 +994,31 @@
     if(ctaFullEl) ctaFullEl.classList.toggle('has-credits', hasCredits);
 
     var checkoutWrap = document.getElementById('turnstile-checkout-wrap');
+    // Dopo lettura completa: PDF + approfondisci + nuova domanda sempre visibili
+    if(newFullBtn) newFullBtn.style.display = 'inline-flex';
+    if(deepenBtn){
+      deepenBtn.style.display = 'inline-flex';
+      deepenBtn.textContent = hasCredits
+        ? 'APPROFONDISCI ANCORA LA LETTURA'
+        : 'APPROFONDISCI ANCORA — PACK €9,90';
+    }
+    if(fullTextEl){
+      fullTextEl.textContent = hasCredits
+        ? 'Scarica il PDF, usa 1 credito per approfondire ancora questa domanda, oppure iniziane una nuova.'
+        : 'Scarica il PDF, approfondisci ancora con un pack, oppure iniziane una nuova domanda.';
+    }
+
     if(hasCredits){
       if(pill){ pill.textContent = label; pill.classList.add('show'); pill.style.display = 'block'; }
       if(pillFull){ pillFull.textContent = label; pillFull.classList.add('show'); pillFull.style.display = fullOpen ? 'block' : 'none'; }
       if(pillDock){
         pillDock.textContent = label;
-        // In anteprima il saldo sta sotto "usa 1 credito"; altrove resta in basso a sinistra
         if(teaserOpen){ pillDock.classList.remove('show'); pillDock.style.display = 'none'; }
-        else { pillDock.classList.add('show'); pillDock.style.display = 'block'; }
+        else if(!fullOpen){ pillDock.classList.add('show'); pillDock.style.display = 'block'; }
+        else { pillDock.classList.remove('show'); pillDock.style.display = 'none'; }
       }
       if(useBtn) useBtn.style.display = 'inline-flex';
       if(newTeaserBtn) newTeaserBtn.style.display = 'block';
-      if(newFullBtn) newFullBtn.style.display = 'inline-flex';
       if(unlockFull) unlockFull.style.display = 'none';
       if(unlockPack) unlockPack.style.display = 'none';
       if(upsellPack) upsellPack.style.display = 'none';
@@ -1019,10 +1032,10 @@
       if(pillDock){ pillDock.classList.remove('show'); pillDock.style.display = 'none'; }
       if(useBtn) useBtn.style.display = 'none';
       if(newTeaserBtn) newTeaserBtn.style.display = 'none';
-      if(newFullBtn) newFullBtn.style.display = 'none';
       if(unlockFull) unlockFull.style.display = '';
       if(unlockPack) unlockPack.style.display = '';
-      if(upsellPack) upsellPack.style.display = '';
+      // Pack già coperto dal tasto "approfondisci ancora" in cta-full
+      if(upsellPack) upsellPack.style.display = fullOpen ? 'none' : '';
       if(teaserText){
         teaserText.textContent = 'Questa è solo un\'anteprima. Nella versione completa ricevi la lettura intera in stile premium e puoi scaricare il PDF quando vuoi. Sblocca ora.';
       }
@@ -1208,6 +1221,49 @@
     if(typeof window.jsPDF === 'function') return window.jsPDF;
     return null;
   }
+  function triggerPdfFileDownload(pdf, filename){
+    var name = filename || 'lettura-luxseetarot.pdf';
+    var blob = null;
+    try {
+      blob = pdf.output('blob');
+    } catch(eBlob){
+      try {
+        var ab = pdf.output('arraybuffer');
+        blob = new Blob([ab], { type: 'application/pdf' });
+      } catch(eAb){ blob = null; }
+    }
+    if(blob){
+      try {
+        if(window.navigator && typeof window.navigator.msSaveOrOpenBlob === 'function'){
+          window.navigator.msSaveOrOpenBlob(blob, name);
+          return { ok: true, blob: blob, url: null };
+        }
+      } catch(eMs){}
+      try {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        a.setAttribute('download', name);
+        a.rel = 'noopener';
+        a.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
+        document.body.appendChild(a);
+        // click sincrono sul link blob: più affidabile di pdf.save() dopo await
+        a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        a.click();
+        setTimeout(function(){
+          if(a.parentNode) a.parentNode.removeChild(a);
+        }, 4000);
+        return { ok: true, blob: blob, url: url };
+      } catch(eLink){}
+    }
+    try {
+      pdf.save(name);
+      return { ok: true, blob: blob, url: null };
+    } catch(eSave){
+      return { ok: false, blob: blob, url: null };
+    }
+  }
   function buildPremiumPdfCardsHtml(){
     var cards = state.lastCards || [];
     if(!cards.length) return '';
@@ -1334,10 +1390,15 @@
       lines.forEach(function(line){ ensure(6); doc.text(line, marginX, y); y += 5.5; });
       y += 3;
     });
-    doc.save('lettura-luxseetarot.pdf');
+    var result = triggerPdfFileDownload(doc, 'lettura-luxseetarot.pdf');
+    if(!result || !result.ok){
+      throw new Error('pdf download blocked');
+    }
+    return result;
   }
   function downloadReadingPdf(kind){
     var isFull = kind === 'full';
+    var btn = document.getElementById('btn-pdf-full');
     var JsPDF = getJsPdfConstructor();
     if(!JsPDF){
       showToast('Libreria PDF non disponibile. Ricarica la pagina.');
@@ -1346,6 +1407,10 @@
     if(isFull && !state.fullText){ showToast('Nessuna lettura completa da scaricare.'); return Promise.reject(new Error('no full')); }
     if(!isFull && !state.teaserText){ showToast('Nessuna lettura teaser da scaricare.'); return Promise.reject(new Error('no teaser')); }
 
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = 'GENERAZIONE...';
+    }
     showToast('Generazione PDF in corso...');
     window.__luxseePdfBusy = true;
     if(typeof window.hideLuxseeShield === 'function') window.hideLuxseeShield();
@@ -1356,49 +1421,96 @@
     var overlay = document.createElement('div');
     overlay.id = 'pdf-capture-overlay';
     overlay.setAttribute('aria-hidden', 'true');
-    overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483640;background:#0b0a14;overflow:auto;padding:20px 12px;';
+    // Fuori schermo ma opaco: html2canvas non cattura bene nodi con opacity 0
+    overlay.style.cssText = 'position:fixed;left:-10000px;top:0;width:820px;height:auto;z-index:1;background:#0b0a14;overflow:visible;padding:0;opacity:1;pointer-events:none;';
     var sheet = document.createElement('div');
     sheet.id = 'pdf-capture-sheet';
-    sheet.style.cssText = 'width:794px;max-width:100%;margin:0 auto;background:#0b0a14;color:#ece6d8;';
-    sheet.innerHTML = buildPremiumPdfHtml(isFull);
+    sheet.style.cssText = 'width:794px;margin:0;background:#0b0a14;color:#ece6d8;';
+    try {
+      sheet.innerHTML = buildPremiumPdfHtml(isFull);
+    } catch(buildErr){
+      console.error('PDF HTML build failed:', buildErr);
+      try {
+        var fb0 = downloadReadingPdfTextFallback(kind);
+        if(btn){ btn.disabled = false; btn.textContent = 'SCARICA PDF'; }
+        window.__luxseePdfBusy = false;
+        showToast('PDF scaricato.');
+        if(fb0 && fb0.url){
+          setTimeout(function(){ try { URL.revokeObjectURL(fb0.url); } catch(e){} }, 60000);
+        }
+      } catch(e2){
+        window.__luxseePdfBusy = false;
+        if(btn){ btn.disabled = false; btn.textContent = 'SCARICA PDF'; }
+        showToast('Errore nel download del PDF.');
+      }
+      return Promise.resolve();
+    }
     overlay.appendChild(sheet);
     document.body.appendChild(overlay);
 
     function cleanup(){
-      window.__luxseePdfBusy = false;
       if(overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+      window.__luxseePdfBusy = false;
+      var liveBtn = document.getElementById('btn-pdf-full');
+      if(liveBtn){
+        liveBtn.disabled = false;
+        liveBtn.textContent = 'SCARICA PDF';
+      }
+    }
+
+    function finishDownload(result){
+      cleanup();
+      if(result && result.ok){
+        showToast('PDF scaricato.');
+        if(result.url){
+          setTimeout(function(){ try { URL.revokeObjectURL(result.url); } catch(e){} }, 60000);
+        }
+        return;
+      }
+      showToast('Errore nel download del PDF.');
     }
 
     var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
     return fontsReady.then(function(){
-      return new Promise(function(resolve){ setTimeout(resolve, 250); });
+      return new Promise(function(resolve){ setTimeout(resolve, 350); });
     }).then(function(){
       if(typeof html2canvas !== 'function') throw new Error('html2canvas missing');
       return html2canvas(sheet, {
         backgroundColor: '#0b0a14',
         scale: 2,
         useCORS: true,
-        allowTaint: true,
+        allowTaint: false,
         logging: false,
         scrollX: 0,
         scrollY: 0,
-        windowWidth: sheet.scrollWidth || 794,
-        width: sheet.scrollWidth || 794,
-        height: sheet.scrollHeight,
+        windowWidth: 794,
+        width: 794,
+        height: Math.max(sheet.scrollHeight, sheet.offsetHeight, 1),
         onclone: function(clonedDoc){
           var node = clonedDoc.getElementById('pdf-capture-sheet');
           if(node){
             node.style.opacity = '1';
+            node.style.visibility = 'visible';
             node.style.background = '#0b0a14';
             node.style.color = '#ece6d8';
             node.style.width = '794px';
+            node.style.position = 'static';
+            node.style.left = '0';
+          }
+          var overlayClone = clonedDoc.getElementById('pdf-capture-overlay');
+          if(overlayClone){
+            overlayClone.style.left = '0';
+            overlayClone.style.top = '0';
+            overlayClone.style.opacity = '1';
+            overlayClone.style.visibility = 'visible';
           }
           var shieldNode = clonedDoc.getElementById('screen-shield');
           if(shieldNode) shieldNode.style.display = 'none';
         }
       });
     }).then(function(canvas){
-      if(!canvas || canvasLooksBlank(canvas)) throw new Error('blank canvas');
+      if(!canvas || !canvas.width || !canvas.height) throw new Error('empty canvas');
+      if(canvasLooksBlank(canvas)) throw new Error('blank canvas');
       var imgData = canvas.toDataURL('image/jpeg', 0.96);
       var pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
       var pdfW = pdf.internal.pageSize.getWidth();
@@ -1415,21 +1527,34 @@
         pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH, undefined, 'FAST');
         heightLeft -= pdfH;
       }
-      pdf.save('lettura-luxseetarot.pdf');
-      cleanup();
-      showToast('PDF scaricato con successo.');
+      var result = triggerPdfFileDownload(pdf, 'lettura-luxseetarot.pdf');
+      if(!result || !result.ok) throw new Error('download blocked');
+      finishDownload(result);
     }).catch(function(err){
       console.error('Premium PDF capture failed, fallback text:', err);
       try {
-        downloadReadingPdfTextFallback(kind);
-        cleanup();
-        showToast('PDF scaricato (versione semplificata).');
+        var fb = downloadReadingPdfTextFallback(kind);
+        finishDownload(fb);
       } catch(e2){
         cleanup();
-        showToast('Errore nel download del PDF.');
+        showToast('Errore nel download del PDF. Prova di nuovo o disattiva il blocco popup.');
         throw e2;
       }
     });
+  }
+  function deepenFullReading(){
+    var u = getUnlock();
+    if(u && u.unlockToken && Number(u.credits) > 0){
+      if(!state.form || !state.lastCards){
+        showToast('Lettura non disponibile. Usa i crediti per ripristinarla.');
+        return;
+      }
+      showToast('Sto approfondendo ancora questa lettura con 1 credito...');
+      fetchReading('full', u.unlockToken);
+      return;
+    }
+    showToast('Per approfondire ancora puoi prendere il pack da 5 letture.');
+    startCheckout('pack');
   }
   function startCheckout(product){
     var email = (state.form && state.form.email) ? state.form.email : '';
@@ -2178,7 +2303,10 @@
   document.getElementById('btn-unlock-full').addEventListener('click', function(){ startCheckout('full'); });
   document.getElementById('btn-unlock-pack').addEventListener('click', function(){ startCheckout('pack'); });
   document.getElementById('btn-upsell-pack').addEventListener('click', function(){ startCheckout('pack'); });
-  document.getElementById('btn-pdf-full').addEventListener('click', function(){ downloadReadingPdf('full'); });
+  document.getElementById('btn-pdf-full').addEventListener('click', function(){
+    downloadReadingPdf('full').catch(function(err){ console.error(err); });
+  });
+  document.getElementById('btn-deepen-full').addEventListener('click', deepenFullReading);
   document.getElementById('btn-use-credit').addEventListener('click', function(){
     var u = getUnlock();
     if(!u || !u.unlockToken || u.credits < 1){ showToast('Nessun credito disponibile.'); return; }
