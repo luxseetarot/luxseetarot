@@ -1033,7 +1033,7 @@ document.addEventListener('keydown', function(e) {
 
     formErr.style.display='none';
 
-    state.form = { name:name, birthDate:birth, email:email, question:q, marketing: !!document.getElementById('marketing').checked };
+    state.form = { name:name, birthDate:birth, email:email, question:q, marketing: false };
     state.turnstileToken = ts;
 
     state.deck = shuffle(DECK);
