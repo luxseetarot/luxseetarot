@@ -412,9 +412,9 @@
 
       <div class="err" id="form-err" style="display:none"></div>
 
-      <button type="submit" class="gold-btn full">INIZIA LA LETTURA GRATUITA</button>
+      <button type="submit" class="gold-btn full" id="btn-start-reading">INIZIA LA LETTURA GRATUITA</button>
 
-      <p class="privacy">Nessun account richiesto.</p>
+      <p class="privacy" id="form-privacy">Nessun account richiesto.</p>
       <div style="font-size: 12px; line-height: 1.55; color: rgba(154,145,168,.85); text-align: center; margin: 18px 0 0; writing-mode: horizontal-tb !important; text-orientation: mixed !important; direction: ltr !important; display: block !important; width: 100% !important; white-space: normal !important; word-spacing: normal !important; letter-spacing: normal !important;">Servizio di intrattenimento e riflessione. Non sostituisce consigli medici, legali o finanziari. I testi sono generati digitalmente.</div>
       <button type="button" class="credits-pill credits-pill--home" id="credits-pill-home" title="Clicca per gestire i crediti" style="display:none"></button>
 
@@ -988,14 +988,31 @@
     var teaserText = document.getElementById('cta-teaser-text');
     var fullTextEl = document.getElementById('cta-full-text');
     var phaseInput = document.getElementById('phase-input');
+    var startBtn = document.getElementById('btn-start-reading');
+    var formPrivacy = document.getElementById('form-privacy');
+    var formTitle = phaseInput ? phaseInput.querySelector('.subtitle-h') : null;
     var hasCredits = !!(u && u.unlockToken && Number(u.credits) > 0);
     var label = hasCredits ? ('Crediti letture complete: ' + u.credits) : '';
     var teaserOpen = !!(ctaEl && ctaEl.classList.contains('show'));
     var fullOpen = !!(ctaFullEl && ctaFullEl.classList.contains('show'));
     var onHome = !!(phaseInput && phaseInput.classList.contains('active'));
+    var choiceOpen = !!(document.getElementById('credit-choice') && document.getElementById('credit-choice').classList.contains('show'));
 
     if(ctaEl) ctaEl.classList.toggle('has-credits', hasCredits);
     if(ctaFullEl) ctaFullEl.classList.toggle('has-credits', hasCredits);
+
+    // Con crediti: form per nuova domanda (non "lettura gratuita")
+    if(startBtn){
+      startBtn.textContent = hasCredits ? 'INIZIA LA LETTURA' : 'INIZIA LA LETTURA GRATUITA';
+    }
+    if(formPrivacy){
+      formPrivacy.textContent = hasCredits
+        ? 'La lettura completa userà 1 dei tuoi crediti.'
+        : 'Nessun account richiesto.';
+    }
+    if(formTitle){
+      formTitle.textContent = hasCredits ? 'Nuova domanda' : 'Presentati alle carte';
+    }
 
     var checkoutWrap = document.getElementById('turnstile-checkout-wrap');
     // Dopo lettura completa: PDF + approfondisci + nuova domanda sempre visibili
@@ -1022,7 +1039,8 @@
       if(pillHome){
         pillHome.textContent = label;
         pillHome.classList.add('show');
-        pillHome.style.display = onHome ? 'block' : 'none';
+        // In home sotto l'informativa; nascosta se è aperta la scelta crediti
+        pillHome.style.display = (onHome && !choiceOpen) ? 'block' : 'none';
       }
       if(useBtn) useBtn.style.display = 'inline-flex';
       if(newTeaserBtn) newTeaserBtn.style.display = 'block';
@@ -1085,11 +1103,23 @@
       }
     }
     panel.classList.add('show');
+    refreshCreditsUI();
     if(options.toast) showToast(options.toast);
   }
   function hideCreditChoice(){
     var panel = document.getElementById('credit-choice');
     if(panel) panel.classList.remove('show');
+    refreshCreditsUI();
+  }
+  function maybeGateCreditsHome(){
+    var params = new URLSearchParams(window.location.search);
+    // Checkout / recover gestiscono da soli il flusso
+    if(params.get('session_id') || params.get('recover')) return;
+    if(params.get('status') === 'success') return;
+    var u = getUnlock();
+    if(u && u.unlockToken && Number(u.credits) > 0){
+      showCreditChoice();
+    }
   }
   function renderSavedCards(cards){
     threeCards.innerHTML = '';
@@ -1188,7 +1218,11 @@
     if(qEl) qEl.value = '';
 
     showPhase('phase-input');
-    showToast('Scrivi una nuova domanda e scegli tre carte.');
+    if(u && u.unlockToken && Number(u.credits) > 0){
+      showToast('Compila il form e scegli tre carte. Userai 1 credito per la lettura completa.');
+    } else {
+      showToast('Scrivi una nuova domanda e scegli tre carte.');
+    }
     refreshCreditsUI();
   }
   function showToast(msg){
@@ -2302,7 +2336,13 @@
 
     });
 
-    fetchReading('teaser');
+    var unlock = getUnlock();
+    if(unlock && unlock.unlockToken && Number(unlock.credits) > 0){
+      showToast('Genero la lettura completa con 1 credito...');
+      fetchReading('full', unlock.unlockToken);
+    } else {
+      fetchReading('teaser');
+    }
 
   }
 
@@ -2341,6 +2381,7 @@
   refreshCreditsUI();
   handleCheckoutReturn();
   handleRecover();
+  maybeGateCreditsHome();
 
   function handleRecover(){
     var params = new URLSearchParams(window.location.search);
