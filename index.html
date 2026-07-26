@@ -774,7 +774,8 @@
   var state = {
     form:null, deck:shuffle(DECK), selected:[], lastCards:null, mode:'teaser',
     teaserText:null, fullText:null, turnstileToken:null, turnstileWidgetId:null,
-    checkoutTurnstileToken:null, checkoutTurnstileWidgetId:null, turnstileSiteKey:null
+    checkoutTurnstileToken:null, checkoutTurnstileWidgetId:null, turnstileSiteKey:null,
+    checkoutPass:null
   };
 
   var POSITIONS = ['Passato','Presente','Futuro'];
@@ -791,12 +792,13 @@
     return state.turnstileToken || '';
   }
   function getCheckoutTurnstileToken(){
+    // Solo il widget di checkout: NON riusare il token del form (già consumato dal teaser).
     try {
       if(window.turnstile && state.checkoutTurnstileWidgetId != null){
         return window.turnstile.getResponse(state.checkoutTurnstileWidgetId) || state.checkoutTurnstileToken || '';
       }
     } catch(e){}
-    return state.checkoutTurnstileToken || getTurnstileToken() || '';
+    return state.checkoutTurnstileToken || '';
   }
   function resetTurnstile(){
     state.turnstileToken = null;
@@ -877,14 +879,13 @@
   }
   function waitForCheckoutTurnstileToken(timeoutMs){
     return new Promise(function(resolve, reject){
-      var existing = getCheckoutTurnstileToken();
-      if(existing){ resolve(existing); return; }
       if(!state.turnstileSiteKey || !document.getElementById('turnstile-checkout-wrap')){
-        resolve(getTurnstileToken() || '');
+        resolve('');
         return;
       }
       ensureCheckoutTurnstile();
-      resetCheckoutTurnstile();
+      var existing = getCheckoutTurnstileToken();
+      if(existing){ resolve(existing); return; }
       var started = Date.now();
       var t = setInterval(function(){
         var tok = getCheckoutTurnstileToken();
@@ -1025,7 +1026,8 @@
       if(teaserText){
         teaserText.textContent = 'Questa è solo un\'anteprima. Nella versione completa ricevi la lettura intera in stile premium e puoi scaricare il PDF quando vuoi. Sblocca ora.';
       }
-      if(teaserOpen) ensureCheckoutTurnstile();
+      if(teaserOpen && !state.checkoutPass) ensureCheckoutTurnstile();
+      else if(checkoutWrap && state.checkoutPass) checkoutWrap.style.display = 'none';
     }
   }
   function showCreditChoice(opts){
@@ -1443,18 +1445,12 @@
         cards: state.lastCards,
         teaserText: state.teaserText || null,
         fullText: state.fullText || null,
+        checkoutPass: state.checkoutPass || null,
         skipAutoFull: !!(state.fullText && product === 'pack')
       }));
     }
 
-    showToast('Verifica anti-bot in corso...');
-    ensureCheckoutTurnstile();
-
-    waitForCheckoutTurnstileToken(12000).then(function(token){
-      if(state.turnstileSiteKey && !token){
-        showToast('Completa la verifica anti-bot qui sotto, poi riprova.');
-        return;
-      }
+    function postCheckout(turnstileToken){
       return fetch('/api/create-checkout', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
@@ -1464,24 +1460,45 @@
           email: email,
           name: state.form.name || '',
           marketing: !!state.form.marketing,
-          turnstileToken: token || ''
+          turnstileToken: turnstileToken || '',
+          checkoutPass: state.checkoutPass || ''
         })
       }).then(function(r){ return r.json(); }).then(function(res){
         if(res.ok && res.url){
           window.location.href = res.url;
           return;
         }
-        // Token scaduto/usato: rigenera e invita a riprovare
         if(res && res.error && /anti-bot|verifica/i.test(res.error)){
+          state.checkoutPass = null;
+          ensureCheckoutTurnstile();
           resetCheckoutTurnstile();
-          showToast('Verifica scaduta. Completa di nuovo il controllo qui sotto e riprova.');
+          showToast('Completa la verifica anti-bot qui sotto, poi riprova.');
           return;
         }
         showToast((res && res.error) || 'Pagamento non disponibile al momento.');
       });
+    }
+
+    // Se abbiamo il pass del teaser, non serve un nuovo Turnstile.
+    if(state.checkoutPass){
+      showToast('Apertura pagamento...');
+      postCheckout('').catch(function(){
+        showToast('Connessione al pagamento interrotta.');
+      });
+      return;
+    }
+
+    showToast('Verifica anti-bot in corso...');
+    ensureCheckoutTurnstile();
+    waitForCheckoutTurnstileToken(12000).then(function(token){
+      if(state.turnstileSiteKey && !token){
+        showToast('Completa la verifica anti-bot qui sotto, poi riprova.');
+        return;
+      }
+      return postCheckout(token || '');
     }).catch(function(){
       resetCheckoutTurnstile();
-      showToast('Verifica anti-bot scaduta o incompleta. Completala qui sotto e riprova.');
+      showToast('Verifica anti-bot incompleta. Completala qui sotto e riprova.');
     });
   }
   function fetchReading(mode, unlockToken){
@@ -1500,6 +1517,7 @@
       body: JSON.stringify({
         name: state.form.name,
         birthDate: state.form.birthDate,
+        email: state.form.email || '',
         question: state.form.question,
         cards: state.lastCards,
         mode: mode || 'teaser',
@@ -1524,7 +1542,13 @@
             }
             if(res.mode === 'full') state.fullText = res.reading;
             else state.teaserText = res.reading;
+            if(res.checkoutPass) state.checkoutPass = res.checkoutPass;
             state.mode = res.mode === 'full' ? 'full' : 'teaser';
+            // Token form consumato: azzeralo, l'acquisto userà checkoutPass
+            if(res.mode !== 'full'){
+              state.turnstileToken = null;
+              resetTurnstile();
+            }
             saveReadingDraft();
             setReadingMode(state.mode);
             var html = renderMarkdown(res.reading, state.mode);
@@ -1536,9 +1560,12 @@
               } else {
                 if(ctaFullEl) ctaFullEl.classList.remove('show');
                 ctaEl.classList.add('show');
-                // Il token del form è già stato usato per il teaser: prepara verifica fresca per l'acquisto
-                resetTurnstile();
-                ensureCheckoutTurnstile();
+                // Con checkoutPass non serve un secondo widget; mostralo solo se manca
+                if(!state.checkoutPass) ensureCheckoutTurnstile();
+                else {
+                  var wrap = document.getElementById('turnstile-checkout-wrap');
+                  if(wrap) wrap.style.display = 'none';
+                }
               }
               refreshCreditsUI();
             });
@@ -1560,8 +1587,15 @@
     var status = params.get('checkout');
     var sessionId = params.get('session_id');
     if(status === 'cancel'){
-      showToast('Pagamento annullato. Sei tornato alla lettura teaser.');
       history.replaceState({}, '', window.location.pathname);
+      try {
+        var cancelled = JSON.parse(sessionStorage.getItem('luxsee_pending') || 'null');
+        if(cancelled && cancelled.checkoutPass) state.checkoutPass = cancelled.checkoutPass;
+        if(cancelled && cancelled.form) state.form = cancelled.form;
+        if(cancelled && cancelled.cards) state.lastCards = cancelled.cards;
+        if(cancelled && cancelled.teaserText) state.teaserText = cancelled.teaserText;
+      } catch(e){}
+      showToast('Pagamento annullato. Puoi riprovare quando vuoi.');
       return;
     }
     if(status !== 'success' || !sessionId) return;

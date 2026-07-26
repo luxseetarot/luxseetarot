@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe } from './_lib/unlock.js';
+import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe, signCheckoutPass } from './_lib/unlock.js';
 import { verifyTurnstileToken } from './_lib/turnstile.js';
 
 function buildSystemPrompt(mode) {
@@ -134,12 +134,23 @@ export default async function handler(req, res) {
     reading = reading.replace(/—/g, ',');
     reading = reading.replace(/\n{3,}/g, '\n\n');
 
+    // Dopo il teaser il token Turnstile è già stato consumato: emetti un pass per l'acquisto.
+    let checkoutPass = null;
+    if (!isFull) {
+      const email = String((req.body || {}).email || '').trim().toLowerCase();
+      checkoutPass = signCheckoutPass({
+        email,
+        exp: Date.now() + 6 * 60 * 60 * 1000,
+      });
+    }
+
     return res.status(200).json({
       ok: true,
       reading,
       mode: isFull ? 'full' : 'teaser',
       remainingCredits,
       unlockToken: nextToken,
+      checkoutPass,
     });
   } catch (err) {
     console.error('Handler error:', err);

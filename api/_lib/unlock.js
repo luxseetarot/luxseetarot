@@ -33,6 +33,37 @@ export function verifyUnlockToken(token) {
   }
 }
 
+/** Pass breve post-teaser: consente il checkout senza riusare il token Turnstile (già consumato). */
+export function signCheckoutPass({ email, exp }) {
+  const secret = getUnlockSecret();
+  const payload = Buffer.from(JSON.stringify({
+    t: 'checkout',
+    email: String(email || '').trim().toLowerCase(),
+    exp,
+  })).toString('base64url');
+  const sig = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
+  return `${payload}.${sig}`;
+}
+
+export function verifyCheckoutPass(token, email) {
+  if (!token || typeof token !== 'string' || !token.includes('.')) return null;
+  const secret = getUnlockSecret();
+  if (!secret) return null;
+  const [payload, sig] = token.split('.');
+  const expected = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
+  if (sig !== expected) return null;
+  try {
+    const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
+    if (data.t !== 'checkout' || !data.email || !data.exp) return null;
+    if (Date.now() > data.exp) return null;
+    const want = String(email || '').trim().toLowerCase();
+    if (want && data.email !== want) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 /** Crediti persistenti su metadata Stripe (sopravvive a cookie cancellati se hai sessionId/email). */
 export async function getSessionCredits(stripe, sessionId) {
   const session = await stripe.checkout.sessions.retrieve(sessionId);

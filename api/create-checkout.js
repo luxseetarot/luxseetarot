@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { cors } from './_lib/unlock.js';
+import { cors, verifyCheckoutPass } from './_lib/unlock.js';
 import { verifyTurnstileToken } from './_lib/turnstile.js';
 
 const PRODUCTS = {
@@ -27,10 +27,15 @@ export default async function handler(req, res) {
     if (!secret) return res.status(500).json({ ok: false, error: 'Stripe non configurato.' });
 
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
-    const { product = 'full', origin, email, name, marketing = false, turnstileToken } = req.body || {};
-
-    const bot = await verifyTurnstileToken(turnstileToken, ip);
-    if (!bot.ok) return res.status(403).json({ ok: false, error: bot.error || 'Verifica anti-bot fallita.' });
+    const {
+      product = 'full',
+      origin,
+      email,
+      name,
+      marketing = false,
+      turnstileToken,
+      checkoutPass,
+    } = req.body || {};
 
     const item = PRODUCTS[product];
     if (!item) return res.status(400).json({ ok: false, error: 'Prodotto non valido.' });
@@ -41,6 +46,18 @@ export default async function handler(req, res) {
     const cleanEmail = String(email || '').trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes('@')) {
       return res.status(400).json({ ok: false, error: 'Email obbligatoria per il pagamento.' });
+    }
+
+    // Accetta pass post-teaser (consigliato) oppure un Turnstile fresco.
+    const passOk = !!verifyCheckoutPass(checkoutPass, cleanEmail);
+    if (!passOk) {
+      const bot = await verifyTurnstileToken(turnstileToken, ip);
+      if (!bot.ok) {
+        return res.status(403).json({
+          ok: false,
+          error: bot.error || 'Verifica anti-bot non superata. Riprova.',
+        });
+      }
     }
 
     const stripe = new Stripe(secret);
