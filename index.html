@@ -1333,18 +1333,11 @@
     });
   }
   function ensurePdfLibs(){
-    if(getJsPdfConstructor() && typeof html2canvas === 'function'){
-      return Promise.resolve();
-    }
+    if(getJsPdfConstructor()) return Promise.resolve();
     var jspdfSources = [
       '/vendor/jspdf.umd.min.js',
       'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js',
       'https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js'
-    ];
-    var canvasSources = [
-      '/vendor/html2canvas.min.js',
-      'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
-      'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js'
     ];
     function loadFirst(list){
       var i = 0;
@@ -1355,13 +1348,67 @@
       }
       return next();
     }
-    var needJs = !getJsPdfConstructor();
-    var needCanvas = typeof html2canvas !== 'function';
-    return Promise.all([
-      needJs ? loadFirst(jspdfSources) : Promise.resolve(),
-      needCanvas ? loadFirst(canvasSources) : Promise.resolve()
-    ]).then(function(){
+    return loadFirst(jspdfSources).then(function(){
       if(!getJsPdfConstructor()) throw new Error('jspdf missing after load');
+    });
+  }
+  function prepareSvgForRaster(svgHtml, size){
+    var px = size || 128;
+    var raw = String(svgHtml || '');
+    if(raw.indexOf('xmlns=') === -1){
+      raw = raw.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
+    }
+    raw = raw.replace(/<svg\b([^>]*)>/i, function(_, attrs){
+      var a = attrs
+        .replace(/\swidth="[^"]*"/i, '')
+        .replace(/\sheight="[^"]*"/i, '')
+        .replace(/\sstyle="[^"]*"/i, '');
+      return '<svg width="'+px+'" height="'+px+'"'+a+' style="display:block">';
+    });
+    // html2canvas/Image spesso ignorano stroke sul tag <svg>: mettilo su ogni shape
+    raw = raw.replace(/<(path|circle|ellipse|line|polyline|polygon)\b([^>]*)>/gi, function(_, tag, attrs){
+      var a = attrs;
+      if(!/\bfill=/.test(a)) a += ' fill="none"';
+      if(!/\bstroke=/.test(a)) a += ' stroke="#d4af6a"';
+      if(!/\bstroke-width=/.test(a)) a += ' stroke-width="1.6"';
+      if(!/\bstroke-linecap=/.test(a)) a += ' stroke-linecap="round"';
+      if(!/\bstroke-linejoin=/.test(a)) a += ' stroke-linejoin="round"';
+      return '<'+tag+a+'>';
+    });
+    return raw;
+  }
+  function rasterizeSvgToPng(svgHtml, size){
+    var px = size || 128;
+    return new Promise(function(resolve){
+      try {
+        var svg = prepareSvgForRaster(svgHtml, px);
+        var blob = new Blob([svg], { type: 'image/svg+xml;charset=utf-8' });
+        var url = URL.createObjectURL(blob);
+        var img = new Image();
+        img.onload = function(){
+          try {
+            var c = document.createElement('canvas');
+            c.width = px;
+            c.height = px;
+            var ctx = c.getContext('2d');
+            ctx.clearRect(0, 0, px, px);
+            ctx.drawImage(img, 0, 0, px, px);
+            var data = c.toDataURL('image/png');
+            URL.revokeObjectURL(url);
+            resolve(data);
+          } catch(e){
+            URL.revokeObjectURL(url);
+            resolve(null);
+          }
+        };
+        img.onerror = function(){
+          URL.revokeObjectURL(url);
+          resolve(null);
+        };
+        img.src = url;
+      } catch(e){
+        resolve(null);
+      }
     });
   }
   function triggerPdfFileDownload(pdf, filename){
@@ -1572,42 +1619,12 @@
   }
   function downloadReadingPdfAfterLibs(kind, btn, JsPDF){
     var isFull = kind === 'full';
-
-    var old = document.getElementById('pdf-capture-overlay');
-    if(old && old.parentNode) old.parentNode.removeChild(old);
-
-    var overlay = document.createElement('div');
-    overlay.id = 'pdf-capture-overlay';
-    overlay.setAttribute('aria-hidden', 'true');
-    // Fuori schermo ma opaco: html2canvas non cattura bene nodi con opacity 0
-    overlay.style.cssText = 'position:fixed;left:-10000px;top:0;width:820px;height:auto;z-index:1;background:#0b0a14;overflow:visible;padding:0;opacity:1;pointer-events:none;';
-    var sheet = document.createElement('div');
-    sheet.id = 'pdf-capture-sheet';
-    sheet.style.cssText = 'width:794px;margin:0;background:#0b0a14;color:#ece6d8;';
-    try {
-      sheet.innerHTML = buildPremiumPdfHtml(isFull);
-    } catch(buildErr){
-      console.error('PDF HTML build failed:', buildErr);
-      try {
-        var fb0 = downloadReadingPdfTextFallback(kind);
-        if(btn){ btn.disabled = false; btn.textContent = 'SCARICA PDF'; }
-        window.__luxseePdfBusy = false;
-        showToast('PDF scaricato.');
-        if(fb0 && fb0.url){
-          setTimeout(function(){ try { URL.revokeObjectURL(fb0.url); } catch(e){} }, 60000);
-        }
-      } catch(e2){
-        window.__luxseePdfBusy = false;
-        if(btn){ btn.disabled = false; btn.textContent = 'SCARICA PDF'; }
-        showToast('Errore nel download del PDF.');
-      }
-      return Promise.resolve();
-    }
-    overlay.appendChild(sheet);
-    document.body.appendChild(overlay);
+    var cards = (state.lastCards || []).slice();
+    var name = (state.form && state.form.name) ? state.form.name : 'Consultante';
+    var question = (state.form && state.form.question) ? state.form.question : '';
+    var raw = isFull ? state.fullText : state.teaserText;
 
     function cleanup(){
-      if(overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
       window.__luxseePdfBusy = false;
       var liveBtn = document.getElementById('btn-pdf-full');
       if(liveBtn){
@@ -1616,86 +1633,213 @@
       }
     }
 
-    function finishDownload(result){
+    var sigilJobs = cards.map(function(cardName){
+      var sym = SYMBOLS[cardName] || sig('<circle cx="32" cy="32" r="20"/>');
+      return rasterizeSvgToPng(sym, 160).then(function(png){
+        return { name: cardName, png: png };
+      });
+    });
+
+    return Promise.all(sigilJobs).then(function(cardArt){
+      var doc = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      var pageW = doc.internal.pageSize.getWidth();
+      var pageH = doc.internal.pageSize.getHeight();
+      var marginX = 16;
+      var maxW = pageW - marginX * 2;
+      var y = 16;
+      var BG = [11, 10, 20];
+      var GOLD = [212, 175, 106];
+      var MUTED = [154, 145, 168];
+      var CREAM = [236, 230, 216];
+      var CARD_BG = [20, 16, 40];
+
+      function paintPage(){
+        doc.setFillColor(BG[0], BG[1], BG[2]);
+        doc.rect(0, 0, pageW, pageH, 'F');
+      }
+      function ensure(h){
+        if(y + h <= pageH - 16) return;
+        doc.addPage();
+        paintPage();
+        y = 16;
+      }
+      function centerText(t, size, color, style, gap){
+        doc.setFont('helvetica', style || 'normal');
+        doc.setFontSize(size);
+        doc.setTextColor(color[0], color[1], color[2]);
+        var lines = doc.splitTextToSize(String(t || ''), maxW);
+        ensure(lines.length * (size * 0.45) + 2);
+        doc.text(lines, pageW / 2, y, { align: 'center' });
+        y += lines.length * (size * 0.45) + (gap == null ? 4 : gap);
+      }
+      function drawCardRow(){
+        if(!cardArt.length) return;
+        var gap = 4;
+        var boxW = (maxW - gap * (cardArt.length - 1)) / cardArt.length;
+        var boxH = 42;
+        var sigSize = 16;
+        ensure(boxH + 8);
+        var startX = marginX;
+        cardArt.forEach(function(item, i){
+          var x = startX + i * (boxW + gap);
+          doc.setFillColor(CARD_BG[0], CARD_BG[1], CARD_BG[2]);
+          doc.setDrawColor(GOLD[0], GOLD[1], GOLD[2]);
+          doc.setLineWidth(0.35);
+          doc.roundedRect(x, y, boxW, boxH, 2.5, 2.5, 'FD');
+          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(8);
+          doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+          doc.text(POSITIONS[i] || '', x + boxW / 2, y + 6, { align: 'center' });
+          if(item.png){
+            try {
+              doc.addImage(item.png, 'PNG', x + (boxW - sigSize) / 2, y + 9, sigSize, sigSize);
+            } catch(eImg){}
+          }
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(8);
+          doc.setTextColor(GOLD[0], GOLD[1], GOLD[2]);
+          var label = doc.splitTextToSize(item.name, boxW - 4);
+          doc.text(label.slice(0, 2), x + boxW / 2, y + boxH - 7, { align: 'center' });
+        });
+        y += boxH + 10;
+      }
+      function drawHeading(cardName){
+        ensure(14);
+        doc.setFillColor(28, 24, 48);
+        doc.setDrawColor(GOLD[0], GOLD[1], GOLD[2]);
+        doc.setLineWidth(0.6);
+        doc.line(marginX, y, marginX, y + 10);
+        doc.setFillColor(28, 24, 48);
+        doc.roundedRect(marginX + 1.5, y, maxW - 1.5, 11, 1.5, 1.5, 'F');
+        var art = null;
+        for(var i = 0; i < cardArt.length; i++){
+          if(cardArt[i].name === cardName){ art = cardArt[i].png; break; }
+        }
+        var tx = marginX + 4;
+        if(art){
+          try { doc.addImage(art, 'PNG', tx, y + 1.5, 8, 8); tx += 11; } catch(eH){}
+        }
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(11);
+        doc.setTextColor(GOLD[0], GOLD[1], GOLD[2]);
+        doc.text(cardName, tx, y + 7.2);
+        var pos = cardPositionLabel(cardName);
+        if(pos){
+          doc.setFont('helvetica', 'italic');
+          doc.setFontSize(9);
+          doc.setTextColor(MUTED[0], MUTED[1], MUTED[2]);
+          doc.text(pos, marginX + maxW - 2, y + 7.2, { align: 'right' });
+        }
+        y += 15;
+      }
+      function drawRichParagraph(text){
+        var clean = String(text || '').replace(/\r/g, '').trim();
+        if(!clean) return;
+        // Tokenizza **grassetto**
+        var tokens = [];
+        var re = /\*\*([\s\S]+?)\*\*|([^*]+)/g;
+        var m;
+        while((m = re.exec(clean))){
+          if(m[1] != null){
+            softenEmphasisCaps(m[1]).split(/(\s+)/).forEach(function(w){
+              if(w !== '') tokens.push({ text: w, gold: !/^\s+$/.test(w) });
+            });
+          } else if(m[2]){
+            m[2].split(/(\s+)/).forEach(function(w){
+              if(w !== '') tokens.push({ text: w, gold: false });
+            });
+          }
+        }
+        doc.setFontSize(11);
+        var lineH = 5.4;
+        var x = marginX;
+        ensure(lineH);
+        tokens.forEach(function(tok){
+          var style = tok.gold ? 'bold' : 'normal';
+          doc.setFont('helvetica', style);
+          var tw = doc.getTextWidth(tok.text);
+          if(x > marginX && x + tw > marginX + maxW){
+            y += lineH;
+            x = marginX;
+            ensure(lineH);
+          }
+          // Spezza parole lunghissime
+          if(tw > maxW){
+            var parts = doc.splitTextToSize(tok.text, maxW);
+            parts.forEach(function(part, idx){
+              if(idx > 0){ y += lineH; x = marginX; ensure(lineH); }
+              doc.setFont('helvetica', style);
+              doc.setTextColor(tok.gold ? GOLD[0] : CREAM[0], tok.gold ? GOLD[1] : CREAM[1], tok.gold ? GOLD[2] : CREAM[2]);
+              doc.text(part, x, y);
+              x += doc.getTextWidth(part);
+            });
+            return;
+          }
+          doc.setTextColor(tok.gold ? GOLD[0] : CREAM[0], tok.gold ? GOLD[1] : CREAM[1], tok.gold ? GOLD[2] : CREAM[2]);
+          doc.text(tok.text, x, y);
+          x += tw;
+        });
+        y += lineH + 3;
+      }
+
+      paintPage();
+      centerText('LUXSEETAROT', 10, GOLD, 'bold', 5);
+      centerText(isFull ? 'Lettura completa' : 'Anteprima', 18, GOLD, 'bold', 4);
+      centerText('Per ' + name, 12, MUTED, 'italic', 3);
+      if(question) centerText('« ' + question + ' »', 11, MUTED, 'italic', 8);
+      drawCardRow();
+
+      var seen = {};
+      String(raw || '').split(/\n{2,}/).forEach(function(block){
+        var p = block.trim();
+        if(!p) return;
+        if(isFull){
+          var asHeading = matchCardHeading(p);
+          if(asHeading){
+            seen[asHeading] = true;
+            drawHeading(asHeading);
+            return;
+          }
+          for(var i = 0; i < cards.length; i++){
+            var cname = cards[i];
+            if(seen[cname]) continue;
+            if(p.indexOf(cname) !== -1){
+              seen[cname] = true;
+              drawHeading(cname);
+              break;
+            }
+          }
+        }
+        var body = isFull ? p : p.replace(/\*\*/g, '');
+        // Se il blocco è solo un titolo carta già disegnato, non ripetere
+        if(isFull && matchCardHeading(p)) return;
+        drawRichParagraph(body);
+      });
+
+      ensure(10);
+      y += 4;
+      centerText('Intrattenimento e riflessione simbolica. Non sostituisce consigli medici, legali o finanziari.', 8, MUTED, 'italic', 2);
+
+      var result = triggerPdfFileDownload(doc, 'lettura-luxseetarot.pdf');
       cleanup();
       if(result && result.ok){
         showToast('PDF scaricato.');
         if(result.url){
           setTimeout(function(){ try { URL.revokeObjectURL(result.url); } catch(e){} }, 60000);
         }
-        return;
+      } else {
+        showToast('Errore nel download del PDF.');
       }
-      showToast('Errore nel download del PDF.');
-    }
-
-    var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
-    return fontsReady.then(function(){
-      return new Promise(function(resolve){ setTimeout(resolve, 350); });
-    }).then(function(){
-      if(typeof html2canvas !== 'function') throw new Error('html2canvas missing');
-      return html2canvas(sheet, {
-        backgroundColor: '#0b0a14',
-        scale: 2,
-        useCORS: true,
-        allowTaint: false,
-        logging: false,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: 794,
-        width: 794,
-        height: Math.max(sheet.scrollHeight, sheet.offsetHeight, 1),
-        onclone: function(clonedDoc){
-          var node = clonedDoc.getElementById('pdf-capture-sheet');
-          if(node){
-            node.style.opacity = '1';
-            node.style.visibility = 'visible';
-            node.style.background = '#0b0a14';
-            node.style.color = '#ece6d8';
-            node.style.width = '794px';
-            node.style.position = 'static';
-            node.style.left = '0';
-          }
-          var overlayClone = clonedDoc.getElementById('pdf-capture-overlay');
-          if(overlayClone){
-            overlayClone.style.left = '0';
-            overlayClone.style.top = '0';
-            overlayClone.style.opacity = '1';
-            overlayClone.style.visibility = 'visible';
-          }
-          var shieldNode = clonedDoc.getElementById('screen-shield');
-          if(shieldNode) shieldNode.style.display = 'none';
-        }
-      });
-    }).then(function(canvas){
-      if(!canvas || !canvas.width || !canvas.height) throw new Error('empty canvas');
-      if(canvasLooksBlank(canvas)) throw new Error('blank canvas');
-      var imgData = canvas.toDataURL('image/jpeg', 0.96);
-      var pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-      var pdfW = pdf.internal.pageSize.getWidth();
-      var pdfH = pdf.internal.pageSize.getHeight();
-      var imgW = pdfW;
-      var imgH = (canvas.height * pdfW) / canvas.width;
-      var heightLeft = imgH;
-      var position = 0;
-      pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH, undefined, 'FAST');
-      heightLeft -= pdfH;
-      while(heightLeft > 0){
-        position = heightLeft - imgH;
-        pdf.addPage();
-        pdf.addImage(imgData, 'JPEG', 0, position, imgW, imgH, undefined, 'FAST');
-        heightLeft -= pdfH;
-      }
-      var result = triggerPdfFileDownload(pdf, 'lettura-luxseetarot.pdf');
-      if(!result || !result.ok) throw new Error('download blocked');
-      finishDownload(result);
     }).catch(function(err){
-      console.error('Premium PDF capture failed, fallback text:', err);
+      console.error('Native PDF failed, fallback text:', err);
       try {
         var fb = downloadReadingPdfTextFallback(kind);
-        finishDownload(fb);
+        cleanup();
+        if(fb && fb.ok) showToast('PDF scaricato.');
+        else showToast('Errore nel download del PDF.');
       } catch(e2){
         cleanup();
-        showToast('Errore nel download del PDF. Prova di nuovo o disattiva il blocco popup.');
+        showToast('Errore nel download del PDF. Prova di nuovo.');
         throw e2;
       }
     });
