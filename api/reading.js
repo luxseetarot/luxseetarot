@@ -28,10 +28,11 @@ FORMATO:
 MODALITÀ ${isFull ? 'COMPLETA (PREMIUM)' : 'TEASER GRATUITO'}:
 ${isFull
   ? `- Lettura a pagamento: deve sentirsi chiaramente più ricca e rituale dell'anteprima gratuita.
-- Struttura OBBLIGATORIA in tre sezioni (Passato, Presente, Futuro). Prima di ogni sezione metti una riga da sola con SOLO il nome della carta tra doppi asterischi, esattamente così:
+- Struttura OBBLIGATORIA in tre sezioni (Passato, Presente, Futuro). Prima di ogni sezione metti una riga da sola con SOLO il nome della carta tra doppi asterischi, con maiuscole normali italiane, esattamente così:
 **La Luna**
 (poi a capo il testo della sezione). Usa i nomi delle carte forniti, senza inventarne altri.
-- Nel testo metti in **grassetto** le parole e i concetti davvero importanti (emozioni chiave, scelte, tempi, avvertimenti dolci, prossimi passi). Circa 8-14 grassetti in tutta la lettura, non di più e non a caso.
+- Nel testo metti in **grassetto** le parole e i concetti davvero importanti (emozioni chiave, scelte, tempi, avvertimenti dolci, prossimi passi). Circa 8-14 grassetti in tutta la lettura.
+- OBBLIGATORIO sul grassetto: usa **parola** in minuscolo/maiuscole normali (es. **chiarezza**, **scelta del cuore**). VIETATO evidenziare con TUTTO MAIUSCOLO. Mai scrivere EMOZIONE o CHIAREZZA in maiuscolo per enfasi: solo **grassetto**.
 - Dai risposte più chiare e un prossimo passo concreto (riflessione, non certezza assoluta).
 - Ringrazia per la fiducia nella lettura completa. Puoi ricordare Luxseetarot per altre letture.
 - Niente telefoni, operatori umani o consulti in sede.`

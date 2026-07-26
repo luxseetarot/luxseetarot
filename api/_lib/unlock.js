@@ -1,6 +1,9 @@
 import crypto from 'crypto';
+import zlib from 'zlib';
 
 const readingHits = new Map();
+const READING_CHUNK = 450;
+const READING_MAX_CHUNKS = 40;
 
 export function getUnlockSecret() {
   return process.env.UNLOCK_SECRET || process.env.STRIPE_SECRET_KEY || '';
@@ -87,4 +90,61 @@ export function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+}
+
+/** Serializza la lettura in chunk metadata Stripe (limite 500 char/valore). */
+export function encodeReadingMeta(reading, previousMeta = {}) {
+  const prevN = parseInt(previousMeta?.rd_n || '0', 10) || 0;
+  const meta = { rd_n: '0' };
+  for (let i = 1; i <= prevN; i++) meta[`rd_${i}`] = '';
+
+  if (!reading || !reading.form || !Array.isArray(reading.cards) || !reading.cards.length) {
+    return meta;
+  }
+  if (!reading.teaserText && !reading.fullText) {
+    return meta;
+  }
+
+  const payload = {
+    form: {
+      name: String(reading.form.name || '').slice(0, 80),
+      birthDate: String(reading.form.birthDate || '').slice(0, 32),
+      email: String(reading.form.email || '').slice(0, 120),
+      question: String(reading.form.question || '').slice(0, 500),
+    },
+    cards: reading.cards.slice(0, 3).map((c) => String(c || '').slice(0, 64)),
+    teaserText: reading.teaserText ? String(reading.teaserText).slice(0, 8000) : null,
+    fullText: reading.fullText ? String(reading.fullText).slice(0, 12000) : null,
+  };
+  const b64 = zlib.gzipSync(Buffer.from(JSON.stringify(payload), 'utf8')).toString('base64url');
+  let n = 0;
+  for (let i = 0; i < b64.length && n < READING_MAX_CHUNKS; i += READING_CHUNK) {
+    n += 1;
+    meta[`rd_${n}`] = b64.slice(i, i + READING_CHUNK);
+  }
+  meta.rd_n = String(n);
+  return meta;
+}
+
+export function decodeReadingMeta(metadata) {
+  const n = parseInt(metadata?.rd_n || '0', 10) || 0;
+  if (n <= 0) return null;
+  let b64 = '';
+  for (let i = 1; i <= n; i++) b64 += metadata[`rd_${i}`] || '';
+  if (!b64) return null;
+  try {
+    const json = zlib.gunzipSync(Buffer.from(b64, 'base64url')).toString('utf8');
+    const data = JSON.parse(json);
+    if (!data?.form || !Array.isArray(data.cards) || !data.cards.length) return null;
+    if (!data.teaserText && !data.fullText) return null;
+    return {
+      form: data.form,
+      cards: data.cards,
+      teaserText: data.teaserText || null,
+      fullText: data.fullText || null,
+      savedAt: Date.now(),
+    };
+  } catch {
+    return null;
+  }
 }

@@ -1,5 +1,5 @@
 import Stripe from 'stripe';
-import { cors, signUnlock, getSessionCredits } from './_lib/unlock.js';
+import { cors, signUnlock, getSessionCredits, decodeReadingMeta } from './_lib/unlock.js';
 import { sendCreditsEmail, upsertMarketingContact } from './_lib/email.js';
 
 export default async function handler(req, res) {
@@ -58,6 +58,8 @@ export default async function handler(req, res) {
       );
     }
 
+    const savedReading = decodeReadingMeta(info.session.metadata || {});
+
     return res.status(200).json({
       ok: true,
       credits: info.remaining,
@@ -68,6 +70,7 @@ export default async function handler(req, res) {
       email: info.email,
       emailSent,
       exp,
+      savedReading: savedReading || null,
     });
   } catch (err) {
     console.error('Verify error:', err);
