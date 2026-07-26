@@ -491,6 +491,8 @@
 
         <p class="cta-text" id="cta-teaser-text">Questa è solo un'anteprima. Nella versione completa ricevi la lettura intera in stile premium e puoi scaricare il PDF quando vuoi. Sblocca ora.</p>
 
+        <div id="turnstile-checkout-wrap" class="turnstile-wrap" aria-label="Verifica anti-bot per l'acquisto" style="display:none"></div>
+
         <div class="cta-actions">
           <button type="button" class="gold-btn" id="btn-use-credit" style="display:none">USA 1 CREDITO PER LA VERSIONE COMPLETA</button>
           <button type="button" class="credits-pill" id="credits-pill" title="Clicca per gestire i crediti" style="display:none"></button>
@@ -645,7 +647,7 @@
     var tag = (ae.tagName || '').toUpperCase();
     if(tag === 'IFRAME') return true; // es. Cloudflare Turnstile
     if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-    if(ae.closest && ae.closest('#turnstile-wrap')) return true;
+    if(ae.closest && (ae.closest('#turnstile-wrap') || ae.closest('#turnstile-checkout-wrap'))) return true;
     return false;
   }
   document.addEventListener('visibilitychange', function(){
@@ -769,7 +771,11 @@
 
 
 
-  var state = { form:null, deck:shuffle(DECK), selected:[], lastCards:null, mode:'teaser', teaserText:null, fullText:null, turnstileToken:null, turnstileWidgetId:null };
+  var state = {
+    form:null, deck:shuffle(DECK), selected:[], lastCards:null, mode:'teaser',
+    teaserText:null, fullText:null, turnstileToken:null, turnstileWidgetId:null,
+    checkoutTurnstileToken:null, checkoutTurnstileWidgetId:null, turnstileSiteKey:null
+  };
 
   var POSITIONS = ['Passato','Presente','Futuro'];
   var STORAGE_KEY = 'luxsee_unlock';
@@ -784,11 +790,27 @@
     } catch(e){}
     return state.turnstileToken || '';
   }
+  function getCheckoutTurnstileToken(){
+    try {
+      if(window.turnstile && state.checkoutTurnstileWidgetId != null){
+        return window.turnstile.getResponse(state.checkoutTurnstileWidgetId) || state.checkoutTurnstileToken || '';
+      }
+    } catch(e){}
+    return state.checkoutTurnstileToken || getTurnstileToken() || '';
+  }
   function resetTurnstile(){
     state.turnstileToken = null;
     try {
       if(window.turnstile && state.turnstileWidgetId != null){
         window.turnstile.reset(state.turnstileWidgetId);
+      }
+    } catch(e){}
+  }
+  function resetCheckoutTurnstile(){
+    state.checkoutTurnstileToken = null;
+    try {
+      if(window.turnstile && state.checkoutTurnstileWidgetId != null){
+        window.turnstile.reset(state.checkoutTurnstileWidgetId);
       }
     } catch(e){}
   }
@@ -800,6 +822,7 @@
       state.turnstileWidgetId = window.turnstile.render(wrap, {
         sitekey: siteKey,
         theme: 'dark',
+        'refresh-expired': 'auto',
         callback: function(token){ state.turnstileToken = token; },
         'expired-callback': function(){ state.turnstileToken = null; },
         'error-callback': function(){ state.turnstileToken = null; }
@@ -815,8 +838,73 @@
       }, 250);
     }
   }
+  function ensureCheckoutTurnstile(){
+    var wrap = document.getElementById('turnstile-checkout-wrap');
+    var siteKey = state.turnstileSiteKey;
+    if(!wrap || !siteKey) return;
+    // Serve solo se deve pagare (niente crediti)
+    var u = getUnlock();
+    var needsPay = !(u && u.unlockToken && Number(u.credits) > 0);
+    if(!needsPay){
+      wrap.style.display = 'none';
+      return;
+    }
+    wrap.style.display = 'flex';
+    function renderCheckout(){
+      if(!window.turnstile) return;
+      if(state.checkoutTurnstileWidgetId != null){
+        try { window.turnstile.reset(state.checkoutTurnstileWidgetId); } catch(e){}
+        return;
+      }
+      state.checkoutTurnstileWidgetId = window.turnstile.render(wrap, {
+        sitekey: siteKey,
+        theme: 'dark',
+        'refresh-expired': 'auto',
+        callback: function(token){ state.checkoutTurnstileToken = token; },
+        'expired-callback': function(){ state.checkoutTurnstileToken = null; },
+        'error-callback': function(){ state.checkoutTurnstileToken = null; }
+      });
+    }
+    if(window.turnstile) renderCheckout();
+    else {
+      var tries = 0;
+      var t = setInterval(function(){
+        tries++;
+        if(window.turnstile){ clearInterval(t); renderCheckout(); }
+        else if(tries > 40) clearInterval(t);
+      }, 250);
+    }
+  }
+  function waitForCheckoutTurnstileToken(timeoutMs){
+    return new Promise(function(resolve, reject){
+      var existing = getCheckoutTurnstileToken();
+      if(existing){ resolve(existing); return; }
+      if(!state.turnstileSiteKey || !document.getElementById('turnstile-checkout-wrap')){
+        resolve(getTurnstileToken() || '');
+        return;
+      }
+      ensureCheckoutTurnstile();
+      resetCheckoutTurnstile();
+      var started = Date.now();
+      var t = setInterval(function(){
+        var tok = getCheckoutTurnstileToken();
+        if(tok){
+          clearInterval(t);
+          resolve(tok);
+          return;
+        }
+        if(Date.now() - started > (timeoutMs || 12000)){
+          clearInterval(t);
+          reject(new Error('turnstile-timeout'));
+        }
+      }, 200);
+    });
+  }
   fetch('/api/config').then(function(r){ return r.json(); }).then(function(cfg){
-    if(cfg && cfg.turnstileSiteKey) initTurnstile(cfg.turnstileSiteKey);
+    if(cfg && cfg.turnstileSiteKey){
+      state.turnstileSiteKey = cfg.turnstileSiteKey;
+      initTurnstile(cfg.turnstileSiteKey);
+    }
   }).catch(function(){});
 
   function getUnlock(){
@@ -904,6 +992,7 @@
     if(ctaEl) ctaEl.classList.toggle('has-credits', hasCredits);
     if(ctaFullEl) ctaFullEl.classList.toggle('has-credits', hasCredits);
 
+    var checkoutWrap = document.getElementById('turnstile-checkout-wrap');
     if(hasCredits){
       if(pill){ pill.textContent = label; pill.classList.add('show'); pill.style.display = 'block'; }
       if(pillFull){ pillFull.textContent = label; pillFull.classList.add('show'); pillFull.style.display = fullOpen ? 'block' : 'none'; }
@@ -919,6 +1008,7 @@
       if(unlockFull) unlockFull.style.display = 'none';
       if(unlockPack) unlockPack.style.display = 'none';
       if(upsellPack) upsellPack.style.display = 'none';
+      if(checkoutWrap) checkoutWrap.style.display = 'none';
       if(teaserText){
         teaserText.textContent = 'Hai ancora crediti. Usa 1 credito per la versione completa di questa domanda, oppure inizia una nuova lettura.';
       }
@@ -935,6 +1025,7 @@
       if(teaserText){
         teaserText.textContent = 'Questa è solo un\'anteprima. Nella versione completa ricevi la lettura intera in stile premium e puoi scaricare il PDF quando vuoi. Sblocca ora.';
       }
+      if(teaserOpen) ensureCheckoutTurnstile();
     }
   }
   function showCreditChoice(opts){
@@ -1355,22 +1446,42 @@
         skipAutoFull: !!(state.fullText && product === 'pack')
       }));
     }
-    fetch('/api/create-checkout', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        product: product,
-        origin: window.location.origin,
-        email: email,
-        name: state.form.name || '',
-        marketing: !!state.form.marketing,
-        turnstileToken: getTurnstileToken()
-      })
-    }).then(function(r){ return r.json(); }).then(function(res){
-      if(res.ok && res.url) window.location.href = res.url;
-      else showToast(res.error || 'Pagamento non disponibile al momento.');
+
+    showToast('Verifica anti-bot in corso...');
+    ensureCheckoutTurnstile();
+
+    waitForCheckoutTurnstileToken(12000).then(function(token){
+      if(state.turnstileSiteKey && !token){
+        showToast('Completa la verifica anti-bot qui sotto, poi riprova.');
+        return;
+      }
+      return fetch('/api/create-checkout', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({
+          product: product,
+          origin: window.location.origin,
+          email: email,
+          name: state.form.name || '',
+          marketing: !!state.form.marketing,
+          turnstileToken: token || ''
+        })
+      }).then(function(r){ return r.json(); }).then(function(res){
+        if(res.ok && res.url){
+          window.location.href = res.url;
+          return;
+        }
+        // Token scaduto/usato: rigenera e invita a riprovare
+        if(res && res.error && /anti-bot|verifica/i.test(res.error)){
+          resetCheckoutTurnstile();
+          showToast('Verifica scaduta. Completa di nuovo il controllo qui sotto e riprova.');
+          return;
+        }
+        showToast((res && res.error) || 'Pagamento non disponibile al momento.');
+      });
     }).catch(function(){
-      showToast('Connessione al pagamento interrotta.');
+      resetCheckoutTurnstile();
+      showToast('Verifica anti-bot scaduta o incompleta. Completala qui sotto e riprova.');
     });
   }
   function fetchReading(mode, unlockToken){
@@ -1425,6 +1536,9 @@
               } else {
                 if(ctaFullEl) ctaFullEl.classList.remove('show');
                 ctaEl.classList.add('show');
+                // Il token del form è già stato usato per il teaser: prepara verifica fresca per l'acquisto
+                resetTurnstile();
+                ensureCheckoutTurnstile();
               }
               refreshCreditsUI();
             });

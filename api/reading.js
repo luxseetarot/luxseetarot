@@ -41,8 +41,9 @@ ${isFull
 - NON usare il grassetto (**parola**). Nessun titolo carta per carta. Flusso continuo, senza sezioni rituali.
 - NON svelare tutto: niente analisi completa Passato/Presente/Futuro esaustiva, niente risposta definitiva.
 - Assaggio evocativo, empatia, un dettaglio lasciato in sospeso (curiosità sana, non ansia).
-- Chiudi invitando a sbloccare la lettura completa digitale su Luxseetarot.
-- Niente telefoni, operatori umani o consulti in sede.`}
+- CHIUSURA (obbligatoria, ultime 2-4 frasi): invita in modo naturale a sbloccare la lettura completa di QUESTA stessa domanda, ora che le carte sono già uscite. Crea una leggera urgenza soft: il pezzo lasciato aperto merita di essere letto finché l'intuizione è ancora calda, senza aspettare "un altro momento". Tono da amico sincero, mai da venditore.
+- VIETATO in chiusura: parlare di Luxseetarot come fosse una persona ("chiedi a Luxseetarot", "Luxseetarot ti aspetta", "parla con Luxseetarot"). Niente toni tragici, minacciosi o da televendita. Niente telefoni, operatori umani o consulti in sede.
+- Puoi dire al massimo, in modo sobrio, che la versione completa è disponibile qui, in digitale, per chiudere il cerchio sulla domanda.`}
 `.trim();
 }
 
