@@ -1036,13 +1036,22 @@ document.addEventListener('keydown', function(e) {
     state.form = { name:name, birthDate:birth, email:email, question:q, marketing: false };
     state.turnstileToken = ts;
 
-    state.deck = shuffle(DECK);
-
-    state.selected = [];
-
-    buildFan();
-
-    showPhase('phase-select');
+    // Check if user has credits to skip free reading
+    var u = getUnlock();
+    if(u && u.unlockToken && u.credits > 0){
+      // User has credits - generate cards directly and fetch full reading
+      state.deck = shuffle(DECK);
+      state.selected = state.deck.slice(0, 3);
+      state.lastCards = state.selected.map(function(c){ return c.name; });
+      showPhase('phase-reading');
+      fetchReading('full', u.unlockToken);
+    } else {
+      // Normal flow - show card selection
+      state.deck = shuffle(DECK);
+      state.selected = [];
+      buildFan();
+      showPhase('phase-select');
+    }
 
   });
 
