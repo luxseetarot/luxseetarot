@@ -942,9 +942,11 @@
     try { localStorage.setItem(READING_KEY, JSON.stringify(draft)); } catch(e){}
     syncReadingToServer(draft);
   }
-  function clearReadingDraft(){
+  function clearReadingDraft(opts){
+    // Di default pulisce solo il browser: la copia su Stripe resta
+    // così refresh / link email possono ancora offrire "approfondisci ultima".
     try { localStorage.removeItem(READING_KEY); } catch(e){}
-    syncReadingToServer(null);
+    if(opts && opts.wipeServer) syncReadingToServer(null);
   }
   function syncReadingToServer(draft){
     var u = getUnlock();
@@ -972,6 +974,48 @@
   function hasSavedReadingToContinue(){
     var saved = getSavedReading();
     return !!(saved && saved.form && saved.cards && saved.cards.length && (saved.teaserText || saved.fullText));
+  }
+  function getUnlockSessionId(u){
+    if(u && u.sessionId) return u.sessionId;
+    if(!u || !u.unlockToken) return null;
+    try {
+      var part = String(u.unlockToken).split('.')[0] || '';
+      var b64 = part.replace(/-/g, '+').replace(/_/g, '/');
+      while(b64.length % 4) b64 += '=';
+      var data = JSON.parse(atob(b64));
+      return data && data.sessionId ? data.sessionId : null;
+    } catch(e){ return null; }
+  }
+  function hydrateReadingFromServer(done){
+    if(hasSavedReadingToContinue()){
+      if(typeof done === 'function') done(true);
+      return;
+    }
+    var u = getUnlock();
+    var sessionId = getUnlockSessionId(u);
+    if(!u || !sessionId){
+      if(typeof done === 'function') done(false);
+      return;
+    }
+    fetch('/api/verify-session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sessionId: sessionId, sendEmail: false })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      if(res && res.ok && res.savedReading){
+        applySavedReading(res.savedReading);
+      }
+      if(res && res.ok && u && typeof res.credits === 'number'){
+        u.credits = res.credits;
+        u.sessionId = res.sessionId || sessionId;
+        if(res.unlockToken) u.unlockToken = res.unlockToken;
+        if(res.email) u.email = res.email;
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(u)); } catch(e){}
+      }
+      if(typeof done === 'function') done(hasSavedReadingToContinue());
+    }).catch(function(){
+      if(typeof done === 'function') done(false);
+    });
   }
   function refreshCreditsUI(){
     var u = getUnlock();
@@ -1068,14 +1112,14 @@
       else if(checkoutWrap && state.checkoutPass) checkoutWrap.style.display = 'none';
     }
   }
-  function showCreditChoice(opts){
+  function renderCreditChoicePanel(opts){
     var options = opts || {};
     var panel = document.getElementById('credit-choice');
     var txt = document.getElementById('credit-choice-text');
     var note = document.getElementById('credit-choice-note');
     var continueBtn = document.getElementById('btn-continue-same');
     var u = getUnlock();
-    if(!panel || !u || !u.unlockToken || u.credits < 1) return;
+    if(!panel || !u || !u.unlockToken || Number(u.credits) < 1) return;
     var canContinue = hasSavedReadingToContinue();
     var saved = getSavedReading();
     if(txt){
@@ -1105,6 +1149,14 @@
     panel.classList.add('show');
     refreshCreditsUI();
     if(options.toast) showToast(options.toast);
+  }
+  function showCreditChoice(opts){
+    var u = getUnlock();
+    if(!u || !u.unlockToken || Number(u.credits) < 1) return;
+    // Se in locale manca la lettura, prova a ripristinarla dal server (link email / altro browser)
+    hydrateReadingFromServer(function(){
+      renderCreditChoicePanel(opts);
+    });
   }
   function hideCreditChoice(){
     var panel = document.getElementById('credit-choice');
@@ -1697,6 +1749,12 @@
           loaderEl.style.display='none';
           hidePayBridge();
           if(res.ok){
+            // Prima salva il testo in state, poi aggiorna crediti/storage:
+            // così setUnlock può sincronizzare subito la lettura sul server.
+            if(res.mode === 'full') state.fullText = res.reading;
+            else state.teaserText = res.reading;
+            if(res.checkoutPass) state.checkoutPass = res.checkoutPass;
+            state.mode = res.mode === 'full' ? 'full' : 'teaser';
             if(typeof res.remainingCredits === 'number'){
               var u = getUnlock();
               if(u){
@@ -1706,10 +1764,6 @@
                 else setUnlock(u);
               }
             }
-            if(res.mode === 'full') state.fullText = res.reading;
-            else state.teaserText = res.reading;
-            if(res.checkoutPass) state.checkoutPass = res.checkoutPass;
-            state.mode = res.mode === 'full' ? 'full' : 'teaser';
             // Token form consumato: azzeralo, l'acquisto userà checkoutPass
             if(res.mode !== 'full'){
               state.turnstileToken = null;
