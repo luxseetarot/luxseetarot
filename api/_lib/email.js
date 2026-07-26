@@ -1,4 +1,4 @@
-export async function sendCreditsEmail({ to, name, remaining, max, sessionId, kind }) {
+export async function sendCreditsEmail({ to, name, remaining, max, sessionId }) {
   const apiKey =
     (process.env.BREVO_API_KEY || process.env.BREVO_API_KEY_V3 || '').trim();
   const fromEmail =
@@ -13,19 +13,22 @@ export async function sendCreditsEmail({ to, name, remaining, max, sessionId, ki
 
   const site = (process.env.SITE_URL || 'https://luxseetarot.vercel.app').replace(/\/$/, '');
   const recoverUrl = `${site}/?recover=${encodeURIComponent(sessionId)}`;
-  const title =
-    kind === 'purchase'
-      ? 'Il tuo pack Luxseetarot è attivo'
-      : 'Aggiornamento crediti Luxseetarot';
+  const title = 'I tuoi crediti Luxseetarot';
 
   const html = `
     <div style="font-family:Georgia,serif;background:#0b0a14;color:#ece6d8;padding:28px">
       <p style="letter-spacing:.35em;color:#d4af6a;font-size:12px">LUXSEETAROT</p>
       <h1 style="color:#d4af6a;font-size:22px">${title}</h1>
       <p>Ciao ${name || ''},</p>
-      <p>Crediti letture complete: <strong style="color:#d4af6a">${remaining}</strong> su ${max}.</p>
-      <p>Se cancelli cookie o cambi dispositivo, recupera i crediti da questo link:</p>
-      <p><a href="${recoverUrl}" style="color:#d4af6a">${recoverUrl}</a></p>
+      <p>Il tuo acquisto è attivo. Crediti letture complete: <strong style="color:#d4af6a">${remaining}</strong> su ${max}.</p>
+      <p>Il saldo crediti resta sempre visibile sul sito in basso a sinistra: non ti invieremo altre email di aggiornamento.</p>
+      <p>Apri questo link per scegliere subito se <strong>approfondire la stessa domanda</strong> oppure <strong>farne una nuova</strong>:</p>
+      <p style="margin:22px 0">
+        <a href="${recoverUrl}" style="display:inline-block;background:linear-gradient(135deg,#e6c587,#b88a3e);color:#1a1208;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:700;letter-spacing:.06em">
+          Continua con i tuoi crediti
+        </a>
+      </p>
+      <p style="color:#9a91a8;font-size:12px;word-break:break-all">${recoverUrl}</p>
       <p style="color:#9a91a8;font-size:12px">Conserva questa email. Servizio di intrattenimento / riflessione simbolica.</p>
     </div>
   `;

@@ -1,6 +1,5 @@
 import Stripe from 'stripe';
 import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe } from './_lib/unlock.js';
-import { sendCreditsEmail } from './_lib/email.js';
 import { verifyTurnstileToken } from './_lib/turnstile.js';
 
 function buildSystemPrompt(mode) {
@@ -26,16 +25,22 @@ FORMATO:
 - Non scrivere la parola "conclusione".
 - Chiudi con conforto, ispirazione, gratitudine; invita a riflettere o a un piccolo passo; ringrazia. Tono empatico, rassicurante, spirituale ma accessibile; fluido, caldo, poetico ma naturale.
 
-MODALITÀ ${isFull ? 'COMPLETA' : 'TEASER'}:
+MODALITÀ ${isFull ? 'COMPLETA (PREMIUM)' : 'TEASER GRATUITO'}:
 ${isFull
-  ? '- Dai risposte più chiare e un prossimo passo concreto (riflessione, non certezza assoluta). Ringrazia sinceramente per la fiducia dimostrata nel scegliere la lettura completa. Fai capire che ha fatto la scelta giusta ad approfondire: questo investimento in se stesso/a porterà chiarezza e prospettive preziose. Puoi ricordare che può tornare su Luxseetarot per altre letture. Niente telefoni, operatori umani o consulti in sede.'
-  : `- TEASER GRATUITO (strict):
-- Lunghezza: circa 320-380 parole (mai oltre ~380). Più ricca dell'anteprima minima, ma sempre un assaggio.
-- NON svelare tutto: niente analisi completa Passato/Presente/Futuro esaustiva, niente risposta definitiva alla domanda.
-- Dai un assaggio più ampio: spunti evocativi legati alle carte, atmosfera e empatia, poi un dettaglio lasciato in sospeso (curiosità sana, non ansia).
-- Evita di chiudere ogni filo: almeno un punto resta aperto per la versione completa.
-- Evita liste lunghe e spiegazioni enciclopediche carta per carta.
-- Chiudi invitando a sbloccare la lettura completa digitale su Luxseetarot per fare luce sul pezzo rimasto aperto e sul prossimo passo.
+  ? `- Lettura a pagamento: deve sentirsi chiaramente più ricca e rituale dell'anteprima gratuita.
+- Struttura OBBLIGATORIA in tre sezioni (Passato, Presente, Futuro). Prima di ogni sezione metti una riga da sola con SOLO il nome della carta tra doppi asterischi, esattamente così:
+**La Luna**
+(poi a capo il testo della sezione). Usa i nomi delle carte forniti, senza inventarne altri.
+- Nel testo metti in **grassetto** le parole e i concetti davvero importanti (emozioni chiave, scelte, tempi, avvertimenti dolci, prossimi passi). Circa 8-14 grassetti in tutta la lettura, non di più e non a caso.
+- Dai risposte più chiare e un prossimo passo concreto (riflessione, non certezza assoluta).
+- Ringrazia per la fiducia nella lettura completa. Puoi ricordare Luxseetarot per altre letture.
+- Niente telefoni, operatori umani o consulti in sede.`
+  : `- Anteprima gratuita: stile più semplice e leggero della versione a pagamento.
+- Lunghezza: circa 320-380 parole (mai oltre ~380).
+- NON usare il grassetto (**parola**). Nessun titolo carta per carta. Flusso continuo, senza sezioni rituali.
+- NON svelare tutto: niente analisi completa Passato/Presente/Futuro esaustiva, niente risposta definitiva.
+- Assaggio evocativo, empatia, un dettaglio lasciato in sospeso (curiosità sana, non ansia).
+- Chiudi invitando a sbloccare la lettura completa digitale su Luxseetarot.
 - Niente telefoni, operatori umani o consulti in sede.`}
 `.trim();
 }
@@ -83,17 +88,6 @@ export default async function handler(req, res) {
       nextToken = remainingCredits > 0
         ? signUnlock({ sessionId: unlocked.sessionId, credits: unlocked.credits, exp: unlocked.exp })
         : null;
-
-      if (consumed.email) {
-        sendCreditsEmail({
-          to: consumed.email,
-          name,
-          remaining: consumed.remaining,
-          max: consumed.max,
-          sessionId: unlocked.sessionId,
-          kind: 'usage',
-        }).catch((e) => console.error('Email usage error:', e));
-      }
     }
 
     const systemPrompt = buildSystemPrompt(isFull ? 'full' : 'teaser');

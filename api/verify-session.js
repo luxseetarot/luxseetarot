@@ -27,16 +27,29 @@ export default async function handler(req, res) {
 
     const customerName = info.session.metadata?.name || '';
     let emailSent = false;
-    if (sendEmail && info.email) {
+    const alreadyEmailed = info.session.metadata?.credits_email_sent === '1';
+    // Una sola email crediti per acquisto: il saldo resta visibile sul sito.
+    if (sendEmail && info.email && !alreadyEmailed) {
       const mail = await sendCreditsEmail({
         to: info.email,
         name: customerName,
         remaining: info.remaining,
         max: info.max,
         sessionId,
-        kind: 'purchase',
       });
       emailSent = !!mail.ok;
+      if (mail.ok) {
+        try {
+          await stripe.checkout.sessions.update(sessionId, {
+            metadata: {
+              ...(info.session.metadata || {}),
+              credits_email_sent: '1',
+            },
+          });
+        } catch (e) {
+          console.error('Mark credits_email_sent failed:', e);
+        }
+      }
     }
 
     if (info.session.metadata?.marketing === '1' && info.email) {
