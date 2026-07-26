@@ -545,8 +545,8 @@
 
 
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="/vendor/jspdf.umd.min.js"></script>
+<script src="/vendor/html2canvas.min.js"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 
 <script>
@@ -1314,6 +1314,56 @@
     if(typeof window.jsPDF === 'function') return window.jsPDF;
     return null;
   }
+  function loadScriptOnce(src){
+    return new Promise(function(resolve, reject){
+      var existing = document.querySelector('script[data-luxsee-lib="'+src+'"]');
+      if(existing){
+        if(existing.getAttribute('data-loaded') === '1'){ resolve(); return; }
+        existing.addEventListener('load', function(){ resolve(); });
+        existing.addEventListener('error', function(){ reject(new Error('load failed: '+src)); });
+        return;
+      }
+      var s = document.createElement('script');
+      s.src = src;
+      s.async = true;
+      s.setAttribute('data-luxsee-lib', src);
+      s.onload = function(){ s.setAttribute('data-loaded', '1'); resolve(); };
+      s.onerror = function(){ reject(new Error('load failed: '+src)); };
+      document.head.appendChild(s);
+    });
+  }
+  function ensurePdfLibs(){
+    if(getJsPdfConstructor() && typeof html2canvas === 'function'){
+      return Promise.resolve();
+    }
+    var jspdfSources = [
+      '/vendor/jspdf.umd.min.js',
+      'https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js',
+      'https://unpkg.com/jspdf@2.5.2/dist/jspdf.umd.min.js'
+    ];
+    var canvasSources = [
+      '/vendor/html2canvas.min.js',
+      'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js',
+      'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js'
+    ];
+    function loadFirst(list){
+      var i = 0;
+      function next(){
+        if(i >= list.length) return Promise.reject(new Error('all sources failed'));
+        var src = list[i++];
+        return loadScriptOnce(src).catch(next);
+      }
+      return next();
+    }
+    var needJs = !getJsPdfConstructor();
+    var needCanvas = typeof html2canvas !== 'function';
+    return Promise.all([
+      needJs ? loadFirst(jspdfSources) : Promise.resolve(),
+      needCanvas ? loadFirst(canvasSources) : Promise.resolve()
+    ]).then(function(){
+      if(!getJsPdfConstructor()) throw new Error('jspdf missing after load');
+    });
+  }
   function triggerPdfFileDownload(pdf, filename){
     var name = filename || 'lettura-luxseetarot.pdf';
     var blob = null;
@@ -1492,11 +1542,6 @@
   function downloadReadingPdf(kind){
     var isFull = kind === 'full';
     var btn = document.getElementById('btn-pdf-full');
-    var JsPDF = getJsPdfConstructor();
-    if(!JsPDF){
-      showToast('Libreria PDF non disponibile. Ricarica la pagina.');
-      return Promise.reject(new Error('jspdf missing'));
-    }
     if(isFull && !state.fullText){ showToast('Nessuna lettura completa da scaricare.'); return Promise.reject(new Error('no full')); }
     if(!isFull && !state.teaserText){ showToast('Nessuna lettura teaser da scaricare.'); return Promise.reject(new Error('no teaser')); }
 
@@ -1507,6 +1552,26 @@
     showToast('Generazione PDF in corso...');
     window.__luxseePdfBusy = true;
     if(typeof window.hideLuxseeShield === 'function') window.hideLuxseeShield();
+
+    return ensurePdfLibs().catch(function(err){
+      console.error(err);
+      window.__luxseePdfBusy = false;
+      if(btn){ btn.disabled = false; btn.textContent = 'SCARICA PDF'; }
+      showToast('Libreria PDF non disponibile. Ricarica la pagina e riprova.');
+      throw err;
+    }).then(function(){
+      var JsPDF = getJsPdfConstructor();
+      if(!JsPDF){
+        window.__luxseePdfBusy = false;
+        if(btn){ btn.disabled = false; btn.textContent = 'SCARICA PDF'; }
+        showToast('Libreria PDF non disponibile. Ricarica la pagina e riprova.');
+        return Promise.reject(new Error('jspdf missing'));
+      }
+      return downloadReadingPdfAfterLibs(kind, btn, JsPDF);
+    });
+  }
+  function downloadReadingPdfAfterLibs(kind, btn, JsPDF){
+    var isFull = kind === 'full';
 
     var old = document.getElementById('pdf-capture-overlay');
     if(old && old.parentNode) old.parentNode.removeChild(old);
