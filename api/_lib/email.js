@@ -21,7 +21,7 @@ export async function sendCreditsEmail({ to, name, remaining, max, sessionId }) 
       <h1 style="color:#d4af6a;font-size:22px">${title}</h1>
       <p>Ciao ${name || ''},</p>
       <p>Il tuo acquisto è attivo. Crediti letture complete: <strong style="color:#d4af6a">${remaining}</strong> su ${max}.</p>
-      <p>Il saldo crediti resta sempre visibile sul sito in basso a sinistra: non ti invieremo altre email di aggiornamento.</p>
+      <p>Il saldo crediti resta sempre visibile sul sito: nella pagina iniziale, sotto l'informativa, e dopo ogni lettura completa, sotto i tasti. Non ti invieremo altre email di aggiornamento.</p>
       <p>Apri questo link per scegliere subito se <strong>approfondire la stessa domanda</strong> oppure <strong>farne una nuova</strong>:</p>
       <p style="margin:22px 0">
         <a href="${recoverUrl}" style="display:inline-block;background:linear-gradient(135deg,#e6c587,#b88a3e);color:#1a1208;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:700;letter-spacing:.06em">

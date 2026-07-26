@@ -293,9 +293,11 @@
   }
   .credits-pill.show{display:block}
   .credits-pill:hover{border-color:var(--gold);background:rgba(212,175,106,.08)}
-  .credits-pill--dock{
-    position:fixed;left:14px;bottom:14px;z-index:80;width:auto;max-width:calc(100vw - 28px);
-    background:rgba(20,16,40,.92);backdrop-filter:blur(8px);box-shadow:0 8px 24px rgba(0,0,0,.35);
+  .credits-pill--home{
+    margin:14px auto 0;max-width:100%;
+  }
+  .cta-box .credits-pill--footer{
+    margin:14px 0 0;
   }
   .cta-box.has-credits #btn-unlock-full,
   .cta-box.has-credits #btn-unlock-pack,
@@ -414,6 +416,7 @@
 
       <p class="privacy">Nessun account richiesto.</p>
       <div style="font-size: 12px; line-height: 1.55; color: rgba(154,145,168,.85); text-align: center; margin: 18px 0 0; writing-mode: horizontal-tb !important; text-orientation: mixed !important; direction: ltr !important; display: block !important; width: 100% !important; white-space: normal !important; word-spacing: normal !important; letter-spacing: normal !important;">Servizio di intrattenimento e riflessione. Non sostituisce consigli medici, legali o finanziari. I testi sono generati digitalmente.</div>
+      <button type="button" class="credits-pill credits-pill--home" id="credits-pill-home" title="Clicca per gestire i crediti" style="display:none"></button>
 
     </form>
 
@@ -477,9 +480,9 @@
           <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA PDF</button>
           <button type="button" class="ghost-btn" id="btn-deepen-full">APPROFONDISCI ANCORA LA LETTURA</button>
           <button type="button" class="ghost-btn" id="btn-new-question-full">FAI UNA NUOVA DOMANDA</button>
-          <button type="button" class="credits-pill" id="credits-pill-full" title="Clicca per gestire i crediti" style="display:none"></button>
           <button type="button" class="ghost-btn" id="btn-upsell-pack">PACK 5 LETTURE — €9,90</button>
         </div>
+        <button type="button" class="credits-pill credits-pill--footer" id="credits-pill-full" title="Clicca per gestire i crediti" style="display:none"></button>
 
       </div>
 
@@ -534,7 +537,6 @@
 </div>
 
 <div class="checkout-toast" id="checkout-toast"></div>
-<button type="button" class="credits-pill credits-pill--dock" id="credits-pill-dock" title="Clicca per gestire i crediti"></button>
 <footer>Luxseetarot © 2026 · Tutti i diritti riservati. È vietata la riproduzione anche parziale.</footer>
 
 
@@ -975,7 +977,7 @@
     var u = getUnlock();
     var pill = document.getElementById('credits-pill');
     var pillFull = document.getElementById('credits-pill-full');
-    var pillDock = document.getElementById('credits-pill-dock');
+    var pillHome = document.getElementById('credits-pill-home');
     var useBtn = document.getElementById('btn-use-credit');
     var newTeaserBtn = document.getElementById('btn-new-question-teaser');
     var newFullBtn = document.getElementById('btn-new-question-full');
@@ -985,10 +987,12 @@
     var upsellPack = document.getElementById('btn-upsell-pack');
     var teaserText = document.getElementById('cta-teaser-text');
     var fullTextEl = document.getElementById('cta-full-text');
+    var phaseInput = document.getElementById('phase-input');
     var hasCredits = !!(u && u.unlockToken && Number(u.credits) > 0);
     var label = hasCredits ? ('Crediti letture complete: ' + u.credits) : '';
     var teaserOpen = !!(ctaEl && ctaEl.classList.contains('show'));
     var fullOpen = !!(ctaFullEl && ctaFullEl.classList.contains('show'));
+    var onHome = !!(phaseInput && phaseInput.classList.contains('active'));
 
     if(ctaEl) ctaEl.classList.toggle('has-credits', hasCredits);
     if(ctaFullEl) ctaFullEl.classList.toggle('has-credits', hasCredits);
@@ -1009,13 +1013,16 @@
     }
 
     if(hasCredits){
-      if(pill){ pill.textContent = label; pill.classList.add('show'); pill.style.display = 'block'; }
-      if(pillFull){ pillFull.textContent = label; pillFull.classList.add('show'); pillFull.style.display = fullOpen ? 'block' : 'none'; }
-      if(pillDock){
-        pillDock.textContent = label;
-        if(teaserOpen){ pillDock.classList.remove('show'); pillDock.style.display = 'none'; }
-        else if(!fullOpen){ pillDock.classList.add('show'); pillDock.style.display = 'block'; }
-        else { pillDock.classList.remove('show'); pillDock.style.display = 'none'; }
+      if(pill){ pill.textContent = label; pill.classList.add('show'); pill.style.display = teaserOpen ? 'block' : 'none'; }
+      if(pillFull){
+        pillFull.textContent = label;
+        pillFull.classList.add('show');
+        pillFull.style.display = fullOpen ? 'block' : 'none';
+      }
+      if(pillHome){
+        pillHome.textContent = label;
+        pillHome.classList.add('show');
+        pillHome.style.display = onHome ? 'block' : 'none';
       }
       if(useBtn) useBtn.style.display = 'inline-flex';
       if(newTeaserBtn) newTeaserBtn.style.display = 'block';
@@ -1029,7 +1036,7 @@
     } else {
       if(pill){ pill.classList.remove('show'); pill.style.display = 'none'; }
       if(pillFull){ pillFull.classList.remove('show'); pillFull.style.display = 'none'; }
-      if(pillDock){ pillDock.classList.remove('show'); pillDock.style.display = 'none'; }
+      if(pillHome){ pillHome.classList.remove('show'); pillHome.style.display = 'none'; }
       if(useBtn) useBtn.style.display = 'none';
       if(newTeaserBtn) newTeaserBtn.style.display = 'none';
       if(unlockFull) unlockFull.style.display = '';
@@ -1828,6 +1835,7 @@
       var el = document.getElementById(id);
 
       el.classList.add('active');
+      refreshCreditsUI();
 
       window.scrollTo({top:0,behavior:'smooth'});
 
@@ -2325,7 +2333,7 @@
     var u = getUnlock();
     if(u && u.unlockToken && Number(u.credits) > 0) showCreditChoice();
   }
-  ['credits-pill','credits-pill-full','credits-pill-dock'].forEach(function(id){
+  ['credits-pill','credits-pill-full','credits-pill-home'].forEach(function(id){
     var el = document.getElementById(id);
     if(el) el.addEventListener('click', onCreditsPillClick);
   });
