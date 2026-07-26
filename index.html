@@ -8,7 +8,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>Luxseetarot â€” Lettura dei Tarocchi</title>
+<title>Luxseetarot — Lettura dei Tarocchi</title>
 
 <meta name="description" content="Letture simboliche digitali Luxseetarot. Intrattenimento e riflessione, generate digitalmente." />
 
@@ -46,7 +46,7 @@
 
   html,body{margin:0;padding:0;background:radial-gradient(ellipse at top, #1a1430 0%, #0b0a14 60%, #050410 100%);color:var(--fg);font-family:'Inter',sans-serif;min-height:100%;}
 
-  body{overflow-x:hidden;min-height:100vh;}
+  body{overflow-x:hidden;min-height:100vh;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
 
   .display{font-family:'Cinzel',serif;letter-spacing:.08em}
 
@@ -150,7 +150,7 @@
 
   .fan-card .back::before{content:"";position:absolute;inset:6px;border:1px solid var(--gold-faint);border-radius:8px}
 
-  .fan-card .back::after{content:"âœ¦";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:30px;text-shadow:0 0 14px rgba(212,175,106,.6)}
+  .fan-card .back::after{content:"";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--gold);font-size:30px;text-shadow:0 0 14px rgba(212,175,106,.6);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M42 14 a20 20 0 1 0 0 36 a16 16 0 1 1 0 -36 z' fill='none' stroke='%23d4af6a' stroke-width='2'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:40px 40px}
 
   .fan-card.selected{filter:drop-shadow(0 0 24px rgba(212,175,106,.55))}
 
@@ -320,11 +320,6 @@
 
       </div>
 
-      <label class="consent" for="marketing">
-        <input id="marketing" name="marketing" type="checkbox" />
-        <span>Ok a ricevere aggiornamenti occasionali. Posso disiscrivermi quando voglio.</span>
-      </label>
-
       <div class="field">
 
         <label for="q">La tua domanda</label>
@@ -337,10 +332,10 @@
 
       <div class="err" id="form-err" style="display:none"></div>
 
-      <button type="submit" class="gold-btn full">INIZIA LA LETTURA</button>
+      <button type="submit" class="gold-btn full">INIZIA LA LETTURA GRATUITA</button>
 
       <p class="privacy">Nessun account richiesto.</p>
-      <p class="disclaimer" style="writing-mode: horizontal-tb; text-orientation: mixed; direction: ltr; display: block; width: 100%;">Servizio di intrattenimento e riflessione. Non sostituisce consigli medici, legali o finanziari. I testi sono generati digitalmente.</p>
+      <div style="font-size: 12px; line-height: 1.55; color: rgba(154,145,168,.85); text-align: center; margin: 18px 0 0; writing-mode: horizontal-tb !important; text-orientation: mixed !important; direction: ltr !important; display: block !important; width: 100% !important; white-space: normal !important; word-spacing: normal !important; letter-spacing: normal !important;">Servizio di intrattenimento e riflessione. Non sostituisce consigli medici, legali o finanziari. I testi sono generati digitalmente.</div>
 
     </form>
 
@@ -400,11 +395,11 @@
 
       <div class="cta-title">APPROFONDISCI LA LETTURA</div>
 
-      <p class="cta-text">Questa Ã¨ solo un'anteprima. Nella versione completa ricevi la lettura intera e puoi scaricare un PDF (anteprima + lettura) per rileggerla senza fretta. Sblocca ora.</p>
+      <p class="cta-text">Questa è solo un'anteprima. Nella versione completa ricevi la lettura intera e puoi scaricare un PDF (anteprima + lettura) per rileggerla senza fretta. Sblocca ora.</p>
 
       <div class="cta-actions">
-        <button type="button" class="gold-btn" id="btn-unlock-full">SBLOCCA LETTURA COMPLETA â€” â‚¬4,90</button>
-        <button type="button" class="ghost-btn" id="btn-unlock-pack">PACK 5 LETTURE â€” â‚¬9,90</button>
+        <button type="button" class="gold-btn" id="btn-unlock-full">SBLOCCA LETTURA COMPLETA — €4,90</button>
+        <button type="button" class="ghost-btn" id="btn-unlock-pack">PACK 5 LETTURE — €9,90</button>
         <button type="button" class="ghost-btn" id="btn-use-credit" style="display:none">USA 1 CREDITO PER LA VERSIONE COMPLETA</button>
       </div>
 
@@ -421,7 +416,7 @@
       </div>
 
       <div class="cta-actions">
-        <button type="button" class="ghost-btn" id="btn-upsell-pack">PACK 5 LETTURE â€” â‚¬9,90</button>
+        <button type="button" class="ghost-btn" id="btn-upsell-pack">PACK 5 LETTURE — €9,90</button>
       </div>
 
     </div>
@@ -445,7 +440,7 @@
 
 <div class="checkout-toast" id="checkout-toast"></div>
 <div class="credits-pill" id="credits-pill"></div>
-<footer>Luxseetarot Â· 2026 Â· Letture simboliche digitali Â· Intrattenimento</footer>
+<footer>Luxseetarot © 2026 · Tutti i diritti riservati. È vietata la riproduzione anche parziale.</footer>
 
 
 
@@ -453,7 +448,20 @@
 
 
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+
+<script>
+// Disable right-click and copy
+document.addEventListener('contextmenu', function(e) {
+  e.preventDefault();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S')) {
+    e.preventDefault();
+  }
+});
+</script>
 
 <script>
 
@@ -641,7 +649,7 @@
     if(txt){
       txt.textContent = product === 'pack'
         ? 'Pagamento ricevuto. Sto aprendo la lettura completa inclusa nel tuo pack.'
-        : 'Pagamento ricevuto. Sto aprendo la lettura completa da â‚¬4,90 che hai appena acquistato.';
+        : 'Pagamento ricevuto. Sto aprendo la lettura completa da €4,90 che hai appena acquistato.';
     }
     if(bridge) bridge.classList.add('show');
   }
@@ -689,41 +697,51 @@
     var body = '';
     if(isFull){
       if(state.teaserText){
-        body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte I Â· Anteprima</h2>'+textToHtmlParagraphs(state.teaserText);
+        body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte I · Anteprima</h2>'+textToHtmlParagraphs(state.teaserText);
         body += '<hr style="border:none;border-top:1px solid rgba(212,175,106,.3);margin:18px 0"/>';
       }
-      body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte II Â· Completa</h2>'+textToHtmlParagraphs(state.fullText);
+      body += '<h2 style="color:#d4af6a;font-size:12pt;letter-spacing:.12em;text-transform:uppercase;">Parte II · Completa</h2>'+textToHtmlParagraphs(state.fullText);
     } else {
       body += textToHtmlParagraphs(state.teaserText);
     }
 
     var html =
-      '<!DOCTYPE html><html lang="it"><head><meta charset="UTF-8"/><title>'+escapeHtml(title)+'</title>'+
-      '<style>@page{margin:14mm}body{margin:0;background:#0b0a14;color:#ece6d8;font-family:Georgia,serif}'+
-      '.sheet{max-width:720px;margin:0 auto;padding:28px 24px}h1{color:#d4af6a;text-align:center;font-size:22pt}'+
-      '.brand{text-align:center;letter-spacing:.4em;color:rgba(212,175,106,.75);font-size:10pt}'+
-      '.meta{text-align:center;color:#9a91a8;font-style:italic}p{line-height:1.55;font-size:11pt}'+
-      '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+
-      '<div class="sheet">'+
-      '<div class="brand">LUXSEETAROT</div>'+
-      '<h1>'+escapeHtml(title)+'</h1>'+
-      '<p class="meta">Per '+escapeHtml(name)+'</p>'+
-      (question?'<p class="meta">Domanda: '+escapeHtml(question)+'</p>':'')+
+      '<div style="background:#0b0a14;color:#ece6d8;font-family:Georgia,serif;padding:28px 24px;max-width:720px;margin:0 auto;">'+
+      '<div style="text-align:center;letter-spacing:.4em;color:rgba(212,175,106,.75);font-size:10pt;margin-bottom:20px;">LUXSEETAROT</div>'+
+      '<h1 style="color:#d4af6a;text-align:center;font-size:22pt;margin-bottom:10px;">'+escapeHtml(title)+'</h1>'+
+      '<p style="text-align:center;color:#9a91a8;font-style:italic;margin-bottom:20px;">Per '+escapeHtml(name)+'</p>'+
+      (question?'<p style="text-align:center;color:#9a91a8;font-style:italic;margin-bottom:20px;">Domanda: '+escapeHtml(question)+'</p>':'')+
       cardsHtml+body+
-      '<p class="meta" style="margin-top:24px;font-size:9pt">Intrattenimento e riflessione simbolica. Non sostituisce consigli medici, legali o finanziari.</p>'+
-      '</div><script>window.onload=function(){setTimeout(function(){window.print();},250);}<\\/script></body></html>';
+      '<p style="text-align:center;color:#9a91a8;font-style:italic;margin-top:24px;font-size:9pt">Intrattenimento e riflessione simbolica. Non sostituisce consigli medici, legali o finanziari.</p>'+
+      '</div>';
 
-    var w = window.open('', '_blank');
-    if(!w){ showToast('Consenti i popup per scaricare/stampare il PDF.'); return; }
-    w.document.open();
-    w.document.write(html);
-    w.document.close();
-    showToast('Nella finestra di stampa scegli "Salva come PDF".');
+    var element = document.createElement('div');
+    element.innerHTML = html;
+    element.style.position = 'fixed';
+    element.style.left = '-9999px';
+    document.body.appendChild(element);
+
+    var opt = {
+      margin: 14,
+      filename: 'lettura-luxseetarot.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(element).save().then(function(){
+      document.body.removeChild(element);
+      showToast('PDF scaricato con successo.');
+    }).catch(function(){
+      document.body.removeChild(element);
+      showToast('Errore nel download del PDF.');
+    });
   }
   function startCheckout(product){
     var email = (state.form && state.form.email) ? state.form.email : '';
     if(!email || email.indexOf('@') < 0){
-      showToast('Inserisci una email valida nella Fase I prima di pagare.');
+      showToast('Email non disponibile. Compila il form nella Fase I prima di procedere al pagamento.');
+      console.error('Email not available in state.form:', state.form);
       return;
     }
     if(state.form && state.lastCards){
