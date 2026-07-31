@@ -1,4 +1,4 @@
-export async function verifyTurnstileToken(token, ip) {
+﻿export async function verifyTurnstileToken(token, ip) {
   const secret = (process.env.CF_TURNSTILE_SECRET_KEY || '').trim();
   if (!secret) {
     // Se non configurato in env, non bloccare (utile in locale). In produzione va impostato.

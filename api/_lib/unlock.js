@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+﻿import crypto from 'crypto';
 import zlib from 'zlib';
 
 const readingHits = new Map();
