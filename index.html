@@ -3428,12 +3428,17 @@
     var editingSlug = '';
 
     function getSecret(){
-      try { return sessionStorage.getItem(ADMIN_KEY) || ''; } catch(e){ return ''; }
+      try { return localStorage.getItem(ADMIN_KEY) || sessionStorage.getItem(ADMIN_KEY) || ''; } catch(e){ return ''; }
     }
     function setSecret(v){
       try {
-        if(v) sessionStorage.setItem(ADMIN_KEY, v);
-        else sessionStorage.removeItem(ADMIN_KEY);
+        if(v){
+          localStorage.setItem(ADMIN_KEY, v);
+          sessionStorage.setItem(ADMIN_KEY, v);
+        } else {
+          localStorage.removeItem(ADMIN_KEY);
+          sessionStorage.removeItem(ADMIN_KEY);
+        }
       } catch(e){}
     }
     function showErr(msg){
@@ -3713,6 +3718,8 @@
           var slug = btn.getAttribute('data-blog-preview');
           if(!slug) return;
           var url = '/blog/articolo.html?slug=' + encodeURIComponent(slug) + '&preview=1';
+          var secret = getSecret();
+          if(secret) url += '&secret=' + encodeURIComponent(secret);
           window.open(url, '_blank', 'noopener');
         });
       });

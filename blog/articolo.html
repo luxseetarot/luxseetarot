@@ -84,10 +84,18 @@
   (function(){
     var params = new URLSearchParams(window.location.search);
     var slug = (params.get('slug') || '').trim();
+    // Con rewrite Vercel l’URL resta /blog/:slug senza ?slug= in barra
+    if(!slug){
+      var m = (window.location.pathname || '').match(/^\/blog\/([^\/]+)\/?$/i);
+      if(m && m[1] && m[1].toLowerCase() !== 'articolo.html'){
+        try { slug = decodeURIComponent(m[1]).trim(); } catch(e){ slug = m[1]; }
+      }
+    }
     var preview = params.get('preview') === '1';
-    var secret = '';
-    try { secret = sessionStorage.getItem('luxsee_admin_secret') || ''; } catch(e){}
-    if(!secret) secret = (params.get('secret') || '').trim();
+    var secret = (params.get('secret') || '').trim();
+    if(!secret){
+      try { secret = localStorage.getItem('luxsee_admin_secret') || sessionStorage.getItem('luxsee_admin_secret') || ''; } catch(e){}
+    }
 
     var statusEl = document.getElementById('article-status');
     var root = document.getElementById('article-root');
@@ -129,9 +137,15 @@
       .then(function(r){ return r.json().then(function(j){ return { status: r.status, body: j }; }); })
       .then(function(res){
         if(!res.body || !res.body.ok || !res.body.post){
-          statusEl.textContent = res.status === 404
-            ? 'Articolo non disponibile.'
-            : 'Impossibile caricare l’articolo.';
+          if(preview && !secret){
+            statusEl.textContent = 'Anteprima riservata: rientra nell’admin e riprova Anteprima.';
+          } else if(res.status === 404){
+            statusEl.textContent = preview
+              ? 'Articolo non disponibile in anteprima.'
+              : 'Articolo non pubblico (è ancora in bozza). Aprilo da Admin → Blog → Anteprima.';
+          } else {
+            statusEl.textContent = 'Impossibile caricare l’articolo.';
+          }
           return;
         }
         var post = res.body.post;
