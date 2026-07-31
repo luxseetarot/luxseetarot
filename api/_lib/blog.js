@@ -64,11 +64,17 @@ function sanitizePost(raw) {
         .filter((item) => item.q && item.a)
         .slice(0, 12)
     : [];
+  let coverImage = String(raw.coverImage || raw.image || '').trim().slice(0, 400);
+  if (coverImage && !/^https?:\/\//i.test(coverImage) && !coverImage.startsWith('/')) {
+    coverImage = `/${coverImage}`;
+  }
   return {
     slug,
     title: String(raw.title || '').trim().slice(0, 160),
     description: String(raw.description || '').trim().slice(0, 320),
     keyword: String(raw.keyword || '').trim().slice(0, 120),
+    coverImage: coverImage || '',
+    coverAlt: String(raw.coverAlt || '').trim().slice(0, 180),
     status,
     bodyHtml: String(raw.bodyHtml || '').trim().slice(0, 120000),
     faq,
@@ -167,6 +173,8 @@ export function getDemoArticle() {
     description:
       'Impara a formulare una domanda chiara ai tarocchi: esempi utili, errori da evitare e come ottenere una lettura più leggibile su Luxseetarot.',
     keyword: 'come fare una domanda ai tarocchi',
+    coverImage: '/images/blog/come-fare-una-domanda-ai-tarocchi.jpg',
+    coverAlt: 'Carte dei tarocchi, taccuino e penna alla luce di una candela',
     status: 'draft',
     createdAt: now,
     updatedAt: now,
@@ -274,6 +282,15 @@ export async function seedDemoArticle({ force = false } = {}) {
   const demo = getDemoArticle();
   const existing = await getPost(demo.slug);
   if (existing && !force) {
+    // Patch soft: aggiunge cover se manca, senza riscrivere il testo
+    if (!existing.coverImage && demo.coverImage) {
+      const patched = await savePost({
+        ...existing,
+        coverImage: demo.coverImage,
+        coverAlt: existing.coverAlt || demo.coverAlt,
+      });
+      return { ok: patched.ok, seeded: false, patched: true, post: patched.post || existing, error: patched.error };
+    }
     return { ok: true, seeded: false, post: existing };
   }
   const saved = await savePost(demo);

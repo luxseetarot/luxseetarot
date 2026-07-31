@@ -40,6 +40,7 @@
   .post-list{display:flex;flex-direction:column;gap:22px}
   .post-item{padding:0 0 22px;border-bottom:1px solid rgba(212,175,106,.14)}
   .post-item:last-child{border-bottom:none;padding-bottom:0}
+  .post-item .thumb{display:block;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:4px;margin:0 0 14px;border:1px solid rgba(212,175,106,.16)}
   .post-item h2{font-family:'Cinzel',serif;font-weight:500;font-size:18px;letter-spacing:.06em;margin:0 0 8px;line-height:1.35}
   .post-item h2 a{color:rgba(232,213,163,.95)}
   .post-item h2 a:hover{color:var(--gold)}
@@ -109,7 +110,11 @@
         listEl.innerHTML = posts.map(function(p){
           var href = '/blog/' + encodeURIComponent(p.slug);
           var when = fmtDate(p.publishedAt || p.updatedAt);
+          var thumb = p.coverImage
+            ? '<a href="'+href+'"><img class="thumb" src="'+escapeHtml(p.coverImage)+'" alt="'+escapeHtml(p.coverAlt||p.title||'')+'" loading="lazy" decoding="async" width="1600" height="900" /></a>'
+            : '';
           return '<article class="post-item">'+
+            thumb+
             '<h2><a href="'+href+'">'+escapeHtml(p.title)+'</a></h2>'+
             '<p>'+escapeHtml(p.description||'')+'</p>'+
             (when ? '<div class="post-meta">'+escapeHtml(when)+'</div>' : '')+

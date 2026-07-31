@@ -38,7 +38,9 @@
   .preview-banner.show{display:block}
   h1{font-family:'Cinzel',serif;font-weight:500;font-size:clamp(22px,4vw,30px);letter-spacing:.08em;text-align:center;margin:0 0 12px;color:var(--gold);line-height:1.3}
   .desc{text-align:center;font-size:19px;line-height:1.65;color:rgba(154,145,168,.98);margin:0 0 10px}
-  .meta{text-align:center;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(154,145,168,.65);margin:0 0 32px}
+  .meta{text-align:center;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(154,145,168,.65);margin:0 0 22px}
+  .cover{display:none;width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:4px;margin:0 0 28px;border:1px solid rgba(212,175,106,.18)}
+  .cover.show{display:block}
   .status{text-align:center;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.12em;color:var(--muted);margin:40px 0}
   .article{font-size:19px;line-height:1.75;color:rgba(154,145,168,.98)}
   .article h2{font-family:'Cinzel',serif;font-weight:500;font-size:16px;letter-spacing:.1em;color:rgba(232,213,163,.92);margin:32px 0 12px}
@@ -68,6 +70,7 @@
       <h1 id="article-title"></h1>
       <p class="desc" id="article-desc"></p>
       <p class="meta" id="article-meta"></p>
+      <img id="article-cover" class="cover" alt="" width="1600" height="900" decoding="async" />
       <div class="article" id="article-body"></div>
       <div class="faq" id="article-faq" hidden></div>
       <a class="cta" href="/">Inizia la lettura gratuita →</a>
@@ -155,6 +158,12 @@
         setOg('og:title', post.title + ' | Luxseetarot');
         setOg('og:description', post.description || '');
         setOg('og:url', cleanUrl);
+        if(post.coverImage){
+          var absCover = post.coverImage.indexOf('http') === 0
+            ? post.coverImage
+            : ('https://luxseetarot.com' + (post.coverImage.charAt(0) === '/' ? '' : '/') + post.coverImage);
+          setOg('og:image', absCover);
+        }
         var canon = document.querySelector('link[rel="canonical"]');
         if(canon) canon.href = cleanUrl;
         if(post.preview){
@@ -165,6 +174,12 @@
         titleEl.textContent = post.title;
         descEl.textContent = post.description || '';
         metaEl.textContent = fmtDate(post.publishedAt || post.updatedAt);
+        var coverEl = document.getElementById('article-cover');
+        if(coverEl && post.coverImage){
+          coverEl.src = post.coverImage;
+          coverEl.alt = post.coverAlt || post.title || '';
+          coverEl.classList.add('show');
+        }
         bodyEl.innerHTML = post.bodyHtml || '';
 
         var faq = post.faq || [];
@@ -201,6 +216,11 @@
           publisher: { '@type': 'Organization', name: 'Luxseetarot', url: 'https://luxseetarot.com/' },
           mainEntityOfPage: cleanUrl
         };
+        if(post.coverImage){
+          articleLd.image = [post.coverImage.indexOf('http') === 0
+            ? post.coverImage
+            : ('https://luxseetarot.com' + (post.coverImage.charAt(0) === '/' ? '' : '/') + post.coverImage)];
+        }
         var aScript = document.createElement('script');
         aScript.type = 'application/ld+json';
         aScript.textContent = JSON.stringify(articleLd);

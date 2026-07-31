@@ -873,6 +873,10 @@
           <input type="text" id="admin-blog-desc" maxlength="320" />
           <label for="admin-blog-keyword">Keyword</label>
           <input type="text" id="admin-blog-keyword" maxlength="120" />
+          <label for="admin-blog-cover">Immagine di contesto (URL)</label>
+          <input type="text" id="admin-blog-cover" maxlength="400" placeholder="/images/blog/....jpg" />
+          <label for="admin-blog-cover-alt">Alt immagine</label>
+          <input type="text" id="admin-blog-cover-alt" maxlength="180" />
           <label for="admin-blog-body">Contenuto HTML</label>
           <textarea id="admin-blog-body"></textarea>
           <div class="admin-blog-editor-actions">
@@ -3662,11 +3666,15 @@
       var s = document.getElementById('admin-blog-slug');
       var d = document.getElementById('admin-blog-desc');
       var k = document.getElementById('admin-blog-keyword');
+      var c = document.getElementById('admin-blog-cover');
+      var ca = document.getElementById('admin-blog-cover-alt');
       var b = document.getElementById('admin-blog-body');
       if(t) t.value = post.title || '';
       if(s){ s.value = post.slug || ''; s.readOnly = !!post.slug; }
       if(d) d.value = post.description || '';
       if(k) k.value = post.keyword || '';
+      if(c) c.value = post.coverImage || '';
+      if(ca) ca.value = post.coverAlt || '';
       if(b) b.value = post.bodyHtml || '';
       if(ed){
         ed.classList.add('show');
@@ -3854,6 +3862,8 @@
           title: (document.getElementById('admin-blog-title') || {}).value || '',
           description: (document.getElementById('admin-blog-desc') || {}).value || '',
           keyword: (document.getElementById('admin-blog-keyword') || {}).value || '',
+          coverImage: (document.getElementById('admin-blog-cover') || {}).value || '',
+          coverAlt: (document.getElementById('admin-blog-cover-alt') || {}).value || '',
           bodyHtml: (document.getElementById('admin-blog-body') || {}).value || '',
           status: existing.status || 'draft',
           faq: existing.faq || [],

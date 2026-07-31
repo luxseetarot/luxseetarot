@@ -20,6 +20,8 @@ function publicCard(post) {
     title: post.title,
     description: post.description,
     keyword: post.keyword,
+    coverImage: post.coverImage || '',
+    coverAlt: post.coverAlt || '',
     publishedAt: post.publishedAt,
     updatedAt: post.updatedAt,
   };
@@ -67,6 +69,8 @@ export default async function handler(req, res) {
           title: post.title,
           description: post.description,
           keyword: post.keyword,
+          coverImage: post.coverImage || '',
+          coverAlt: post.coverAlt || '',
           status: post.status,
           bodyHtml: post.bodyHtml,
           faq: post.faq || [],
