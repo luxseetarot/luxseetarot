@@ -88,6 +88,7 @@ export default async function handler(req, res) {
         name: String(name || '').slice(0, 80),
         marketing: marketing ? '1' : '0',
         client_ip: String(clientIp).slice(0, 80),
+        amount_cents: String(item.unit_amount),
       },
       success_url: `${base}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}/?checkout=cancel`,

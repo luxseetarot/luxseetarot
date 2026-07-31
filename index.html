@@ -318,9 +318,9 @@
     position:fixed;right:0;bottom:0;width:28px;height:28px;z-index:120;
     opacity:0;cursor:default;background:transparent;border:0;padding:0;
   }
-  #admin-panel.pay-bridge{z-index:12000;align-items:stretch;justify-content:flex-end;padding:16px}
+  #admin-panel.pay-bridge{z-index:12000;align-items:center;justify-content:center;padding:16px}
   .admin-shell{
-    width:min(920px,100%);max-height:calc(100vh - 32px);overflow:auto;text-align:left;
+    width:min(920px,100%);max-height:calc(100vh - 32px);overflow:auto;text-align:left;margin:0 auto;
     background:linear-gradient(160deg,rgba(28,22,56,.97),rgba(8,6,18,.98));
     border:1px solid var(--gold-soft);border-radius:18px;padding:18px 18px 22px;
     box-shadow:0 20px 60px rgba(0,0,0,.45);
@@ -630,12 +630,13 @@
           <thead>
             <tr>
               <th>IP</th>
-              <th>Teaser oggi</th>
-              <th>Teaser tot.</th>
+              <th>Letture oggi</th>
+              <th>Letture tot.</th>
               <th>Checkout</th>
               <th>Acquisti</th>
+              <th>Speso</th>
               <th>Email</th>
-              <th>Ultimo teaser</th>
+              <th>Ultima lettura</th>
               <th>Ultimo acquisto</th>
               <th></th>
             </tr>
@@ -2829,6 +2830,10 @@
         return new Date(n).toLocaleString('it-IT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
       } catch(e){ return '—'; }
     }
+    function fmtEuro(cents){
+      var n = Number(cents) || 0;
+      return (n / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+    }
     function adminFetch(body){
       var secret = body.secret || getSecret();
       return fetch('/api/admin', {
@@ -2845,12 +2850,12 @@
       var kpis = document.getElementById('admin-kpis');
       if(kpis){
         kpis.innerHTML =
-          '<div class="admin-kpi"><b>'+(s.teaserToday||0)+'</b><span>TEASER OGGI</span></div>'+
-          '<div class="admin-kpi"><b>'+(s.teaserTotal||0)+'</b><span>TEASER TOTALI</span></div>'+
+          '<div class="admin-kpi"><b>'+(s.teaserToday||0)+'</b><span>LETTURE OGGI</span></div>'+
+          '<div class="admin-kpi"><b>'+(s.teaserTotal||0)+'</b><span>LETTURE TOTALI</span></div>'+
           '<div class="admin-kpi"><b>'+(s.checkoutStarts||0)+'</b><span>CHECKOUT AVVIATI</span></div>'+
           '<div class="admin-kpi"><b>'+(s.purchases||0)+'</b><span>ACQUISTI</span></div>'+
-          '<div class="admin-kpi"><b>'+(s.conversionRate||0)+'%</b><span>CONV. IP</span></div>'+
-          '<div class="admin-kpi"><b>'+(s.uniqueIps||0)+'</b><span>IP UNICI</span></div>';
+          '<div class="admin-kpi"><b>'+fmtEuro(s.revenueCents||0)+'</b><span>INCASSO</span></div>'+
+          '<div class="admin-kpi"><b>'+(s.conversionRate||0)+'%</b><span>CONV. IP</span></div>';
       }
       if(metaEl){
         metaEl.textContent = 'Storage: ' + (data.storage || '?') +
@@ -2863,21 +2868,24 @@
         var rows = (data.ips || []).map(function(p){
           return '<tr>'+
             '<td>'+escapeHtml(p.ip||'')+'</td>'+
-            '<td>'+(p.teaserToday||0)+'/3</td>'+
+            '<td>'+(p.teaserToday||0)+'/2</td>'+
             '<td>'+(p.teaserTotal||0)+'</td>'+
             '<td>'+(p.checkoutStarts||0)+'</td>'+
             '<td>'+(p.purchaseTotal||0)+(p.lastProduct ? ' · '+escapeHtml(p.lastProduct) : '')+'</td>'+
+            '<td>'+fmtEuro(p.spentCents||0)+
+              (p.lastAmountCents ? ' <span style="color:#9a91a8">(ultimo '+fmtEuro(p.lastAmountCents)+')</span>' : '')+
+            '</td>'+
             '<td>'+escapeHtml(p.lastEmail||'—')+'</td>'+
             '<td>'+fmtWhen(p.lastTeaserAt)+'</td>'+
             '<td>'+fmtWhen(p.lastPurchaseAt)+'</td>'+
             '<td><button type="button" data-reset-ip="'+escapeHtml(p.ip||'')+'">RESET OGGI</button></td>'+
           '</tr>';
         }).join('');
-        tbody.innerHTML = rows || '<tr><td colspan="9">Nessun dato ancora. I teaser e gli acquisti compariranno da ora in poi.</td></tr>';
+        tbody.innerHTML = rows || '<tr><td colspan="10">Nessun dato ancora. Le letture e gli acquisti compariranno da ora in poi.</td></tr>';
         tbody.querySelectorAll('[data-reset-ip]').forEach(function(btn){
           btn.addEventListener('click', function(){
             var ip = btn.getAttribute('data-reset-ip');
-            if(!ip || !confirm('Azzero le anteprime di oggi per '+ip+'?')) return;
+            if(!ip || !confirm('Azzero le letture gratuite di oggi per '+ip+'?')) return;
             adminFetch({ action: 'reset-teaser', ip: ip }).then(function(res){
               if(!res.ok){ showErr(res.error || 'Reset fallito'); return; }
               loadStats();
@@ -2888,10 +2896,17 @@
       var ev = document.getElementById('admin-events');
       if(ev){
         ev.innerHTML = (data.events || []).slice(0, 40).map(function(e){
-          return '<div>'+fmtWhen(e.at)+' · <strong style="color:#d4af6a">'+escapeHtml(e.type||'')+'</strong> · '+
+          var typeLabel = ({
+            teaser: 'lettura',
+            purchase: 'acquisto',
+            checkout_start: 'checkout',
+            admin_reset_teaser: 'reset letture'
+          })[e.type] || (e.type || '');
+          return '<div>'+fmtWhen(e.at)+' · <strong style="color:#d4af6a">'+escapeHtml(typeLabel)+'</strong> · '+
             escapeHtml(e.ip||'')+' · '+escapeHtml(e.email||'')+
             (e.product ? ' · '+escapeHtml(e.product) : '')+
-            (e.teaserToday != null ? ' · oggi '+e.teaserToday+'/3' : '')+
+            (e.amountCents != null ? ' · '+fmtEuro(e.amountCents) : '')+
+            (e.teaserToday != null ? ' · oggi '+e.teaserToday+'/2' : '')+
           '</div>';
         }).join('') || '<div>Nessun evento recente.</div>';
       }

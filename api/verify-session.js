@@ -69,12 +69,17 @@ export default async function handler(req, res) {
     const alreadyLogged = info.session.metadata?.funnel_purchase_logged === '1';
     if (!alreadyLogged) {
       try {
+        const amountCents =
+          info.session.amount_total != null
+            ? info.session.amount_total
+            : parseInt(info.session.metadata?.amount_cents || '0', 10) || 0;
         await recordPurchase({
           ip: clientIp,
           email: info.email || '',
           name: customerName,
           product: info.product || '',
           sessionId,
+          amountCents,
         });
         await stripe.checkout.sessions.update(sessionId, {
           metadata: {

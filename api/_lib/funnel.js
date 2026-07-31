@@ -79,6 +79,8 @@ function emptyProfile(ip) {
     teaserToday: 0,
     teaserDay: dayKey(),
     purchaseTotal: 0,
+    spentCents: 0,
+    lastAmountCents: 0,
     lastTeaserAt: 0,
     lastPurchaseAt: 0,
     lastEmail: '',
@@ -87,6 +89,8 @@ function emptyProfile(ip) {
     checkoutStarts: 0,
   };
 }
+
+const FREE_READINGS_PER_DAY = 2;
 
 function memGet(ip) {
   const key = normalizeIp(ip);
@@ -120,6 +124,8 @@ async function loadProfile(ip) {
       teaserToday: teaserDay === today ? parseInt(obj.teaserToday || '0', 10) || 0 : 0,
       teaserDay: teaserDay === today ? teaserDay : today,
       purchaseTotal: parseInt(obj.purchaseTotal || '0', 10) || 0,
+      spentCents: parseInt(obj.spentCents || '0', 10) || 0,
+      lastAmountCents: parseInt(obj.lastAmountCents || '0', 10) || 0,
       lastTeaserAt: parseInt(obj.lastTeaserAt || '0', 10) || 0,
       lastPurchaseAt: parseInt(obj.lastPurchaseAt || '0', 10) || 0,
       lastEmail: obj.lastEmail || '',
@@ -143,8 +149,8 @@ async function saveEvent(event) {
   pushMemEvent(event);
 }
 
-/** True se l'IP può ancora fare un teaser oggi (max 3). Non incrementa. */
-export async function canDoTeaserToday(ip, max = 3) {
+/** True se l'IP può ancora fare una lettura gratuita oggi. Non incrementa. */
+export async function canDoTeaserToday(ip, max = FREE_READINGS_PER_DAY) {
   const p = await loadProfile(ip);
   return p.teaserToday < max;
 }
@@ -154,7 +160,7 @@ export async function recordTeaser({ ip, email = '', name = '' }) {
   const now = Date.now();
   const today = dayKey(now);
   const cleanIp = normalizeIp(ip);
-  const max = 3;
+  const max = FREE_READINGS_PER_DAY;
 
   if (funnelStorageMode() === 'redis') {
     const key = ipKey(cleanIp);
@@ -261,18 +267,31 @@ export async function recordCheckoutStart({ ip, email = '', name = '', product =
   });
 }
 
-export async function recordPurchase({ ip, email = '', name = '', product = '', sessionId = '' }) {
+export async function recordPurchase({
+  ip,
+  email = '',
+  name = '',
+  product = '',
+  sessionId = '',
+  amountCents = 0,
+}) {
   const now = Date.now();
   const cleanIp = normalizeIp(ip);
+  const paid = Math.max(0, parseInt(amountCents, 10) || 0);
   if (funnelStorageMode() === 'redis') {
     const key = ipKey(cleanIp);
     const current = await loadProfile(cleanIp);
+    const nextSpent = (current.spentCents || 0) + paid;
     await redisPipeline([
       [
         'HSET',
         key,
         'purchaseTotal',
         String((current.purchaseTotal || 0) + 1),
+        'spentCents',
+        String(nextSpent),
+        'lastAmountCents',
+        String(paid),
         'lastPurchaseAt',
         String(now),
         'lastEmail',
@@ -289,6 +308,8 @@ export async function recordPurchase({ ip, email = '', name = '', product = '', 
   } else {
     const p = memGet(cleanIp);
     p.purchaseTotal += 1;
+    p.spentCents = (p.spentCents || 0) + paid;
+    p.lastAmountCents = paid;
     p.lastPurchaseAt = now;
     if (email) p.lastEmail = String(email).slice(0, 120);
     if (name) p.lastName = String(name).slice(0, 80);
@@ -301,6 +322,7 @@ export async function recordPurchase({ ip, email = '', name = '', product = '', 
     email: String(email || '').slice(0, 120),
     product: String(product || '').slice(0, 40),
     sessionId: String(sessionId || '').slice(0, 80),
+    amountCents: paid,
   });
 }
 
@@ -356,6 +378,7 @@ export async function listFunnelStats({ limit = 80 } = {}) {
   const teasersToday = profiles.reduce((s, p) => s + (p.teaserToday || 0), 0);
   const purchases = profiles.reduce((s, p) => s + (p.purchaseTotal || 0), 0);
   const checkoutStarts = profiles.reduce((s, p) => s + (p.checkoutStarts || 0), 0);
+  const revenueCents = profiles.reduce((s, p) => s + (p.spentCents || 0), 0);
   const convertedIps = profiles.filter((p) => (p.purchaseTotal || 0) > 0 && (p.teaserTotal || 0) > 0).length;
   const teaserIps = profiles.filter((p) => (p.teaserTotal || 0) > 0).length;
 
@@ -383,10 +406,12 @@ export async function listFunnelStats({ limit = 80 } = {}) {
       teaserToday: teasersToday,
       checkoutStarts,
       purchases,
+      revenueCents,
       teaserIps,
       convertedIps,
       conversionRate:
         teaserIps > 0 ? Math.round((convertedIps / teaserIps) * 1000) / 10 : 0,
+      freePerDay: FREE_READINGS_PER_DAY,
     },
     ips: profiles,
     events,

@@ -95,7 +95,7 @@ export default async function handler(req, res) {
       const bot = await verifyTurnstileToken(turnstileToken, ip);
       if (!bot.ok) return res.status(403).json({ ok: false, error: bot.error || 'Verifica anti-bot fallita.' });
 
-      // Anteprima gratuita: max 3 al giorno per IP (slot riservato prima della generazione)
+      // Anteprima gratuita: max 2 al giorno per IP (slot riservato prima della generazione)
       const slot = await recordTeaser({
         ip,
         email: String((req.body || {}).email || '').trim().toLowerCase(),
@@ -104,7 +104,7 @@ export default async function handler(req, res) {
       if (!slot.ok) {
         return res.status(429).json({
           ok: false,
-          error: 'Hai raggiunto il limite di 3 anteprime gratuite per oggi. Torna domani oppure sblocca la lettura completa.',
+          error: 'Hai raggiunto il limite di 2 letture gratuite per oggi. Torna domani oppure sblocca la lettura completa.',
         });
       }
     }
