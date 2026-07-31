@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Contatti | Luxseetarot</title>
+<meta name="description" content="Contatta Luxseetarot: scrivi per assistenza sulla lettura dei tarocchi online, crediti o il tuo acquisto." />
+<meta name="robots" content="index,follow" />
+<link rel="canonical" href="https://luxseetarot.com/contatti.html" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<meta property="og:type" content="website" />
+<meta property="og:locale" content="it_IT" />
+<meta property="og:title" content="Contatti | Luxseetarot" />
+<meta property="og:description" content="Scrivi a Luxseetarot per assistenza o richieste sul servizio." />
+<meta property="og:url" content="https://luxseetarot.com/contatti.html" />
+<meta property="og:image" content="https://luxseetarot.com/og-image.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+<style>
+  :root{--ink:#0b0a14;--gold:#d4af6a;--fg:#ece6d8;--muted:#9a91a8}
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;min-height:100%;background:radial-gradient(ellipse at top,#1a1430 0%,#0b0a14 60%,#050410 100%);color:var(--fg);font-family:'Cormorant Garamond',serif}
+  a{color:rgba(212,175,106,.85);text-decoration:none}
+  a:hover{color:var(--gold)}
+  .wrap{max-width:680px;margin:0 auto;padding:48px 22px 64px}
+  .brand{font-family:'Cinzel',serif;letter-spacing:.28em;font-size:13px;color:var(--gold);text-align:center;margin-bottom:28px}
+  h1{font-family:'Cinzel',serif;font-weight:500;font-size:clamp(22px,4vw,28px);letter-spacing:.12em;text-align:center;margin:0 0 16px;text-transform:uppercase;color:var(--gold)}
+  .lead{text-align:center;font-size:19px;line-height:1.7;color:rgba(154,145,168,.98);margin:0 0 28px}
+  .channels{display:flex;flex-wrap:wrap;gap:12px 22px;justify-content:center;margin:0 0 32px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
+  .channels a{color:rgba(212,175,106,.8)}
+  form{
+    border:1px solid rgba(212,175,106,.22);
+    background:linear-gradient(165deg,rgba(28,22,56,.55) 0%,rgba(11,10,20,.85) 100%);
+    padding:28px 22px 24px;border-radius:2px;
+  }
+  label{display:block;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(232,213,163,.9);margin:0 0 8px}
+  .field{margin:0 0 18px}
+  input,textarea{
+    width:100%;background:rgba(5,4,16,.55);border:1px solid rgba(212,175,106,.28);
+    color:var(--fg);padding:12px 14px;font-family:'Cormorant Garamond',serif;font-size:18px;
+    outline:none;border-radius:2px;
+  }
+  input:focus,textarea:focus{border-color:rgba(212,175,106,.65)}
+  textarea{min-height:140px;resize:vertical;line-height:1.55}
+  .hp{position:absolute;left:-9999px;opacity:0;height:0;width:0;overflow:hidden}
+  .turnstile-wrap{display:flex;justify-content:center;margin:6px 0 16px;min-height:0}
+  .err{display:none;color:#ff8a8a;font-family:'Inter',sans-serif;font-size:13px;text-align:center;margin:0 0 12px;line-height:1.45}
+  .ok{display:none;color:rgba(212,175,106,.95);font-family:'Cormorant Garamond',serif;font-size:18px;text-align:center;margin:0 0 12px;line-height:1.5}
+  button{
+    width:100%;border:none;cursor:pointer;padding:14px 18px;
+    font-family:'Cinzel',serif;font-size:13px;letter-spacing:.18em;text-transform:uppercase;
+    color:#1a1208;background:linear-gradient(135deg,#e6c587,#b88a3e);font-weight:600;
+  }
+  button:disabled{opacity:.55;cursor:wait}
+  .note{font-size:15px;color:rgba(154,145,168,.85);text-align:center;margin:16px 0 0;line-height:1.55}
+  .back{display:inline-block;margin-top:28px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
+  footer{text-align:center;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(154,145,168,.55);padding:0 22px 40px}
+</style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="brand"><a href="/">LUXSEETAROT</a></div>
+    <h1>Contatti</h1>
+    <p class="lead">Hai una domanda su una lettura, sui crediti o sull’acquisto? Scrivici: ti rispondiamo appena possibile.</p>
+
+    <div class="channels">
+      <a id="contact-mail" href="mailto:info@luxseetarot.com">info@luxseetarot.com</a>
+      <a href="https://www.facebook.com/EvangelineMedium01" target="_blank" rel="noopener noreferrer">Facebook</a>
+    </div>
+
+    <form id="contact-form" novalidate>
+      <div class="hp" aria-hidden="true">
+        <label for="website">Sito</label>
+        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label for="name">Nome</label>
+        <input id="name" name="name" maxlength="80" autocomplete="name" required placeholder="Il tuo nome" />
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" maxlength="120" autocomplete="email" required placeholder="La tua email" />
+      </div>
+      <div class="field">
+        <label for="message">Messaggio</label>
+        <textarea id="message" name="message" maxlength="2000" required placeholder="Come possiamo aiutarti?"></textarea>
+      </div>
+      <div id="turnstile-wrap" class="turnstile-wrap" aria-label="Verifica anti-bot"></div>
+      <div class="err" id="form-err"></div>
+      <div class="ok" id="form-ok">Messaggio inviato. Ti risponderemo all’email indicata.</div>
+      <button type="submit" id="btn-send">Invia messaggio</button>
+      <p class="note">I tuoi dati servono solo per risponderti. Vedi la <a href="/privacy.html">Privacy</a>.</p>
+    </form>
+
+    <a class="back" href="/">← Torna alla lettura</a>
+  </main>
+  <footer>Luxseetarot © 2026</footer>
+
+<script>
+(function(){
+  var form = document.getElementById('contact-form');
+  var err = document.getElementById('form-err');
+  var ok = document.getElementById('form-ok');
+  var btn = document.getElementById('btn-send');
+  var mailLink = document.getElementById('contact-mail');
+  var wrap = document.getElementById('turnstile-wrap');
+  var widgetId = null;
+  var turnstileToken = null;
+  var siteKey = '';
+
+  function showErr(msg){
+    ok.style.display = 'none';
+    err.textContent = msg || '';
+    err.style.display = msg ? 'block' : 'none';
+  }
+  function showOk(){
+    err.style.display = 'none';
+    ok.style.display = 'block';
+  }
+  function resetTurnstile(){
+    turnstileToken = null;
+    try {
+      if(widgetId != null && window.turnstile) window.turnstile.reset(widgetId);
+    } catch(e){}
+  }
+
+  function mountTurnstile(){
+    if(!siteKey || !wrap || !window.turnstile) return;
+    wrap.innerHTML = '';
+    widgetId = window.turnstile.render(wrap, {
+      sitekey: siteKey,
+      theme: 'dark',
+      callback: function(token){ turnstileToken = token; },
+      'expired-callback': function(){ turnstileToken = null; },
+      'error-callback': function(){ turnstileToken = null; }
+    });
+  }
+
+  fetch('/api/config').then(function(r){ return r.json(); }).then(function(cfg){
+    if(cfg && cfg.contactEmail){
+      mailLink.href = 'mailto:' + cfg.contactEmail;
+      mailLink.textContent = cfg.contactEmail;
+    }
+    siteKey = (cfg && cfg.turnstileSiteKey) || '';
+    if(siteKey){
+      if(window.turnstile) mountTurnstile();
+      else {
+        var t = setInterval(function(){
+          if(window.turnstile){ clearInterval(t); mountTurnstile(); }
+        }, 200);
+        setTimeout(function(){ clearInterval(t); }, 8000);
+      }
+    }
+  }).catch(function(){});
+
+  form.addEventListener('submit', function(e){
+    e.preventDefault();
+    showErr('');
+    ok.style.display = 'none';
+    var name = (document.getElementById('name').value || '').trim();
+    var email = (document.getElementById('email').value || '').trim();
+    var message = (document.getElementById('message').value || '').trim();
+    var website = (document.getElementById('website').value || '').trim();
+    if(name.length < 2){ showErr('Inserisci il tuo nome.'); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showErr('Email non valida.'); return; }
+    if(message.length < 10){ showErr('Scrivi un messaggio di almeno 10 caratteri.'); return; }
+    if(siteKey && !turnstileToken){ showErr('Completa la verifica anti-bot.'); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Invio...';
+    fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: name,
+        email: email,
+        message: message,
+        website: website,
+        turnstileToken: turnstileToken
+      })
+    }).then(function(r){ return r.json().then(function(j){ return { status: r.status, j: j }; }); })
+    .then(function(res){
+      btn.disabled = false;
+      btn.textContent = 'Invia messaggio';
+      if(!res.j || !res.j.ok){
+        showErr((res.j && res.j.error) || 'Invio non riuscito. Riprova.');
+        resetTurnstile();
+        return;
+      }
+      form.reset();
+      resetTurnstile();
+      showOk();
+    }).catch(function(){
+      btn.disabled = false;
+      btn.textContent = 'Invia messaggio';
+      showErr('Connessione interrotta. Riprova.');
+      resetTurnstile();
+    });
+  });
+})();
+</script>
+</body>
+</html>

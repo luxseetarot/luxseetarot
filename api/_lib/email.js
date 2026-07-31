@@ -85,6 +85,65 @@
   return { ok: true };
 }
 
+/** Inoltra un messaggio dal form Contatti alla casella del titolare. */
+export async function sendContactEmail({ name, email, message, ip }) {
+  const apiKey =
+    (process.env.BREVO_API_KEY || process.env.BREVO_API_KEY_V3 || '').trim();
+  const fromEmail =
+    (process.env.BREVO_SENDER_EMAIL || '').trim() || 'noreply@luxseetarot.com';
+  const fromName =
+    (process.env.BREVO_SENDER_NAME || '').trim() || 'Luxseetarot';
+  const toEmail =
+    (process.env.CONTACT_EMAIL || process.env.BREVO_SENDER_EMAIL || '').trim() || fromEmail;
+
+  if (!apiKey || !toEmail) {
+    console.warn('Contact email skipped: missing BREVO_API_KEY or CONTACT_EMAIL');
+    return { ok: false, skipped: true };
+  }
+
+  const safeName = String(name || '').slice(0, 80);
+  const safeEmail = String(email || '').trim().toLowerCase().slice(0, 120);
+  const safeMsg = String(message || '')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .slice(0, 2000);
+  const safeIp = String(ip || '').slice(0, 64);
+
+  const html = `
+    <div style="font-family:Georgia,serif;background:#0b0a14;color:#ece6d8;padding:28px">
+      <p style="letter-spacing:.35em;color:#d4af6a;font-size:12px">LUXSEETAROT</p>
+      <h1 style="color:#d4af6a;font-size:22px">Nuovo messaggio dal sito</h1>
+      <p><strong style="color:#d4af6a">Nome:</strong> ${safeName}</p>
+      <p><strong style="color:#d4af6a">Email:</strong> ${safeEmail}</p>
+      <p><strong style="color:#d4af6a">IP:</strong> ${safeIp}</p>
+      <p style="margin-top:18px;white-space:pre-wrap;line-height:1.6">${safeMsg}</p>
+    </div>
+  `;
+
+  const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      'api-key': apiKey,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({
+      sender: { email: fromEmail, name: fromName },
+      to: [{ email: toEmail }],
+      replyTo: { email: safeEmail, name: safeName || safeEmail },
+      subject: `Contatto Luxseetarot — ${safeName || safeEmail}`,
+      htmlContent: html,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('Brevo contact form error:', err);
+    return { ok: false, error: err };
+  }
+  return { ok: true };
+}
+
 /** Aggiunge/aggiorna contatto Brevo solo se ha accettato le promozioni. */
 export async function upsertMarketingContact({ email, name }) {
   const apiKey =
