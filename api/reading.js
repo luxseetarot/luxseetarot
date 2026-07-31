@@ -2,10 +2,10 @@ import Stripe from 'stripe';
 import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe, signCheckoutPass } from './_lib/unlock.js';
 import { verifyTurnstileToken } from './_lib/turnstile.js';
 
-function buildSystemPrompt(mode) {
+function buildSystemPrompt(mode, { deepen = false } = {}) {
   const isFull = mode === 'full';
   return `
-Sei un medium che legge i tarocchi. Risposta in italiano, informale, mai negativa. Max ${isFull ? '700' : '380'} parole. Niente memoria di letture precedenti.
+Sei un medium che legge i tarocchi. Risposta in italiano, informale, mai negativa. Max ${isFull ? (deepen ? '780' : '700') : '380'} parole. ${deepen ? 'Questa è un APPROFONDIMENTO della stessa lettura (stesse carte): non ricominciare da zero.' : 'Niente memoria di letture precedenti.'}
 
 STILE (obbligatorio): testo che NON sembri AI. Naturale, personale, imperfetto.
 - Scegli UN tono: colloquiale / ironico / malinconico / entusiasta / riflessivo / spontaneo / sarcastico.
@@ -35,7 +35,13 @@ ${isFull
 - OBBLIGATORIO sul grassetto: usa **parola** in minuscolo/maiuscole normali (es. **chiarezza**, **scelta del cuore**). VIETATO evidenziare con TUTTO MAIUSCOLO. Mai scrivere EMOZIONE o CHIAREZZA in maiuscolo per enfasi: solo **grassetto**.
 - Dai risposte più chiare e un prossimo passo concreto (riflessione, non certezza assoluta).
 - Ringrazia per la fiducia nella lettura completa. Puoi ricordare Luxseetarot per altre letture.
-- Niente telefoni, operatori umani o consulti in sede.`
+- Niente telefoni, operatori umani o consulti in sede.
+${deepen
+  ? `- APPROFONDIMENTO: il consultante ha già ricevuto una lettura sulle stesse carte e ora aggiunge nuove domande o dettagli.
+- Integra le nuove domande nella lettura: rispondi in modo concreto a ciò che chiede ora, restando coerente con le carte e con il filo della lettura precedente.
+- Non ripetere tutta la lettura precedente: riprendi solo ciò che serve, poi sviluppa le nuove richieste.
+- Mantieni la struttura Passato / Presente / Futuro con i titoli carta, ma puoi dare più peso alle sezioni utili alle nuove domande.`
+  : ''}`
   : `- Anteprima gratuita: stile più semplice e leggero della versione a pagamento.
 - Lunghezza: circa 320-380 parole (mai oltre ~380).
 - NON usare il grassetto (**parola**). Nessun titolo carta per carta. Flusso continuo, senza sezioni rituali.
@@ -58,7 +64,18 @@ export default async function handler(req, res) {
       return res.status(429).json({ ok: false, error: 'Troppe richieste. Riprova tra un po\'.' });
     }
 
-    const { name, birthDate, question, cards, mode = 'teaser', unlockToken, turnstileToken } = req.body || {};
+    const {
+      name,
+      birthDate,
+      question,
+      cards,
+      mode = 'teaser',
+      unlockToken,
+      turnstileToken,
+      deepen = false,
+      followUp = '',
+      previousReading = '',
+    } = req.body || {};
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) return res.status(500).json({ ok: false, error: 'Chiave API non configurata.' });
     if (!name || !question || !Array.isArray(cards) || cards.length < 1) {
@@ -66,6 +83,11 @@ export default async function handler(req, res) {
     }
 
     const isFull = mode === 'full';
+    const isDeepen = !!(isFull && deepen);
+    const extra = String(followUp || '').trim().slice(0, 800);
+    if (isDeepen && extra.length < 5) {
+      return res.status(400).json({ ok: false, error: 'Aggiungi almeno una domanda o un dettaglio da integrare.' });
+    }
     if (!isFull) {
       const bot = await verifyTurnstileToken(turnstileToken, ip);
       if (!bot.ok) return res.status(403).json({ ok: false, error: bot.error || 'Verifica anti-bot fallita.' });
@@ -92,8 +114,17 @@ export default async function handler(req, res) {
         : null;
     }
 
-    const systemPrompt = buildSystemPrompt(isFull ? 'full' : 'teaser');
+    const systemPrompt = buildSystemPrompt(isFull ? 'full' : 'teaser', { deepen: isDeepen });
     const birth = birthDate || 'non indicata';
+    const prev = String(previousReading || '').replace(/\*\*/g, '').trim().slice(0, 1800);
+    let userContent = `Consultante: ${name}. Nato/a il: ${birth}. Argomento/domanda: ${question}. Carte (Passato, Presente, Futuro): ${cards.join(', ')}.`;
+    if (isDeepen) {
+      userContent += `\n\nNuove domande o dettagli da integrare ora:\n${extra}`;
+      if (prev) {
+        userContent += `\n\nLettura precedente (solo contesto, non ripetere tutto):\n${prev}`;
+      }
+      userContent += '\n\nScrivi l\'approfondimento rispondendo alle nuove domande sulle stesse carte.';
+    }
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -107,7 +138,7 @@ export default async function handler(req, res) {
           { role: 'system', content: systemPrompt },
           {
             role: 'user',
-            content: `Consultante: ${name}. Nato/a il: ${birth}. Argomento/domanda: ${question}. Carte (Passato, Presente, Futuro): ${cards.join(', ')}.`,
+            content: userContent,
           },
         ],
       }),

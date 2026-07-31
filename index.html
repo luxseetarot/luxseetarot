@@ -305,6 +305,15 @@
   .credit-choice-actions{display:flex;flex-direction:column;gap:12px;align-items:stretch;margin-top:8px}
   .credit-choice-actions .gold-btn,.credit-choice-actions .ghost-btn{width:100%}
   .credit-choice-note{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:15px;margin:0 0 18px;line-height:1.45}
+  .deepen-panel-inner{max-width:560px;width:100%;text-align:left}
+  .deepen-panel-inner h2{text-align:center}
+  .deepen-panel-inner .phase-tag{text-align:center}
+  .deepen-orig{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:15px;line-height:1.45;margin:0 0 16px;padding:12px 14px;border:1px solid var(--gold-faint);border-radius:12px;background:rgba(20,16,40,.55)}
+  .deepen-panel-inner label{display:block;font-family:'Cinzel',serif;color:var(--gold);letter-spacing:.08em;font-size:12px;margin:0 0 8px}
+  .deepen-panel-inner textarea{width:100%;min-height:120px;resize:vertical;box-sizing:border-box;background:rgba(11,10,20,.85);border:1px solid var(--gold-soft);border-radius:12px;color:var(--fg);padding:12px 14px;font-family:'Cormorant Garamond',serif;font-size:16px;line-height:1.45;margin:0 0 8px}
+  .deepen-panel-inner textarea:focus{outline:none;border-color:var(--gold)}
+  .deepen-hint{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:14px;margin:0 0 18px;line-height:1.4}
+  .deepen-err{display:none;color:#ff8a8a;font-size:13px;margin:0 0 12px;font-family:'Inter',sans-serif}
   .checkout-toast{display:none;max-width:560px;margin:16px auto;padding:12px 16px;border-radius:12px;border:1px solid var(--gold-soft);background:rgba(20,16,40,.9);text-align:center;color:var(--fg);font-size:14px}
   .checkout-toast.show{display:block}
   .pay-bridge{display:none;position:fixed;inset:0;z-index:10000;background:radial-gradient(ellipse at center,#15122a 0%,#050410 100%);align-items:center;justify-content:center;padding:24px;text-align:center}
@@ -474,7 +483,7 @@
 
         <div class="cta-title">LETTURA COMPLETA PRONTA</div>
 
-        <p class="cta-text" id="cta-full-text">Scarica il PDF, approfondisci ancora questa domanda, oppure iniziane una nuova.</p>
+        <p class="cta-text" id="cta-full-text">Scarica il PDF, approfondisci ancora aggiungendo nuove domande, oppure iniziane una nuova.</p>
 
         <div class="cta-actions">
           <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA PDF</button>
@@ -532,6 +541,22 @@
     <div class="credit-choice-actions">
       <button type="button" class="gold-btn" id="btn-continue-same">APPROFONDISCI ULTIMA DOMANDA</button>
       <button type="button" class="ghost-btn" id="btn-choice-new-question">FAI UNA NUOVA DOMANDA</button>
+    </div>
+  </div>
+</div>
+
+<div id="deepen-panel" class="pay-bridge" aria-live="polite">
+  <div class="pay-bridge-inner deepen-panel-inner">
+    <div class="phase-tag">APPROFONDIMENTO</div>
+    <h2>Cosa vuoi sapere ancora?</h2>
+    <p class="deepen-orig" id="deepen-orig-q"></p>
+    <label for="deepen-followup">Aggiungi domande o dettagli</label>
+    <textarea id="deepen-followup" maxlength="800" placeholder="Es. Cosa prova lui/lei ora? Come comportarmi questa settimana? C’è un segnale da aspettarmi?"></textarea>
+    <p class="deepen-hint">Le carte restano le stesse: integriamo la lettura con le tue nuove domande. Usa 1 credito.</p>
+    <p class="deepen-err" id="deepen-err"></p>
+    <div class="credit-choice-actions">
+      <button type="button" class="gold-btn" id="btn-deepen-confirm">APPROFONDISCI CON 1 CREDITO</button>
+      <button type="button" class="ghost-btn" id="btn-deepen-cancel">ANNULLA</button>
     </div>
   </div>
 </div>
@@ -775,7 +800,7 @@
     form:null, deck:shuffle(DECK), selected:[], lastCards:null, mode:'teaser',
     teaserText:null, fullText:null, turnstileToken:null, turnstileWidgetId:null,
     checkoutTurnstileToken:null, checkoutTurnstileWidgetId:null, turnstileSiteKey:null,
-    checkoutPass:null
+    checkoutPass:null, pendingFollowUp:null
   };
 
   var POSITIONS = ['Passato','Presente','Futuro'];
@@ -1069,8 +1094,8 @@
     }
     if(fullTextEl){
       fullTextEl.textContent = hasCredits
-        ? 'Scarica il PDF, usa 1 credito per approfondire ancora questa domanda, oppure iniziane una nuova.'
-        : 'Scarica il PDF, approfondisci ancora con un pack, oppure iniziane una nuova domanda.';
+        ? 'Scarica il PDF, usa 1 credito per approfondire aggiungendo nuove domande, oppure iniziane una nuova.'
+        : 'Scarica il PDF, approfondisci ancora con un pack aggiungendo nuove domande, oppure iniziane una nuova.';
     }
 
     if(hasCredits){
@@ -1760,17 +1785,60 @@
       }
     });
   }
+  function showDeepenPanel(){
+    var panel = document.getElementById('deepen-panel');
+    var orig = document.getElementById('deepen-orig-q');
+    var area = document.getElementById('deepen-followup');
+    var err = document.getElementById('deepen-err');
+    if(!panel) return;
+    if(orig){
+      var q = (state.form && state.form.question) ? state.form.question : '';
+      orig.textContent = q
+        ? ('Domanda attuale: « ' + q + ' »')
+        : 'Puoi aggiungere nuove domande o dettagli da integrare nella lettura.';
+    }
+    if(area) area.value = state.pendingFollowUp || '';
+    if(err){ err.style.display = 'none'; err.textContent = ''; }
+    panel.classList.add('show');
+    if(area) setTimeout(function(){ try { area.focus(); } catch(e){} }, 80);
+  }
+  function hideDeepenPanel(){
+    var panel = document.getElementById('deepen-panel');
+    if(panel) panel.classList.remove('show');
+  }
   function deepenFullReading(){
-    var u = getUnlock();
-    if(u && u.unlockToken && Number(u.credits) > 0){
-      if(!state.form || !state.lastCards){
-        showToast('Lettura non disponibile. Usa i crediti per ripristinarla.');
-        return;
-      }
-      showToast('Sto approfondendo ancora questa lettura con 1 credito...');
-      fetchReading('full', u.unlockToken);
+    if(!state.form || !state.lastCards){
+      showToast('Lettura non disponibile. Usa i crediti per ripristinarla.');
       return;
     }
+    showDeepenPanel();
+  }
+  function confirmDeepenReading(){
+    var area = document.getElementById('deepen-followup');
+    var err = document.getElementById('deepen-err');
+    var followUp = area ? String(area.value || '').trim() : '';
+    if(followUp.length < 5){
+      if(err){
+        err.textContent = 'Scrivi almeno una domanda o un dettaglio da integrare (minimo 5 caratteri).';
+        err.style.display = 'block';
+      }
+      return;
+    }
+    if(followUp.length > 800) followUp = followUp.slice(0, 800);
+    state.pendingFollowUp = followUp;
+
+    var u = getUnlock();
+    if(u && u.unlockToken && Number(u.credits) > 0){
+      hideDeepenPanel();
+      showToast('Sto approfondendo la lettura con le tue nuove domande...');
+      fetchReading('full', u.unlockToken, {
+        deepen: true,
+        followUp: followUp,
+        previousReading: state.fullText || state.teaserText || ''
+      });
+      return;
+    }
+    hideDeepenPanel();
     showToast('Per approfondire ancora puoi prendere il pack da 5 letture.');
     startCheckout('pack');
   }
@@ -1789,7 +1857,8 @@
         teaserText: state.teaserText || null,
         fullText: state.fullText || null,
         checkoutPass: state.checkoutPass || null,
-        skipAutoFull: !!(state.fullText && product === 'pack')
+        skipAutoFull: !!(state.fullText && product === 'pack'),
+        followUp: state.pendingFollowUp || null
       }));
     }
 
@@ -1844,12 +1913,15 @@
       showToast('Verifica anti-bot incompleta. Completala qui sotto e riprova.');
     });
   }
-  function fetchReading(mode, unlockToken){
+  function fetchReading(mode, unlockToken, opts){
+    var options = opts || {};
     loaderEl.style.display='block';
     readingEl.innerHTML='';
     ctaEl.classList.remove('show');
     if(ctaFullEl) ctaFullEl.classList.remove('show');
-    if(mode === 'full'){
+    if(options.deepen){
+      loaderEl.innerHTML = '<span class="spinner"></span>Sto approfondendo la lettura con le tue domande...';
+    } else if(mode === 'full'){
       loaderEl.innerHTML = '<span class="spinner"></span>Sto preparando la lettura che hai acquistato...';
     } else {
       loaderEl.innerHTML = '<span class="spinner"></span>Sto leggendo le carte...';
@@ -1865,7 +1937,10 @@
         cards: state.lastCards,
         mode: mode || 'teaser',
         unlockToken: unlockToken || null,
-        turnstileToken: mode === 'full' ? null : getTurnstileToken()
+        turnstileToken: mode === 'full' ? null : getTurnstileToken(),
+        deepen: !!options.deepen,
+        followUp: options.followUp || '',
+        previousReading: options.previousReading || ''
       })
     }).then(function(r){ return r.json(); }).then(function(res){
       var wait = mode === 'full' ? 1200 : 3600;
@@ -1880,6 +1955,7 @@
             else state.teaserText = res.reading;
             if(res.checkoutPass) state.checkoutPass = res.checkoutPass;
             state.mode = res.mode === 'full' ? 'full' : 'teaser';
+            if(options.deepen) state.pendingFollowUp = null;
             if(typeof res.remainingCredits === 'number'){
               var u = getUnlock();
               if(u){
@@ -1979,6 +2055,7 @@
         state.lastCards = pending.cards;
         if(pending.teaserText) state.teaserText = pending.teaserText;
         if(pending.fullText) state.fullText = pending.fullText;
+        if(pending.followUp) state.pendingFollowUp = pending.followUp;
         sessionStorage.removeItem('luxsee_pending');
 
         setTimeout(function(){
@@ -2004,7 +2081,15 @@
           });
 
           saveReadingDraft();
-          if(pending.skipAutoFull && state.fullText){
+          if(pending.followUp && res.unlockToken){
+            hidePayBridge();
+            showToast('Pack attivato: approfondisco con le tue nuove domande...');
+            fetchReading('full', res.unlockToken, {
+              deepen: true,
+              followUp: pending.followUp,
+              previousReading: state.fullText || state.teaserText || ''
+            });
+          } else if(pending.skipAutoFull && state.fullText){
             hidePayBridge();
             state.mode = 'full';
             setReadingMode('full');
@@ -2541,6 +2626,8 @@
     downloadReadingPdf('full').catch(function(err){ console.error(err); });
   });
   document.getElementById('btn-deepen-full').addEventListener('click', deepenFullReading);
+  document.getElementById('btn-deepen-confirm').addEventListener('click', confirmDeepenReading);
+  document.getElementById('btn-deepen-cancel').addEventListener('click', hideDeepenPanel);
   document.getElementById('btn-use-credit').addEventListener('click', function(){
     var u = getUnlock();
     if(!u || !u.unlockToken || u.credits < 1){ showToast('Nessun credito disponibile.'); return; }
