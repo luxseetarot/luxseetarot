@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe, signCheckoutPass } from './_lib/unlock.js';
 import { verifyTurnstileToken } from './_lib/turnstile.js';
+import { recordTeaser } from './_lib/funnel.js';
 
 function buildSystemPrompt(mode, { deepen = false } = {}) {
   const isFull = mode === 'full';
@@ -86,21 +87,26 @@ export default async function handler(req, res) {
       return res.status(400).json({ ok: false, error: 'Aggiungi almeno una domanda o un dettaglio da integrare.' });
     }
 
-    // Anteprima gratuita: max 3 al giorno per IP (non conta le letture a pagamento)
-    if (!isFull) {
-      if (!checkRateLimit(ip, { max: 3, windowMs: 24 * 60 * 60 * 1000, bucket: 'teaser-day' })) {
+    if (isFull) {
+      if (!checkRateLimit(ip, { max: 40, windowMs: 60 * 60 * 1000, bucket: 'full-hour' })) {
+        return res.status(429).json({ ok: false, error: 'Troppe richieste. Riprova tra un po\'.' });
+      }
+    } else {
+      const bot = await verifyTurnstileToken(turnstileToken, ip);
+      if (!bot.ok) return res.status(403).json({ ok: false, error: bot.error || 'Verifica anti-bot fallita.' });
+
+      // Anteprima gratuita: max 3 al giorno per IP (slot riservato prima della generazione)
+      const slot = await recordTeaser({
+        ip,
+        email: String((req.body || {}).email || '').trim().toLowerCase(),
+        name: String(name || '').trim(),
+      });
+      if (!slot.ok) {
         return res.status(429).json({
           ok: false,
           error: 'Hai raggiunto il limite di 3 anteprime gratuite per oggi. Torna domani oppure sblocca la lettura completa.',
         });
       }
-    } else if (!checkRateLimit(ip, { max: 40, windowMs: 60 * 60 * 1000, bucket: 'full-hour' })) {
-      return res.status(429).json({ ok: false, error: 'Troppe richieste. Riprova tra un po\'.' });
-    }
-
-    if (!isFull) {
-      const bot = await verifyTurnstileToken(turnstileToken, ip);
-      if (!bot.ok) return res.status(403).json({ ok: false, error: bot.error || 'Verifica anti-bot fallita.' });
     }
 
     let remainingCredits = null;

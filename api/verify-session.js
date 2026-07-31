@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { cors, signUnlock, getSessionCredits, decodeReadingMeta } from './_lib/unlock.js';
 import { sendCreditsEmail, upsertMarketingContact } from './_lib/email.js';
+import { recordPurchase } from './_lib/funnel.js';
 
 export default async function handler(req, res) {
   cors(res);
@@ -59,6 +60,32 @@ export default async function handler(req, res) {
     }
 
     const savedReading = decodeReadingMeta(info.session.metadata || {});
+
+    const clientIp =
+      info.session.metadata?.client_ip ||
+      req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
+      req.socket?.remoteAddress ||
+      'unknown';
+    const alreadyLogged = info.session.metadata?.funnel_purchase_logged === '1';
+    if (!alreadyLogged) {
+      try {
+        await recordPurchase({
+          ip: clientIp,
+          email: info.email || '',
+          name: customerName,
+          product: info.product || '',
+          sessionId,
+        });
+        await stripe.checkout.sessions.update(sessionId, {
+          metadata: {
+            ...(info.session.metadata || {}),
+            funnel_purchase_logged: '1',
+          },
+        });
+      } catch (e) {
+        console.error('Funnel purchase log error:', e);
+      }
+    }
 
     return res.status(200).json({
       ok: true,

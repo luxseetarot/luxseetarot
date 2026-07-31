@@ -1,6 +1,7 @@
 import Stripe from 'stripe';
 import { cors, verifyCheckoutPass } from './_lib/unlock.js';
 import { verifyTurnstileToken } from './_lib/turnstile.js';
+import { recordCheckoutStart } from './_lib/funnel.js';
 
 const PRODUCTS = {
   full: {
@@ -61,6 +62,7 @@ export default async function handler(req, res) {
     }
 
     const stripe = new Stripe(secret);
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       locale: 'it',
@@ -85,10 +87,18 @@ export default async function handler(req, res) {
         email: cleanEmail,
         name: String(name || '').slice(0, 80),
         marketing: marketing ? '1' : '0',
+        client_ip: String(clientIp).slice(0, 80),
       },
       success_url: `${base}/?checkout=success&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${base}/?checkout=cancel`,
     });
+
+    recordCheckoutStart({
+      ip: clientIp,
+      email: cleanEmail,
+      name: String(name || '').slice(0, 80),
+      product,
+    }).catch((e) => console.error('Funnel checkout_start error:', e));
 
     return res.status(200).json({ ok: true, url: session.url, sessionId: session.id });
   } catch (err) {
