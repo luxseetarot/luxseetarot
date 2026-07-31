@@ -1470,8 +1470,7 @@
         a.rel = 'noopener';
         a.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
         document.body.appendChild(a);
-        // click sincrono sul link blob: più affidabile di pdf.save() dopo await
-        a.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+        // Un solo click: dispatchEvent + click() scaricava il PDF due volte
         a.click();
         setTimeout(function(){
           if(a.parentNode) a.parentNode.removeChild(a);
@@ -1643,6 +1642,8 @@
   function downloadReadingPdf(kind){
     var isFull = kind === 'full';
     var btn = document.getElementById('btn-pdf-full');
+    if(btn && btn.disabled) return Promise.resolve();
+    if(window.__luxseePdfBusy) return Promise.resolve();
     if(isFull && !state.fullText){ showToast('Nessuna lettura completa da scaricare.'); return Promise.reject(new Error('no full')); }
     if(!isFull && !state.teaserText){ showToast('Nessuna lettura teaser da scaricare.'); return Promise.reject(new Error('no teaser')); }
 
