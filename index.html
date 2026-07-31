@@ -1878,57 +1878,154 @@
     }).join('');
     return '<table style="width:100%;max-width:640px;margin:22px auto 30px;border-collapse:separate;border-spacing:12px 0;"><tr>'+cells+'</tr></table>';
   }
-  function buildPremiumPdfBodyHtml(text, isFull, artMap, moonArt){
-    var seen = {};
+  function formatPremiumPdfParagraph(p, isFull){
+    var inner = escapeHtml(p)
+      .replace(/\*\*(.+?)\*\*/g, function(_, word){
+        if(!isFull) return word;
+        return '<strong style="color:#d4af6a;font-family:\'Cormorant Garamond\',Georgia,serif;font-weight:700;text-transform:none;">'+softenEmphasisCaps(word)+'</strong>';
+      })
+      .replace(/\n/g, '<br/>');
+    if(!isFull) inner = inner.replace(/\*\*/g, '');
+    return '<p style="margin:0 0 14px;font-family:\'Cormorant Garamond\',Georgia,serif;font-size:'+(isFull?'15px':'14px')+';line-height:1.7;color:#ece6d8;">'+inner+'</p>';
+  }
+  /** Spezza la lettura in sezioni: intro + una sezione per carta (nuova pagina PDF). */
+  function splitPremiumPdfSections(text, isFull, artMap, moonArt){
     var cards = (state.lastCards || []).slice();
-    return String(text || '').split(/\n{2,}/).map(function(p){
-      var chunks = [];
+    var seen = {};
+    var sections = [];
+    var current = { cardName: null, blocks: [] };
+
+    function flush(){
+      if(current.blocks.length) sections.push(current);
+      current = { cardName: null, blocks: [] };
+    }
+
+    String(text || '').split(/\n{2,}/).forEach(function(p){
+      var t = String(p || '').trim();
+      if(!t) return;
       if(isFull){
-        var asHeading = matchCardHeading(p);
+        var asHeading = matchCardHeading(t);
         if(asHeading){
+          flush();
           seen[asHeading] = true;
-          return buildCardHeadingHtml(asHeading, true, artMap, moonArt);
+          current = {
+            cardName: asHeading,
+            blocks: [buildCardHeadingHtml(asHeading, true, artMap, moonArt)]
+          };
+          return;
         }
         for(var i = 0; i < cards.length; i++){
           var name = cards[i];
           if(seen[name]) continue;
-          if(p.indexOf(name) !== -1){
+          if(t.indexOf(name) !== -1){
+            flush();
             seen[name] = true;
-            chunks.push(buildCardHeadingHtml(name, true, artMap, moonArt));
+            current = {
+              cardName: name,
+              blocks: [buildCardHeadingHtml(name, true, artMap, moonArt)]
+            };
             break;
           }
         }
       }
-      var inner = escapeHtml(p)
-        .replace(/\*\*(.+?)\*\*/g, function(_, word){
-          if(!isFull) return word;
-          return '<strong style="color:#d4af6a;font-family:\'Cormorant Garamond\',Georgia,serif;font-weight:700;text-transform:none;">'+softenEmphasisCaps(word)+'</strong>';
-        })
-        .replace(/\n/g, '<br/>');
-      if(!isFull) inner = inner.replace(/\*\*/g, '');
-      chunks.push('<p style="margin:0 0 14px;font-family:\'Cormorant Garamond\',Georgia,serif;font-size:'+(isFull?'15px':'14px')+';line-height:1.7;color:#ece6d8;">'+inner+'</p>');
-      return chunks.join('');
-    }).join('');
+      current.blocks.push(formatPremiumPdfParagraph(t, isFull));
+    });
+    flush();
+    return sections;
   }
-  function buildPremiumPdfHtml(isFull, artMap, moonArt){
+  function premiumPdfFrameStyle(isFull){
+    return isFull
+      ? 'box-sizing:border-box;width:100%;min-height:100%;background:linear-gradient(165deg,#1c1638 0%,#0b0a14 55%,#050410 100%);color:#ece6d8;padding:40px 36px 44px;border:1px solid rgba(212,175,106,.28);'
+      : 'box-sizing:border-box;width:100%;min-height:100%;background:#0b0a14;color:#ece6d8;padding:40px 36px 44px;';
+  }
+  function buildPremiumPdfCoverBlocks(isFull, artMap){
     var name = (state.form && state.form.name) ? state.form.name : 'Consultante';
     var question = (state.form && state.form.question) ? state.form.question : '';
     var title = isFull ? 'Lettura completa' : 'Anteprima';
+    var blocks = [
+      '<div style="text-align:center;font-family:\'Cinzel\',Georgia,serif;letter-spacing:.45em;color:rgba(212,175,106,.75);font-size:12px;margin-bottom:18px;">LUXSEETAROT</div>',
+      '<h1 style="font-family:\'Cinzel\',Georgia,serif;color:#d4af6a;text-align:center;font-size:28px;font-weight:600;letter-spacing:.06em;margin:0 0 12px;text-transform:none;">'+escapeHtml(title)+'</h1>',
+      '<p style="text-align:center;font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;color:#9a91a8;font-size:16px;margin:0 0 8px;">Per '+escapeHtml(name)+'</p>'
+    ];
+    if(question){
+      blocks.push('<p style="text-align:center;font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;color:#9a91a8;font-size:15px;margin:0 0 8px;">« '+escapeHtml(question)+' »</p>');
+    }
+    blocks.push(buildPremiumPdfCardsHtml(artMap || {}));
+    return blocks;
+  }
+  function premiumPdfDisclaimerHtml(){
+    return '<p style="text-align:center;font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;color:#9a91a8;margin-top:28px;font-size:11px;">Intrattenimento e riflessione simbolica. Non sostituisce consigli medici, legali o finanziari.</p>';
+  }
+  /** Impagina blocchi HTML in pagine A4 senza tagliare a metà un blocco. */
+  function packBlocksIntoPdfPages(blockGroups, isFull){
+    var PAGE_W = 794;
+    var PAGE_H = 1123; // A4 a 96dpi
+    var frame = premiumPdfFrameStyle(isFull);
+    var host = document.createElement('div');
+    host.style.cssText = 'position:fixed;left:-12000px;top:0;width:'+PAGE_W+'px;visibility:hidden;pointer-events:none;z-index:-1;';
+    document.body.appendChild(host);
+
+    function measure(blocks){
+      var page = document.createElement('div');
+      page.style.cssText = 'width:'+PAGE_W+'px;background:#0b0a14;';
+      page.innerHTML = '<div style="'+frame+'"><div style="max-width:640px;margin:0 auto;">'+(blocks || []).join('')+'</div></div>';
+      host.appendChild(page);
+      var h = Math.max(page.scrollHeight, page.offsetHeight, 1);
+      host.removeChild(page);
+      return h;
+    }
+
+    var pages = [];
+    blockGroups.forEach(function(group){
+      var blocks = (group || []).slice();
+      if(!blocks.length) return;
+      var current = [];
+      blocks.forEach(function(block, idx){
+        var trial = current.concat([block]);
+        var h = measure(trial);
+        if(current.length && h > PAGE_H - 2){
+          pages.push(current);
+          current = [block];
+        } else {
+          current = trial;
+        }
+      });
+      if(current.length) pages.push(current);
+    });
+
+    if(host.parentNode) host.parentNode.removeChild(host);
+
+    return pages.map(function(blocks){
+      return (
+        '<div style="width:'+PAGE_W+'px;min-height:'+PAGE_H+'px;background:#0b0a14;color:#ece6d8;">'+
+          '<div style="'+frame+'">'+
+            '<div style="max-width:640px;margin:0 auto;">'+blocks.join('')+'</div>'+
+          '</div>'+
+        '</div>'
+      );
+    });
+  }
+  function buildPremiumPdfPageHtmlList(isFull, artMap, moonArt){
     var raw = isFull ? state.fullText : state.teaserText;
-    var frame = isFull
-      ? 'box-sizing:border-box;width:100%;background:linear-gradient(165deg,#1c1638 0%,#0b0a14 55%,#050410 100%);color:#ece6d8;padding:40px 36px 44px;border:1px solid rgba(212,175,106,.28);'
-      : 'box-sizing:border-box;width:100%;background:#0b0a14;color:#ece6d8;padding:40px 36px 44px;';
-    return (
-      '<div style="'+frame+'">'+
-        '<div style="text-align:center;font-family:\'Cinzel\',Georgia,serif;letter-spacing:.45em;color:rgba(212,175,106,.75);font-size:12px;margin-bottom:18px;">LUXSEETAROT</div>'+
-        '<h1 style="font-family:\'Cinzel\',Georgia,serif;color:#d4af6a;text-align:center;font-size:28px;font-weight:600;letter-spacing:.06em;margin:0 0 12px;text-transform:none;">'+escapeHtml(title)+'</h1>'+
-        '<p style="text-align:center;font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;color:#9a91a8;font-size:16px;margin:0 0 8px;">Per '+escapeHtml(name)+'</p>'+
-        (question ? '<p style="text-align:center;font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;color:#9a91a8;font-size:15px;margin:0 0 8px;">« '+escapeHtml(question)+' »</p>' : '')+
-        buildPremiumPdfCardsHtml(artMap || {})+
-        '<div style="max-width:640px;margin:0 auto;">'+buildPremiumPdfBodyHtml(raw, isFull, artMap || {}, moonArt || '')+'</div>'+
-        '<p style="text-align:center;font-family:\'Cormorant Garamond\',Georgia,serif;font-style:italic;color:#9a91a8;margin-top:28px;font-size:11px;">Intrattenimento e riflessione simbolica. Non sostituisce consigli medici, legali o finanziari.</p>'+
-      '</div>'
-    );
+    var sections = splitPremiumPdfSections(raw, isFull, artMap || {}, moonArt || '');
+    var introBlocks = [];
+    var cardGroups = [];
+    sections.forEach(function(sec){
+      if(sec.cardName) cardGroups.push(sec.blocks.slice());
+      else introBlocks = introBlocks.concat(sec.blocks);
+    });
+
+    var groups = [];
+    groups.push(buildPremiumPdfCoverBlocks(isFull, artMap).concat(introBlocks));
+    if(isFull){
+      cardGroups.forEach(function(blocks){ groups.push(blocks); });
+    } else if(cardGroups.length){
+      // teaser: tutto dopo la cover nella stessa sequenza, senza forzare pagine carta
+      groups[0] = groups[0].concat(cardGroups.reduce(function(acc, b){ return acc.concat(b); }, []));
+    }
+    if(!groups.length) groups.push(buildPremiumPdfCoverBlocks(isFull, artMap));
+    groups[groups.length - 1] = groups[groups.length - 1].concat([premiumPdfDisclaimerHtml()]);
+    return packBlocksIntoPdfPages(groups, isFull);
   }
   function buildPremiumPdfArtMap(){
     var cards = state.lastCards || [];
@@ -1996,10 +2093,32 @@
       center((POSITIONS[i]||'')+(POSITIONS[i]?' · ':'')+cardName, 11, [212,175,106], 'bold', 2);
     });
     y += 4;
+    var seenCards = {};
     String(raw||'').replace(/\*\*/g,'').split(/\n{2,}/).forEach(function(block){
       var t = block.trim(); if(!t) return;
+      if(isFull){
+        var heading = matchCardHeading(t);
+        if(!heading){
+          (state.lastCards || []).some(function(cardName){
+            if(seenCards[cardName]) return false;
+            if(t.indexOf(cardName) !== -1){ heading = cardName; return true; }
+            return false;
+          });
+        }
+        if(heading && !seenCards[heading]){
+          seenCards[heading] = true;
+          doc.addPage(); bg(); y = 16;
+          center(heading, 14, [212,175,106], 'bold', 3);
+          var pos = cardPositionLabel(heading);
+          if(pos) center(pos, 11, [154,145,168], 'italic', 6);
+          if(matchCardHeading(t)) return;
+        }
+      }
       doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(236,230,216);
       var lines = doc.splitTextToSize(t, maxW);
+      // Evita di spezzare il paragrafo a metà pagina: se non entra, nuova pagina
+      var need = lines.length * 5.5 + 3;
+      if(y + need > pageH - 16 && y > 20){ doc.addPage(); bg(); y = 16; }
       lines.forEach(function(line){ ensure(6); doc.text(line, marginX, y); y += 5.5; });
       y += 3;
     });
@@ -2069,80 +2188,96 @@
       }
     }
 
-    // Stile premium (HTML) + sigilli rasterizzati + fondo scuro su ogni pagina
+    // Stile premium: una pagina HTML per copertina/intro e una per ogni carta
+    // (niente taglio a metà paragrafo con lo slice di un'unica immagine lunga).
     return buildPremiumPdfArtMap().then(function(art){
       var old = document.getElementById('pdf-capture-overlay');
       if(old && old.parentNode) old.parentNode.removeChild(old);
+
+      var pageHtmlList = buildPremiumPdfPageHtmlList(isFull, art.artMap, art.moonArt);
+      if(!pageHtmlList.length) throw new Error('empty pdf pages');
 
       overlay = document.createElement('div');
       overlay.id = 'pdf-capture-overlay';
       overlay.setAttribute('aria-hidden', 'true');
       overlay.style.cssText = 'position:fixed;left:-10000px;top:0;width:820px;height:auto;z-index:1;background:#0b0a14;overflow:visible;padding:0;opacity:1;pointer-events:none;';
-      var sheet = document.createElement('div');
-      sheet.id = 'pdf-capture-sheet';
-      sheet.style.cssText = 'width:794px;margin:0;background:#0b0a14;color:#ece6d8;';
-      sheet.innerHTML = buildPremiumPdfHtml(isFull, art.artMap, art.moonArt);
-      overlay.appendChild(sheet);
       document.body.appendChild(overlay);
 
       var fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
       return fontsReady.then(function(){
-        return new Promise(function(resolve){ setTimeout(resolve, 400); });
+        return new Promise(function(resolve){ setTimeout(resolve, 350); });
       }).then(function(){
         if(typeof html2canvas !== 'function') throw new Error('html2canvas missing');
-        return html2canvas(sheet, {
-          backgroundColor: '#0b0a14',
-          scale: 2,
-          useCORS: true,
-          allowTaint: false,
-          logging: false,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: 794,
-          width: 794,
-          height: Math.max(sheet.scrollHeight, sheet.offsetHeight, 1),
-          onclone: function(clonedDoc){
-            var node = clonedDoc.getElementById('pdf-capture-sheet');
-            if(node){
-              node.style.opacity = '1';
-              node.style.visibility = 'visible';
-              node.style.background = '#0b0a14';
-              node.style.color = '#ece6d8';
-              node.style.width = '794px';
-              node.style.position = 'static';
-              node.style.left = '0';
-            }
-            var overlayClone = clonedDoc.getElementById('pdf-capture-overlay');
-            if(overlayClone){
-              overlayClone.style.left = '0';
-              overlayClone.style.top = '0';
-              overlayClone.style.opacity = '1';
-              overlayClone.style.visibility = 'visible';
-            }
-            var shieldNode = clonedDoc.getElementById('screen-shield');
-            if(shieldNode) shieldNode.style.display = 'none';
-          }
-        });
-      }).then(function(canvas){
-        if(!canvas || !canvas.width || !canvas.height) throw new Error('empty canvas');
-        if(canvasLooksBlank(canvas)) throw new Error('blank canvas');
-        var imgData = canvas.toDataURL('image/jpeg', 0.96);
         var pdf = new JsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
         var pdfW = pdf.internal.pageSize.getWidth();
         var pdfH = pdf.internal.pageSize.getHeight();
-        var imgW = pdfW;
-        var imgH = (canvas.height * pdfW) / canvas.width;
-        var pages = Math.max(1, Math.ceil(imgH / pdfH - 0.001));
-        for(var page = 0; page < pages; page++){
-          if(page > 0) pdf.addPage();
-          // Evita la banda bianca in fondo all'ultima pagina
-          pdf.setFillColor(11, 10, 20);
-          pdf.rect(0, 0, pdfW, pdfH, 'F');
-          pdf.addImage(imgData, 'JPEG', 0, -page * pdfH, imgW, imgH, undefined, 'FAST');
+        var pageIndex = 0;
+
+        function captureOne(html){
+          overlay.innerHTML = '';
+          var sheet = document.createElement('div');
+          sheet.id = 'pdf-capture-sheet';
+          sheet.style.cssText = 'width:794px;min-height:1123px;margin:0;background:#0b0a14;color:#ece6d8;';
+          sheet.innerHTML = html;
+          overlay.appendChild(sheet);
+          return new Promise(function(resolve){ setTimeout(resolve, 80); }).then(function(){
+            return html2canvas(sheet, {
+              backgroundColor: '#0b0a14',
+              scale: 2,
+              useCORS: true,
+              allowTaint: false,
+              logging: false,
+              scrollX: 0,
+              scrollY: 0,
+              windowWidth: 794,
+              width: 794,
+              height: 1123,
+              onclone: function(clonedDoc){
+                var node = clonedDoc.getElementById('pdf-capture-sheet');
+                if(node){
+                  node.style.opacity = '1';
+                  node.style.visibility = 'visible';
+                  node.style.background = '#0b0a14';
+                  node.style.color = '#ece6d8';
+                  node.style.width = '794px';
+                  node.style.minHeight = '1123px';
+                  node.style.height = '1123px';
+                  node.style.overflow = 'hidden';
+                  node.style.position = 'static';
+                  node.style.left = '0';
+                }
+                var overlayClone = clonedDoc.getElementById('pdf-capture-overlay');
+                if(overlayClone){
+                  overlayClone.style.left = '0';
+                  overlayClone.style.top = '0';
+                  overlayClone.style.opacity = '1';
+                  overlayClone.style.visibility = 'visible';
+                }
+                var shieldNode = clonedDoc.getElementById('screen-shield');
+                if(shieldNode) shieldNode.style.display = 'none';
+              }
+            });
+          }).then(function(canvas){
+            if(!canvas || !canvas.width || !canvas.height) throw new Error('empty canvas');
+            if(canvasLooksBlank(canvas)) throw new Error('blank canvas');
+            if(pageIndex > 0) pdf.addPage();
+            pdf.setFillColor(11, 10, 20);
+            pdf.rect(0, 0, pdfW, pdfH, 'F');
+            var imgData = canvas.toDataURL('image/jpeg', 0.96);
+            pdf.addImage(imgData, 'JPEG', 0, 0, pdfW, pdfH, undefined, 'FAST');
+            pageIndex += 1;
+          });
         }
-        var result = triggerPdfFileDownload(pdf, 'lettura-luxseetarot.pdf');
-        if(!result || !result.ok) throw new Error('download blocked');
-        finishOk(result);
+
+        var chain = Promise.resolve();
+        pageHtmlList.forEach(function(html){
+          chain = chain.then(function(){ return captureOne(html); });
+        });
+        return chain.then(function(){
+          var result = triggerPdfFileDownload(pdf, 'lettura-luxseetarot.pdf');
+          if(!result || !result.ok) throw new Error('download blocked');
+          finishOk(result);
+        });
       });
     }).catch(function(err){
       console.error('Premium HTML PDF failed, text fallback:', err);
