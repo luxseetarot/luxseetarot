@@ -173,7 +173,7 @@ export function getDemoArticle() {
     description:
       'Impara a formulare una domanda chiara ai tarocchi: esempi utili, errori da evitare e come ottenere una lettura più leggibile su Luxseetarot.',
     keyword: 'come fare una domanda ai tarocchi',
-    coverImage: '/images/blog/come-fare-una-domanda-ai-tarocchi.jpg',
+    coverImage: '/images/blog/come-fare-una-domanda-ai-tarocchi.jpg?v=2',
     coverAlt: 'Carte dei tarocchi, taccuino e penna alla luce di una candela',
     status: 'draft',
     createdAt: now,
@@ -282,8 +282,12 @@ export async function seedDemoArticle({ force = false } = {}) {
   const demo = getDemoArticle();
   const existing = await getPost(demo.slug);
   if (existing && !force) {
-    // Patch soft: aggiunge cover se manca, senza riscrivere il testo
-    if (!existing.coverImage && demo.coverImage) {
+    // Patch soft: cover mancante o versione aggiornata del file demo
+    const needsCover =
+      !!demo.coverImage &&
+      (!existing.coverImage ||
+        String(existing.coverImage).split('?')[0] === String(demo.coverImage).split('?')[0]);
+    if (needsCover && existing.coverImage !== demo.coverImage) {
       const patched = await savePost({
         ...existing,
         coverImage: demo.coverImage,
