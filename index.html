@@ -3185,9 +3185,58 @@
   });
 
   refreshCreditsUI();
-  handleCheckoutReturn();
-  handleRecover();
-  maybeGateCreditsHome();
+  if(!handlePdfTest()){
+    handleCheckoutReturn();
+    handleRecover();
+    maybeGateCreditsHome();
+  }
+
+  /** Anteprima PDF con testo finto: /?pdfTest=1 (nessuna chiamata AI, zero token). */
+  function handlePdfTest(){
+    var params = new URLSearchParams(window.location.search);
+    if(params.get('pdfTest') !== '1') return false;
+    history.replaceState({}, '', window.location.pathname);
+
+    state.form = {
+      name: 'Giulia',
+      birthDate: '1992-04-18',
+      email: 'test@luxseetarot.com',
+      question: 'Riuscirò a trovare chiarezza sul mio prossimo passo lavorativo?'
+    };
+    state.lastCards = ['La Luna', 'Il Sole', 'La Stella'];
+    state.teaserText = null;
+    state.mode = 'full';
+    state.fullText = [
+      'Ciao Giulia, grazie per la fiducia. Nato/a il 18 aprile 1992, sento che questa domanda sul lavoro ti sta davvero a cuore, eh già.',
+      '**La Luna**',
+      'Nel passato vedo un periodo in cui le cose non erano chiare: tante ipotesi, poca **chiarezza**, e quella sensazione di camminare a tentoni. Forse hai detto sì a progetti che non ti rappresentavano del tutto, oppure hai rimandato una decisione perché ti sembrava troppo presto. Non è un giudizio, anzi: a volte il buio serve a capire cosa non vuoi più. C\'è anche un filo di intuizione che già allora ti sussurrava di cambiare direzione, anche se la testa diceva “aspetta”.',
+      '**Il Sole**',
+      'Nel presente arriva più luce. Non tutto è risolto, boh, raramente lo è, ma qualcosa si sta sbloccando: un riconoscimento, una conferma, o semplicemente più energia per muoverti. Il Sole parla di **visibilità** e di un passo che può sentirsi più naturale di quanto temi. Se stai valutando un cambio, un colloquio o un progetto in proprio, le carte suggeriscono di non nasconderti: la tua idea merita di essere detta con calma, senza forzature.',
+      '**La Stella**',
+      'Nel futuro vedo una direzione più serena, orientata alla **fiducia** e a un obiettivo che ha senso per te, non solo per gli altri. Non è una certezza assoluta, potrei sbagliarmi sui tempi, però l\'invito è concreto: scegli un piccolo passo entro questa settimana (messaggio, aggiornamento curriculum, chiamata) e osserva come ti senti dopo. Se pesa ancora troppo, aspetta tre giorni e riprova: la Stella ama i gesti leggeri ma costanti.',
+      'Ti ringrazio per aver scelto la lettura completa. Porta con te ciò che risuona e lascia il resto. Quando vorrai, Luxseetarot è qui per un nuovo sguardo sulle carte.'
+    ].join('\n\n');
+
+    document.querySelectorAll('section.phase').forEach(function(s){
+      s.classList.remove('active'); s.classList.remove('visible');
+    });
+    document.body.classList.add('phase-away');
+    var reveal = document.getElementById('phase-reveal');
+    if(reveal){
+      reveal.classList.add('active');
+      void reveal.offsetWidth;
+      reveal.classList.add('visible');
+    }
+    renderSavedCards(state.lastCards);
+    setReadingMode('full');
+    if(loaderEl) loaderEl.style.display = 'none';
+    if(readingEl) readingEl.innerHTML = renderMarkdown(state.fullText, 'full');
+    if(ctaEl) ctaEl.classList.remove('show');
+    if(ctaFullEl) ctaFullEl.classList.add('show');
+    refreshCreditsUI();
+    showToast('Modalità test PDF: testo di esempio, nessun token AI consumato. Usa SCARICA PDF.');
+    return true;
+  }
 
   function handleRecover(){
     var params = new URLSearchParams(window.location.search);
