@@ -8,6 +8,5 @@ export default async function handler(req, res) {
   return res.status(200).json({
     ok: true,
     turnstileSiteKey: (process.env.CF_TURNSTILE_SITE_KEY || '').trim(),
-    contactEmail: (process.env.CONTACT_PUBLIC_EMAIL || process.env.CONTACT_EMAIL || 'info@luxseetarot.com').trim(),
   });
 }

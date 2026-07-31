@@ -28,8 +28,6 @@
   .brand{font-family:'Cinzel',serif;letter-spacing:.28em;font-size:13px;color:var(--gold);text-align:center;margin-bottom:28px}
   h1{font-family:'Cinzel',serif;font-weight:500;font-size:clamp(22px,4vw,28px);letter-spacing:.12em;text-align:center;margin:0 0 16px;text-transform:uppercase;color:var(--gold)}
   .lead{text-align:center;font-size:19px;line-height:1.7;color:rgba(154,145,168,.98);margin:0 0 28px}
-  .channels{display:flex;flex-wrap:wrap;gap:12px 22px;justify-content:center;margin:0 0 32px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.12em;text-transform:uppercase}
-  .channels a{color:rgba(212,175,106,.8)}
   form{
     border:1px solid rgba(212,175,106,.22);
     background:linear-gradient(165deg,rgba(28,22,56,.55) 0%,rgba(11,10,20,.85) 100%);
@@ -65,11 +63,6 @@
     <h1>Contatti</h1>
     <p class="lead">Hai una domanda su una lettura, sui crediti o sull’acquisto? Scrivici: ti rispondiamo appena possibile.</p>
 
-    <div class="channels">
-      <a id="contact-mail" href="mailto:info@luxseetarot.com">info@luxseetarot.com</a>
-      <a href="https://www.facebook.com/EvangelineMedium01" target="_blank" rel="noopener noreferrer">Facebook</a>
-    </div>
-
     <form id="contact-form" novalidate>
       <div class="hp" aria-hidden="true">
         <label for="website">Sito</label>
@@ -104,7 +97,6 @@
   var err = document.getElementById('form-err');
   var ok = document.getElementById('form-ok');
   var btn = document.getElementById('btn-send');
-  var mailLink = document.getElementById('contact-mail');
   var wrap = document.getElementById('turnstile-wrap');
   var widgetId = null;
   var turnstileToken = null;
@@ -139,10 +131,6 @@
   }
 
   fetch('/api/config').then(function(r){ return r.json(); }).then(function(cfg){
-    if(cfg && cfg.contactEmail){
-      mailLink.href = 'mailto:' + cfg.contactEmail;
-      mailLink.textContent = cfg.contactEmail;
-    }
     siteKey = (cfg && cfg.turnstileSiteKey) || '';
     if(siteKey){
       if(window.turnstile) mountTurnstile();
