@@ -1,4 +1,4 @@
-/** Funnel analytics: Upstash Redis se configurato, altrimenti memoria di processo. */
+﻿/** Funnel analytics: Upstash Redis se configurato, altrimenti memoria di processo. */
 
 const memIps = new Map();
 const memEvents = [];
@@ -345,6 +345,118 @@ export async function resetTeaserDay(ip) {
   }
   await saveEvent({ type: 'admin_reset_teaser', at: Date.now(), ip: cleanIp });
   return loadProfile(cleanIp);
+}
+
+/** Azzera tutti i contatori di un IP (mantiene email/nome se presenti). */
+export async function resetIpCounters(ip) {
+  const cleanIp = normalizeIp(ip);
+  const current = await loadProfile(cleanIp);
+  const today = dayKey();
+  if (funnelStorageMode() === 'redis') {
+    await redisCommand([
+      'HSET',
+      ipKey(cleanIp),
+      'teaserTotal', '0',
+      'teaserToday', '0',
+      'teaserDay', today,
+      'purchaseTotal', '0',
+      'spentCents', '0',
+      'lastAmountCents', '0',
+      'lastTeaserAt', '0',
+      'lastPurchaseAt', '0',
+      'checkoutStarts', '0',
+      'lastProduct', '',
+      'lastSessionId', '',
+      'lastEmail', String(current.lastEmail || '').slice(0, 120),
+      'lastName', String(current.lastName || '').slice(0, 80),
+    ]);
+  } else {
+    const p = memGet(cleanIp);
+    const email = p.lastEmail || '';
+    const name = p.lastName || '';
+    Object.assign(p, emptyProfile(cleanIp), { lastEmail: email, lastName: name, teaserDay: today });
+  }
+  await saveEvent({ type: 'admin_reset_counters', at: Date.now(), ip: cleanIp });
+  return loadProfile(cleanIp);
+}
+
+async function filterEventsRemoveIp(cleanIp) {
+  if (funnelStorageMode() === 'redis') {
+    const raw = (await redisCommand(['LRANGE', EVENTS_KEY, 0, MEM_EVENTS_MAX - 1])) || [];
+    const kept = raw.filter((line) => {
+      try {
+        const e = JSON.parse(line);
+        return normalizeIp(e.ip) !== cleanIp;
+      } catch {
+        return true;
+      }
+    });
+    await redisCommand(['DEL', EVENTS_KEY]);
+    if (kept.length) {
+      // LPUSH in ordine inverso per mantenere i più recenti in testa
+      const cmds = kept.reverse().map((line) => ['LPUSH', EVENTS_KEY, line]);
+      cmds.push(['LTRIM', EVENTS_KEY, 0, MEM_EVENTS_MAX - 1]);
+      await redisPipeline(cmds);
+    }
+    return;
+  }
+  for (let i = memEvents.length - 1; i >= 0; i--) {
+    if (normalizeIp(memEvents[i].ip) === cleanIp) memEvents.splice(i, 1);
+  }
+}
+
+/** Cancella profilo + eventi di un IP. */
+export async function deleteIpData(ip) {
+  const cleanIp = normalizeIp(ip);
+  if (funnelStorageMode() === 'redis') {
+    await redisPipeline([
+      ['DEL', ipKey(cleanIp)],
+      ['ZREM', IPS_INDEX_KEY, cleanIp],
+    ]);
+  } else {
+    memIps.delete(cleanIp);
+  }
+  await filterEventsRemoveIp(cleanIp);
+  await saveEvent({ type: 'admin_delete_ip', at: Date.now(), ip: cleanIp });
+  return { ok: true, ip: cleanIp };
+}
+
+/** Azzera i contatori di tutti gli IP tracciati. */
+export async function resetAllCounters() {
+  const now = Date.now();
+  const today = dayKey(now);
+  if (funnelStorageMode() === 'redis') {
+    const ips = (await redisCommand(['ZRANGE', IPS_INDEX_KEY, 0, -1])) || [];
+    for (const ip of ips) {
+      const cleanIp = normalizeIp(ip);
+      const current = await loadProfile(cleanIp);
+      await redisCommand([
+        'HSET',
+        ipKey(cleanIp),
+        'teaserTotal', '0',
+        'teaserToday', '0',
+        'teaserDay', today,
+        'purchaseTotal', '0',
+        'spentCents', '0',
+        'lastAmountCents', '0',
+        'lastTeaserAt', '0',
+        'lastPurchaseAt', '0',
+        'checkoutStarts', '0',
+        'lastProduct', '',
+        'lastSessionId', '',
+        'lastEmail', String(current.lastEmail || '').slice(0, 120),
+        'lastName', String(current.lastName || '').slice(0, 80),
+      ]);
+    }
+  } else {
+    for (const p of memIps.values()) {
+      const email = p.lastEmail || '';
+      const name = p.lastName || '';
+      Object.assign(p, emptyProfile(p.ip), { lastEmail: email, lastName: name, teaserDay: today });
+    }
+  }
+  await saveEvent({ type: 'admin_reset_all_counters', at: now, ip: 'all' });
+  return listFunnelStats({ limit: 100 });
 }
 
 export async function listFunnelStats({ limit = 80 } = {}) {

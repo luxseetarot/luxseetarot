@@ -1,9 +1,12 @@
-import { cors } from './_lib/unlock.js';
+﻿import { cors } from './_lib/unlock.js';
 import {
   funnelStorageMode,
   listFunnelStats,
   getIpDetail,
   resetTeaserDay,
+  resetIpCounters,
+  deleteIpData,
+  resetAllCounters,
 } from './_lib/funnel.js';
 
 function getAdminSecret() {
@@ -66,6 +69,25 @@ export default async function handler(req, res) {
       if (!ip) return res.status(400).json({ ok: false, error: 'IP mancante.' });
       const profile = await resetTeaserDay(ip);
       return res.status(200).json({ ok: true, profile });
+    }
+
+    if (action === 'reset-counters') {
+      const ip = String((req.body && req.body.ip) || '').trim();
+      if (!ip) return res.status(400).json({ ok: false, error: 'IP mancante.' });
+      const profile = await resetIpCounters(ip);
+      return res.status(200).json({ ok: true, profile });
+    }
+
+    if (action === 'delete-ip') {
+      const ip = String((req.body && req.body.ip) || '').trim();
+      if (!ip) return res.status(400).json({ ok: false, error: 'IP mancante.' });
+      const result = await deleteIpData(ip);
+      return res.status(200).json({ ok: true, ...result });
+    }
+
+    if (action === 'reset-all-counters') {
+      const stats = await resetAllCounters();
+      return res.status(200).json({ ok: true, ...stats });
     }
 
     return res.status(400).json({ ok: false, error: 'Azione non valida.' });

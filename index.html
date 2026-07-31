@@ -448,6 +448,16 @@
   .admin-events{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);max-height:180px;overflow:auto}
   .admin-events div{padding:6px 0;border-bottom:1px solid rgba(212,175,106,.08)}
   .admin-err{color:#ff8a8a;font-size:13px;margin:0 0 10px;display:none}
+  .admin-confirm{
+    display:none;margin:0 0 14px;padding:14px 16px;border:1px solid rgba(212,175,106,.35);
+    border-radius:12px;background:rgba(212,175,106,.08);
+  }
+  .admin-confirm.show{display:block}
+  .admin-confirm p{margin:0 0 12px;font-family:'Inter',sans-serif;font-size:13px;color:var(--fg);line-height:1.45}
+  .admin-confirm-actions{display:flex;flex-wrap:wrap;gap:8px}
+  .admin-confirm-actions .gold-btn,.admin-confirm-actions .ghost-btn{width:auto;padding:10px 18px;font-size:11px}
+  .admin-row-actions{display:flex;flex-wrap:wrap;gap:6px}
+  .admin-row-actions button{font-size:10px!important;padding:6px 8px!important}
   .checkout-toast{display:none;max-width:560px;margin:16px auto;padding:12px 16px;border-radius:12px;border:1px solid var(--gold-soft);background:rgba(20,16,40,.9);text-align:center;color:var(--fg);font-size:14px}
   .checkout-toast.show{display:block}
   .pay-bridge{display:none;position:fixed;inset:0;z-index:10000;background:radial-gradient(ellipse at center,#15122a 0%,#050410 100%);align-items:center;justify-content:center;padding:24px;text-align:center}
@@ -749,8 +759,16 @@
     <div id="admin-dash-view" style="display:none">
       <div class="admin-actions">
         <button type="button" class="gold-btn" id="admin-refresh">AGGIORNA</button>
+        <button type="button" class="ghost-btn" id="admin-reset-all">AZZERA TUTTI I CONTATORI</button>
         <button type="button" class="ghost-btn" id="admin-logout">ESCI</button>
         <button type="button" class="ghost-btn" id="admin-close">CHIUDI</button>
+      </div>
+      <div class="admin-confirm" id="admin-confirm">
+        <p id="admin-confirm-text"></p>
+        <div class="admin-confirm-actions">
+          <button type="button" class="gold-btn" id="admin-confirm-si">SÌ</button>
+          <button type="button" class="ghost-btn" id="admin-confirm-no">NO</button>
+        </div>
       </div>
       <div class="admin-kpis" id="admin-kpis"></div>
       <div class="admin-table-wrap">
@@ -766,7 +784,7 @@
               <th>Email</th>
               <th>Ultima lettura</th>
               <th>Ultimo acquisto</th>
-              <th></th>
+              <th>Azioni</th>
             </tr>
           </thead>
           <tbody id="admin-tbody"></tbody>
@@ -3286,6 +3304,7 @@
     var metaEl = document.getElementById('admin-meta');
     var taps = 0;
     var tapTimer = null;
+    var pendingConfirm = null; // { action, ip, step }
 
     function getSecret(){
       try { return sessionStorage.getItem(ADMIN_KEY) || ''; } catch(e){ return ''; }
@@ -3340,6 +3359,44 @@
         body: JSON.stringify(Object.assign({}, body, { secret: secret }))
       }).then(function(r){ return r.json(); });
     }
+    function hideAdminConfirm(){
+      pendingConfirm = null;
+      var box = document.getElementById('admin-confirm');
+      if(box) box.classList.remove('show');
+    }
+    function showAdminConfirm(action, ip){
+      pendingConfirm = { action: action, ip: ip || '', step: 1 };
+      var box = document.getElementById('admin-confirm');
+      var text = document.getElementById('admin-confirm-text');
+      var si = document.getElementById('admin-confirm-si');
+      if(!box || !text) return;
+      var msg = '';
+      if(action === 'reset-counters'){
+        msg = 'Azzero TUTTI i contatori per '+ip+'? Premi SÌ, poi SÌ di nuovo per confermare.';
+      } else if(action === 'delete-ip'){
+        msg = 'Cancello TUTTI i dati funnel di '+ip+'? Premi SÌ, poi SÌ di nuovo per confermare.';
+      } else if(action === 'reset-all-counters'){
+        msg = 'Azzero i contatori di TUTTI gli utenti? Premi SÌ, poi SÌ di nuovo per confermare.';
+      } else {
+        msg = 'Confermi? Premi SÌ due volte.';
+      }
+      text.textContent = msg;
+      if(si) si.textContent = 'SÌ';
+      box.classList.add('show');
+      box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    function runPendingAdminAction(){
+      if(!pendingConfirm) return;
+      var action = pendingConfirm.action;
+      var ip = pendingConfirm.ip;
+      hideAdminConfirm();
+      showErr('');
+      adminFetch({ action: action, ip: ip }).then(function(res){
+        if(!res.ok){ showErr(res.error || 'Operazione fallita'); return; }
+        if(action === 'reset-all-counters') renderStats(res);
+        else loadStats();
+      }).catch(function(){ showErr('Operazione fallita'); });
+    }
     function renderStats(data){
       var s = data.summary || {};
       var kpis = document.getElementById('admin-kpis');
@@ -3373,18 +3430,34 @@
             '<td>'+escapeHtml(p.lastEmail||'—')+'</td>'+
             '<td>'+fmtWhen(p.lastTeaserAt)+'</td>'+
             '<td>'+fmtWhen(p.lastPurchaseAt)+'</td>'+
-            '<td><button type="button" data-reset-ip="'+escapeHtml(p.ip||'')+'">RESET OGGI</button></td>'+
+            '<td><div class="admin-row-actions">'+
+              '<button type="button" data-reset-day="'+escapeHtml(p.ip||'')+'">RESET OGGI</button>'+
+              '<button type="button" data-reset-counters="'+escapeHtml(p.ip||'')+'">AZZERA</button>'+
+              '<button type="button" data-delete-ip="'+escapeHtml(p.ip||'')+'">CANCELLA</button>'+
+            '</div></td>'+
           '</tr>';
         }).join('');
         tbody.innerHTML = rows || '<tr><td colspan="10">Nessun dato ancora. Le letture e gli acquisti compariranno da ora in poi.</td></tr>';
-        tbody.querySelectorAll('[data-reset-ip]').forEach(function(btn){
+        tbody.querySelectorAll('[data-reset-day]').forEach(function(btn){
           btn.addEventListener('click', function(){
-            var ip = btn.getAttribute('data-reset-ip');
+            var ip = btn.getAttribute('data-reset-day');
             if(!ip || !confirm('Azzero le letture gratuite di oggi per '+ip+'?')) return;
             adminFetch({ action: 'reset-teaser', ip: ip }).then(function(res){
               if(!res.ok){ showErr(res.error || 'Reset fallito'); return; }
               loadStats();
             });
+          });
+        });
+        tbody.querySelectorAll('[data-reset-counters]').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var ip = btn.getAttribute('data-reset-counters');
+            if(ip) showAdminConfirm('reset-counters', ip);
+          });
+        });
+        tbody.querySelectorAll('[data-delete-ip]').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var ip = btn.getAttribute('data-delete-ip');
+            if(ip) showAdminConfirm('delete-ip', ip);
           });
         });
       }
@@ -3395,7 +3468,10 @@
             teaser: 'lettura',
             purchase: 'acquisto',
             checkout_start: 'checkout',
-            admin_reset_teaser: 'reset letture'
+            admin_reset_teaser: 'reset letture',
+            admin_reset_counters: 'azzera contatori',
+            admin_reset_all_counters: 'azzera tutti',
+            admin_delete_ip: 'cancella utente'
           })[e.type] || (e.type || '');
           return '<div>'+fmtWhen(e.at)+' · <strong style="color:#d4af6a">'+escapeHtml(typeLabel)+'</strong> · '+
             escapeHtml(e.ip||'')+' · '+escapeHtml(e.email||'')+
@@ -3473,6 +3549,34 @@
     }
     var refreshBtn = document.getElementById('admin-refresh');
     if(refreshBtn) refreshBtn.addEventListener('click', loadStats);
+    var resetAllBtn = document.getElementById('admin-reset-all');
+    if(resetAllBtn){
+      resetAllBtn.addEventListener('click', function(){
+        showAdminConfirm('reset-all-counters', '');
+      });
+    }
+    var confirmSi = document.getElementById('admin-confirm-si');
+    var confirmNo = document.getElementById('admin-confirm-no');
+    if(confirmSi){
+      confirmSi.addEventListener('click', function(){
+        if(!pendingConfirm) return;
+        if(pendingConfirm.step === 1){
+          pendingConfirm.step = 2;
+          var text = document.getElementById('admin-confirm-text');
+          if(text){
+            text.textContent = 'Conferma definitiva: premi SÌ un’altra volta per eseguire, oppure NO per annullare.';
+          }
+          confirmSi.textContent = 'SÌ';
+          return;
+        }
+        runPendingAdminAction();
+      });
+    }
+    if(confirmNo){
+      confirmNo.addEventListener('click', function(){
+        hideAdminConfirm();
+      });
+    }
   })();
 
 })();
