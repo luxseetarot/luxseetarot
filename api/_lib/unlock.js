@@ -105,8 +105,8 @@ export async function consumeCreditStripe(stripe, sessionId) {
   };
 }
 
-export function checkRateLimit(ip, { max = 20, windowMs = 60 * 60 * 1000 } = {}) {
-  const key = ip || 'unknown';
+export function checkRateLimit(ip, { max = 20, windowMs = 60 * 60 * 1000, bucket = 'default' } = {}) {
+  const key = `${bucket}:${ip || 'unknown'}`;
   const now = Date.now();
   let entry = readingHits.get(key);
   if (!entry || now - entry.start > windowMs) {

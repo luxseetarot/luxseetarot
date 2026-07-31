@@ -60,9 +60,6 @@ export default async function handler(req, res) {
 
   try {
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';
-    if (!checkRateLimit(ip, { max: 30, windowMs: 60 * 60 * 1000 })) {
-      return res.status(429).json({ ok: false, error: 'Troppe richieste. Riprova tra un po\'.' });
-    }
 
     const {
       name,
@@ -88,6 +85,19 @@ export default async function handler(req, res) {
     if (isDeepen && extra.length < 5) {
       return res.status(400).json({ ok: false, error: 'Aggiungi almeno una domanda o un dettaglio da integrare.' });
     }
+
+    // Anteprima gratuita: max 3 al giorno per IP (non conta le letture a pagamento)
+    if (!isFull) {
+      if (!checkRateLimit(ip, { max: 3, windowMs: 24 * 60 * 60 * 1000, bucket: 'teaser-day' })) {
+        return res.status(429).json({
+          ok: false,
+          error: 'Hai raggiunto il limite di 3 anteprime gratuite per oggi. Torna domani oppure sblocca la lettura completa.',
+        });
+      }
+    } else if (!checkRateLimit(ip, { max: 40, windowMs: 60 * 60 * 1000, bucket: 'full-hour' })) {
+      return res.status(429).json({ ok: false, error: 'Troppe richieste. Riprova tra un po\'.' });
+    }
+
     if (!isFull) {
       const bot = await verifyTurnstileToken(turnstileToken, ip);
       if (!bot.ok) return res.status(403).json({ ok: false, error: bot.error || 'Verifica anti-bot fallita.' });
