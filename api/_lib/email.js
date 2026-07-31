@@ -1,4 +1,4 @@
-export async function sendCreditsEmail({ to, name, remaining, max, sessionId }) {
+﻿export async function sendCreditsEmail({ to, name, remaining, max, sessionId }) {
   const apiKey =
     (process.env.BREVO_API_KEY || process.env.BREVO_API_KEY_V3 || '').trim();
   const fromEmail =
@@ -11,7 +11,7 @@ export async function sendCreditsEmail({ to, name, remaining, max, sessionId }) 
     return { ok: false, skipped: true };
   }
 
-  const site = (process.env.SITE_URL || 'https://luxseetarot.vercel.app').replace(/\/$/, '');
+  const site = (process.env.SITE_URL || 'https://luxseetarot.com').replace(/\/$/, '');
   const recoverUrl = `${site}/?recover=${encodeURIComponent(sessionId)}`;
   const title = 'I tuoi crediti Luxseetarot';
 

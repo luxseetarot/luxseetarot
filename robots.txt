@@ -1,6 +1,6 @@
-User-agent: *
+﻿User-agent: *
 Allow: /
 Disallow: /api/
 Disallow: /admin
 
-Sitemap: https://luxseetarot.vercel.app/sitemap.xml
+Sitemap: https://luxseetarot.com/sitemap.xml
