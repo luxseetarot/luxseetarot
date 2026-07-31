@@ -46,7 +46,6 @@
   .post-item h2 a{color:rgba(232,213,163,.95)}
   .post-item h2 a:hover{color:var(--gold)}
   .post-item p{font-size:18px;line-height:1.65;color:rgba(154,145,168,.98);margin:0 0 10px}
-  .post-meta{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:rgba(154,145,168,.65)}
   .cta{display:block;text-align:center;margin:40px 0 8px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
   .footer-nav{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;margin:28px 0 12px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
   footer{text-align:center;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(154,145,168,.55);padding:0 22px 40px}
@@ -88,12 +87,6 @@
     function escapeHtml(s){
       return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     }
-    function fmtDate(iso){
-      if(!iso) return '';
-      try {
-        return new Date(iso).toLocaleDateString('it-IT', { day:'numeric', month:'long', year:'numeric' });
-      } catch(e){ return ''; }
-    }
     fetch('/api/blog?action=list')
       .then(function(r){ return r.json(); })
       .then(function(data){
@@ -110,7 +103,6 @@
         listEl.hidden = false;
         listEl.innerHTML = posts.map(function(p){
           var href = '/blog/' + encodeURIComponent(p.slug);
-          var when = fmtDate(p.publishedAt || p.updatedAt);
           var thumb = p.coverImage
             ? '<a href="'+href+'"><img class="thumb" src="'+escapeHtml(p.coverImage)+'" alt="'+escapeHtml(p.coverAlt||p.title||'')+'" loading="lazy" decoding="async" width="1400" height="583" /></a>'
             : '';
@@ -118,7 +110,6 @@
             thumb+
             '<h2><a href="'+href+'">'+escapeHtml(p.title)+'</a></h2>'+
             '<p>'+escapeHtml(p.description||'')+'</p>'+
-            (when ? '<div class="post-meta">'+escapeHtml(when)+'</div>' : '')+
           '</article>';
         }).join('');
       })

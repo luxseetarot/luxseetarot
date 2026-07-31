@@ -4,12 +4,16 @@
  */
 
 function article(partial) {
+  const slug = String(partial.slug || '');
+  const coverImage =
+    partial.coverImage ||
+    (slug ? `/images/blog/${slug}.jpg?v=3` : '');
   return {
     status: 'draft',
-    coverImage: partial.coverImage || '',
-    coverAlt: partial.coverAlt || '',
     faq: partial.faq || [],
     ...partial,
+    coverImage,
+    coverAlt: partial.coverAlt || partial.title || '',
   };
 }
 
@@ -23,8 +27,7 @@ export function getSeedArticles() {
       description:
         'Guida al significato dei tarocchi in amore: cosa osservare nelle carte, esempi di domande utili e limiti di una lettura sentimentale.',
       keyword: 'significato tarocchi amore',
-      coverImage: '/images/blog/come-fare-una-domanda-ai-tarocchi.jpg?v=2',
-      coverAlt: 'Carte dei tarocchi su un tavolo con luce calda',
+      coverAlt: 'Rosa e carte dei tarocchi alla luce di una candela',
       faq: [
         {
           q: 'I tarocchi possono dirmi se una persona mi ama?',

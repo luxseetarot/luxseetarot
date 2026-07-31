@@ -174,8 +174,8 @@ export function getDemoArticle() {
     description:
       'Impara a formulare una domanda chiara ai tarocchi: esempi utili, errori da evitare e come ottenere una lettura più leggibile su Luxseetarot.',
     keyword: 'come fare una domanda ai tarocchi',
-    coverImage: '/images/blog/come-fare-una-domanda-ai-tarocchi.jpg?v=2',
-    coverAlt: 'Carte dei tarocchi, taccuino e penna alla luce di una candela',
+    coverImage: '/images/blog/come-fare-una-domanda-ai-tarocchi.jpg?v=3',
+    coverAlt: 'Taccuino, penna e carte dei tarocchi per formulare una domanda',
     status: 'draft',
     createdAt: now,
     updatedAt: now,
@@ -289,7 +289,7 @@ function catalogArticles() {
 
 /**
  * Inserisce tutti gli articoli del catalogo in bozza se assenti.
- * Non sovrascrive post già presenti (salvo force o patch cover del primo).
+ * Aggiorna le cover dal catalogo sulle bozze esistenti (senza toccare i pubblicati).
  */
 export async function seedDemoArticle({ force = false } = {}) {
   const catalog = catalogArticles();
@@ -301,18 +301,15 @@ export async function seedDemoArticle({ force = false } = {}) {
   for (const demo of catalog) {
     const existing = await getPost(demo.slug);
     if (existing && !force) {
-      const isFirst = demo.slug === 'come-fare-una-domanda-ai-tarocchi';
       const needsCover =
-        isFirst &&
         !!demo.coverImage &&
-        (!existing.coverImage ||
-          String(existing.coverImage).split('?')[0] === String(demo.coverImage).split('?')[0]) &&
-        existing.coverImage !== demo.coverImage;
+        existing.coverImage !== demo.coverImage &&
+        (existing.status === 'draft' || !existing.coverImage);
       if (needsCover) {
         const result = await savePost({
           ...existing,
           coverImage: demo.coverImage,
-          coverAlt: existing.coverAlt || demo.coverAlt,
+          coverAlt: demo.coverAlt || existing.coverAlt || '',
         });
         if (result.ok) {
           patched += 1;
