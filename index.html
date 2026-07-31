@@ -1934,10 +1934,13 @@
     flush();
     return sections;
   }
-  function premiumPdfFrameStyle(isFull){
+  function premiumPdfFrameStyle(isFull, fillPage){
+    // Niente min-height:100% in fase di misura: sul viewport faceva sembrare
+    // ogni blocco alto quanto lo schermo → pagine quasi vuote in mezzo.
+    var fill = fillPage ? 'min-height:100%;' : '';
     return isFull
-      ? 'box-sizing:border-box;width:100%;min-height:100%;background:linear-gradient(165deg,#1c1638 0%,#0b0a14 55%,#050410 100%);color:#ece6d8;padding:40px 36px 44px;border:1px solid rgba(212,175,106,.28);'
-      : 'box-sizing:border-box;width:100%;min-height:100%;background:#0b0a14;color:#ece6d8;padding:40px 36px 44px;';
+      ? 'box-sizing:border-box;width:100%;'+fill+'background:linear-gradient(165deg,#1c1638 0%,#0b0a14 55%,#050410 100%);color:#ece6d8;padding:40px 36px 44px;border:1px solid rgba(212,175,106,.28);'
+      : 'box-sizing:border-box;width:100%;'+fill+'background:#0b0a14;color:#ece6d8;padding:40px 36px 44px;';
   }
   function buildPremiumPdfCoverBlocks(isFull, artMap){
     var name = (state.form && state.form.name) ? state.form.name : 'Consultante';
@@ -1961,17 +1964,25 @@
   function packBlocksIntoPdfPages(blockGroups, isFull){
     var PAGE_W = 794;
     var PAGE_H = 1123; // A4 a 96dpi
-    var frame = premiumPdfFrameStyle(isFull);
+    var MAX_CONTENT_H = 1040; // padding incluso nel frame misurato
+    var frameMeasure = premiumPdfFrameStyle(isFull, false);
+    var framePage = premiumPdfFrameStyle(isFull, true);
     var host = document.createElement('div');
-    host.style.cssText = 'position:fixed;left:-12000px;top:0;width:'+PAGE_W+'px;visibility:hidden;pointer-events:none;z-index:-1;';
+    host.style.cssText = 'position:fixed;left:-12000px;top:0;width:'+PAGE_W+'px;height:auto;overflow:visible;pointer-events:none;z-index:-1;opacity:0;';
     document.body.appendChild(host);
 
     function measure(blocks){
       var page = document.createElement('div');
-      page.style.cssText = 'width:'+PAGE_W+'px;background:#0b0a14;';
-      page.innerHTML = '<div style="'+frame+'"><div style="max-width:640px;margin:0 auto;">'+(blocks || []).join('')+'</div></div>';
+      page.style.cssText = 'width:'+PAGE_W+'px;background:#0b0a14;height:auto;';
+      page.innerHTML = '<div style="'+frameMeasure+'"><div style="max-width:640px;margin:0 auto;">'+(blocks || []).join('')+'</div></div>';
       host.appendChild(page);
-      var h = Math.max(page.scrollHeight, page.offsetHeight, 1);
+      var inner = page.firstChild;
+      var h = Math.ceil(Math.max(
+        (inner && inner.scrollHeight) || 0,
+        (inner && inner.offsetHeight) || 0,
+        page.scrollHeight,
+        1
+      ));
       host.removeChild(page);
       return h;
     }
@@ -1981,10 +1992,10 @@
       var blocks = (group || []).slice();
       if(!blocks.length) return;
       var current = [];
-      blocks.forEach(function(block, idx){
+      blocks.forEach(function(block){
         var trial = current.concat([block]);
         var h = measure(trial);
-        if(current.length && h > PAGE_H - 2){
+        if(current.length && h > MAX_CONTENT_H){
           pages.push(current);
           current = [block];
         } else {
@@ -1998,8 +2009,8 @@
 
     return pages.map(function(blocks){
       return (
-        '<div style="width:'+PAGE_W+'px;min-height:'+PAGE_H+'px;background:#0b0a14;color:#ece6d8;">'+
-          '<div style="'+frame+'">'+
+        '<div style="width:'+PAGE_W+'px;height:'+PAGE_H+'px;background:#0b0a14;color:#ece6d8;overflow:hidden;">'+
+          '<div style="'+framePage+'">'+
             '<div style="max-width:640px;margin:0 auto;">'+blocks.join('')+'</div>'+
           '</div>'+
         '</div>'
