@@ -2348,7 +2348,11 @@
               if(res.mode === 'full'){
                 ctaEl.classList.remove('show');
                 if(ctaFullEl) ctaFullEl.classList.add('show');
-                showToast('Ecco la lettura completa. Usa il pulsante per scaricare il PDF.');
+                if(res.emailSent){
+                  showToast('Lettura completa pronta. Ti abbiamo inviato un\'email per riaprirla quando vuoi.');
+                } else {
+                  showToast('Ecco la lettura completa. Usa il pulsante per scaricare il PDF.');
+                }
               } else {
                 if(ctaFullEl) ctaFullEl.classList.remove('show');
                 ctaEl.classList.add('show');
@@ -2416,7 +2420,11 @@
         exp: res.exp,
         email: res.email || ''
       });
-      if(res.emailSent) showToast('Ti abbiamo inviato un\'email con il link ai crediti.');
+      if(res.emailSent){
+        showToast(res.product === 'pack'
+          ? 'Ti abbiamo inviato un\'email con il link ai crediti.'
+          : 'Ti abbiamo inviato un\'email con il link alla lettura.');
+      }
       showPayBridge(res.product || 'full');
 
       var pending = null;
@@ -2475,11 +2483,17 @@
         }, 1600);
       } else {
         hidePayBridge();
-        showCreditChoice({
-          toast: res.emailSent
-            ? 'Ti abbiamo inviato un\'email con il link ai crediti.'
-            : 'Pagamento ok. Scegli come usare i tuoi crediti.'
-        });
+        if(Number(res.credits) > 0){
+          showCreditChoice({
+            toast: res.emailSent
+              ? 'Ti abbiamo inviato un\'email con il link ai crediti.'
+              : 'Pagamento ok. Scegli come usare i tuoi crediti.'
+          });
+        } else if(res.savedReading && applySavedReading(res.savedReading)){
+          continueSameReading();
+        } else {
+          showToast('Pagamento ok. La lettura è pronta quando torni dal link in email.');
+        }
       }
     }).catch(function(){
       hidePayBridge();
@@ -3056,6 +3070,8 @@
             ? 'Crediti recuperati. Puoi approfondire l\'ultima domanda o farne una nuova.'
             : 'Crediti recuperati: ' + res.credits + ' disponibili.'
         });
+      } else if(hasSavedReadingToContinue()){
+        continueSameReading();
       } else {
         showToast('Nessun credito rimanente su questo acquisto.');
       }

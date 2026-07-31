@@ -1,4 +1,4 @@
-import Stripe from 'stripe';
+﻿import Stripe from 'stripe';
 import { cors, verifyUnlockToken, encodeReadingMeta, getSessionCredits } from './_lib/unlock.js';
 
 export default async function handler(req, res) {
@@ -22,12 +22,20 @@ export default async function handler(req, res) {
       return res.status(402).json({ ok: false, error: info.error || 'Sessione non valida.' });
     }
 
-    const prev = info.session.metadata || {};
-    const readingMeta = encodeReadingMeta(reading || null, prev);
+    const readingMeta = encodeReadingMeta(reading || null, info.session.metadata || {});
+
+    // Re-read subito prima del write: evita di riportare credits_used a 0
+    // se un consume parallelo ha già aggiornato Stripe.
+    const fresh = await stripe.checkout.sessions.retrieve(unlocked.sessionId);
+    const base = fresh.metadata || {};
+    const usedFresh = parseInt(base.credits_used || '0', 10) || 0;
+    const usedKnown = parseInt((info.session.metadata || {}).credits_used || '0', 10) || 0;
+
     await stripe.checkout.sessions.update(unlocked.sessionId, {
       metadata: {
-        ...prev,
+        ...base,
         ...readingMeta,
+        credits_used: String(Math.max(usedFresh, usedKnown)),
       },
     });
 

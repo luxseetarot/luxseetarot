@@ -1,4 +1,4 @@
-import Stripe from 'stripe';
+﻿import Stripe from 'stripe';
 import { cors, signUnlock, getSessionCredits, decodeReadingMeta } from './_lib/unlock.js';
 import { sendCreditsEmail, upsertMarketingContact } from './_lib/email.js';
 import { recordPurchase } from './_lib/funnel.js';
@@ -29,21 +29,26 @@ export default async function handler(req, res) {
     const customerName = info.session.metadata?.name || '';
     let emailSent = false;
     const alreadyEmailed = info.session.metadata?.credits_email_sent === '1';
-    // Una sola email crediti per acquisto: il saldo resta visibile sul sito.
-    if (sendEmail && info.email && !alreadyEmailed) {
+    // Pack: email subito con i crediti wallet.
+    // Lettura singola (full): email dopo il consumo del credito sulla prima generazione,
+    // così non promettiamo un secondo uso e il saldo in mail è quello reale.
+    const deferEmail = (info.product || 'full') === 'full';
+    if (sendEmail && info.email && !alreadyEmailed && !deferEmail) {
       const mail = await sendCreditsEmail({
         to: info.email,
         name: customerName,
         remaining: info.remaining,
         max: info.max,
         sessionId,
+        product: info.product || 'pack',
       });
       emailSent = !!mail.ok;
       if (mail.ok) {
         try {
+          const fresh = await stripe.checkout.sessions.retrieve(sessionId);
           await stripe.checkout.sessions.update(sessionId, {
             metadata: {
-              ...(info.session.metadata || {}),
+              ...(fresh.metadata || {}),
               credits_email_sent: '1',
             },
           });
