@@ -1,13 +1,5 @@
-﻿{
+{
   "version": 2,
-  "redirects": [
-    {
-      "source": "/:path*",
-      "has": [{ "type": "host", "value": "www.luxseetarot.com" }],
-      "destination": "https://luxseetarot.com/:path*",
-      "permanent": true
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
