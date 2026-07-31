@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Luxseetarot">
+  <rect width="64" height="64" rx="14" fill="#0b0a14"/>
+  <path d="M42.5 34.2A16.2 16.2 0 1 1 29.8 15.5 12.6 12.6 0 0 0 42.5 34.2z" fill="none" stroke="#c9a84c" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="44.5" cy="18.5" r="1.6" fill="#e8d5a3"/>
+  <circle cx="48.8" cy="24.2" r="1.1" fill="#e8d5a3"/>
+</svg>
