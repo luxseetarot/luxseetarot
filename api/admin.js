@@ -135,7 +135,7 @@ export default async function handler(req, res) {
       return res.status(200).json(result);
     }
 
-    if (action === 'blog-seed-demo') {
+    if (action === 'blog-seed-demo' || action === 'blog-seed-all') {
       const force = !!(req.body && req.body.force);
       const result = await seedDemoArticle({ force });
       if (!result.ok) return res.status(400).json(result);

@@ -863,6 +863,7 @@
             <option value="deleted">Eliminati</option>
           </select>
           <input type="search" id="admin-blog-search" placeholder="Cerca titolo o slug…" />
+          <button type="button" class="ghost-btn" id="admin-blog-seed" style="width:auto;padding:10px 12px;font-size:11px">CARICA BOZZE SEO</button>
         </div>
         <div class="admin-blog-editor" id="admin-blog-editor">
           <label for="admin-blog-title">Titolo</label>
@@ -3851,6 +3852,18 @@
     var blogSearch = document.getElementById('admin-blog-search');
     if(blogFilter) blogFilter.addEventListener('change', renderBlogList);
     if(blogSearch) blogSearch.addEventListener('input', renderBlogList);
+    var blogSeedBtn = document.getElementById('admin-blog-seed');
+    if(blogSeedBtn){
+      blogSeedBtn.addEventListener('click', function(){
+        showErr('');
+        adminFetch({ action: 'blog-seed-all' }).then(function(res){
+          if(!res.ok){ showErr(res.error || 'Seed fallito'); return; }
+          var msg = 'Seed: +'+(res.seeded||0)+' nuovi, '+(res.skipped||0)+' già presenti'+(res.patched ? ', '+res.patched+' aggiornati' : '')+'.';
+          if(metaEl) metaEl.textContent = msg;
+          loadBlog();
+        }).catch(function(){ showErr('Seed fallito'); });
+      });
+    }
     var blogSave = document.getElementById('admin-blog-save');
     var blogCancel = document.getElementById('admin-blog-cancel');
     if(blogCancel) blogCancel.addEventListener('click', closeBlogEditor);

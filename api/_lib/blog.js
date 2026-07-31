@@ -1,6 +1,7 @@
 /** Blog posts: Upstash Redis se configurato, altrimenti memoria di processo. */
 
 import { funnelStorageMode } from './funnel.js';
+import { getSeedArticles } from './blog-seed-articles.js';
 
 const INDEX_KEY = 'lux:blog:index';
 const memPosts = new Map();
@@ -277,28 +278,78 @@ export function getDemoArticle() {
   };
 }
 
-/** Inserisce l'articolo demo in bozza se assente (non sovrascrive modifiche esistenti). */
-export async function seedDemoArticle({ force = false } = {}) {
-  const demo = getDemoArticle();
-  const existing = await getPost(demo.slug);
-  if (existing && !force) {
-    // Patch soft: cover mancante o versione aggiornata del file demo
-    const needsCover =
-      !!demo.coverImage &&
-      (!existing.coverImage ||
-        String(existing.coverImage).split('?')[0] === String(demo.coverImage).split('?')[0]);
-    if (needsCover && existing.coverImage !== demo.coverImage) {
-      const patched = await savePost({
-        ...existing,
-        coverImage: demo.coverImage,
-        coverAlt: existing.coverAlt || demo.coverAlt,
-      });
-      return { ok: patched.ok, seeded: false, patched: true, post: patched.post || existing, error: patched.error };
-    }
-    return { ok: true, seeded: false, post: existing };
+function catalogArticles() {
+  const map = new Map();
+  map.set('come-fare-una-domanda-ai-tarocchi', getDemoArticle());
+  for (const post of getSeedArticles()) {
+    if (!map.has(post.slug)) map.set(post.slug, post);
   }
-  const saved = await savePost(demo);
-  return { ok: saved.ok, seeded: !!saved.ok, post: saved.post || null, error: saved.error };
+  return Array.from(map.values());
+}
+
+/**
+ * Inserisce tutti gli articoli del catalogo in bozza se assenti.
+ * Non sovrascrive post già presenti (salvo force o patch cover del primo).
+ */
+export async function seedDemoArticle({ force = false } = {}) {
+  const catalog = catalogArticles();
+  let seeded = 0;
+  let patched = 0;
+  let skipped = 0;
+  const posts = [];
+
+  for (const demo of catalog) {
+    const existing = await getPost(demo.slug);
+    if (existing && !force) {
+      const isFirst = demo.slug === 'come-fare-una-domanda-ai-tarocchi';
+      const needsCover =
+        isFirst &&
+        !!demo.coverImage &&
+        (!existing.coverImage ||
+          String(existing.coverImage).split('?')[0] === String(demo.coverImage).split('?')[0]) &&
+        existing.coverImage !== demo.coverImage;
+      if (needsCover) {
+        const result = await savePost({
+          ...existing,
+          coverImage: demo.coverImage,
+          coverAlt: existing.coverAlt || demo.coverAlt,
+        });
+        if (result.ok) {
+          patched += 1;
+          posts.push(result.post);
+        } else {
+          posts.push(existing);
+        }
+      } else {
+        skipped += 1;
+        posts.push(existing);
+      }
+      continue;
+    }
+
+    const payload = existing && force
+      ? {
+          ...demo,
+          status: existing.status || demo.status,
+          createdAt: existing.createdAt,
+          publishedAt: existing.publishedAt,
+        }
+      : demo;
+    const saved = await savePost(payload);
+    if (saved.ok) {
+      seeded += 1;
+      posts.push(saved.post);
+    }
+  }
+
+  return {
+    ok: true,
+    seeded,
+    patched,
+    skipped,
+    total: catalog.length,
+    posts,
+  };
 }
 
 export function blogCounts(posts) {
