@@ -2,9 +2,10 @@ name: Blog publish schedule
 
 on:
   schedule:
-    # UTC, ogni ora al minuto 5. L’API pubblica solo se in admin
-    # risultano dovuti giorno/ora (Europe/Rome) e c’è una bozza.
-    - cron: "5 * * * *"
+    # Solo 2 volte al giorno (risparmio minuti GitHub Free), come Festgo.
+    # UTC 07:05 e 08:05 → circa 09:05/10:05 Italia in estate, 08:05/09:05 in inverno.
+    # L’API pubblica solo se intervallo + ora admin (Europe/Rome) sono dovuti.
+    - cron: "5 7,8 * * *"
   workflow_dispatch:
 
 jobs:

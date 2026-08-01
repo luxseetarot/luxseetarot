@@ -37,8 +37,10 @@ export function sanitizeSchedule(raw = {}) {
     ...raw,
     enabled,
     intervalDays: clampInt(raw.intervalDays, 1, 30, base.intervalDays),
-    hour: clampInt(raw.hour, 0, 23, base.hour),
-    // Cron orario a :05 — l’ora Italia è il controllo; i minuti restano informativi
+    // Solo 8/9/10: allineate ai 2 cron GitHub mattutini (minuti Actions)
+    hour: [8, 9, 10].includes(parseInt(raw.hour, 10))
+      ? parseInt(raw.hour, 10)
+      : base.hour,
     minute: 0,
     timezone: 'Europe/Rome',
     lastPublishedAt: raw.lastPublishedAt ? String(raw.lastPublishedAt) : null,
@@ -176,12 +178,9 @@ export function isPublishDue(schedule, now = new Date()) {
     return { due: false, reason: 'disabled' };
   }
   const rome = getRomeParts(now);
-  if (rome.hour !== schedule.hour) {
-    return { due: false, reason: 'wrong_hour', rome };
-  }
-  // Finestra cron oraria: primi 20 minuti dell’ora scelta
-  if (rome.minute > 20) {
-    return { due: false, reason: 'outside_window', rome };
+  // GitHub gira poche volte al mattino: pubblica dalla ora scelta in poi (stesso giorno).
+  if (rome.hour < schedule.hour) {
+    return { due: false, reason: 'before_hour', rome };
   }
 
   const todayKey = romeDateKey(now);
