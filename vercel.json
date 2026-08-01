@@ -1,11 +1,5 @@
 {
   "version": 2,
-  "crons": [
-    {
-      "path": "/api/cron-blog-publish",
-      "schedule": "5 * * * *"
-    }
-  ],
   "rewrites": [
     {
       "source": "/blog/:slug",

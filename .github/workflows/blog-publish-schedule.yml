@@ -1,0 +1,53 @@
+name: Blog publish schedule
+
+on:
+  schedule:
+    # UTC, ogni ora al minuto 5. L’API pubblica solo se in admin
+    # risultano dovuti giorno/ora (Europe/Rome) e c’è una bozza.
+    - cron: "5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  check-schedule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ask Luxseetarot if a draft should publish now
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::Manca CRON_SECRET nei secrets GitHub (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+
+          RESOLVED_SITE_URL="${SITE_URL:-https://www.luxseetarot.com}"
+          if [ -z "${SITE_URL:-}" ]; then
+            echo "::warning::SITE_URL non impostato su GitHub: uso ${RESOLVED_SITE_URL}"
+          fi
+
+          RESOLVED_SITE_URL="${RESOLVED_SITE_URL%/}"
+          if [[ "${RESOLVED_SITE_URL}" == http://* ]]; then
+            echo "::warning::SITE_URL usa http://, forzo https://"
+            RESOLVED_SITE_URL="https://${RESOLVED_SITE_URL#http://}"
+          fi
+
+          ENDPOINT="${RESOLVED_SITE_URL}/api/cron-blog-publish"
+          echo "Chiamata ${ENDPOINT}"
+          HTTP_CODE=$(curl -sS -L -o /tmp/cron-blog-response.json -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json" \
+            "${ENDPOINT}")
+
+          echo "HTTP ${HTTP_CODE}"
+          cat /tmp/cron-blog-response.json
+          echo
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "::error::Chiamata cron blog fallita con HTTP ${HTTP_CODE}"
+            exit 1
+          fi
