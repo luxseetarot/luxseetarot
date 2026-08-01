@@ -35,11 +35,17 @@ jobs:
             echo "::warning::SITE_URL usa http://, forzo https://"
             RESOLVED_SITE_URL="https://${RESOLVED_SITE_URL#http://}"
           fi
+          # Evita redirect apex → www che fa perdere Authorization a curl -L
+          if [[ "${RESOLVED_SITE_URL}" == "https://luxseetarot.com" ]]; then
+            RESOLVED_SITE_URL="https://www.luxseetarot.com"
+          fi
 
-          ENDPOINT="${RESOLVED_SITE_URL}/api/cron-blog-publish"
-          echo "Chiamata ${ENDPOINT}"
-          HTTP_CODE=$(curl -sS -L -o /tmp/cron-blog-response.json -w "%{http_code}" -X POST \
+          # secret anche in query: resta valido anche se un redirect toglie Authorization
+          ENDPOINT="${RESOLVED_SITE_URL}/api/cron-blog-publish?secret=${CRON_SECRET}"
+          echo "Chiamata ${RESOLVED_SITE_URL}/api/cron-blog-publish"
+          HTTP_CODE=$(curl -sS --location-trusted -o /tmp/cron-blog-response.json -w "%{http_code}" -X POST \
             -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "x-cron-secret: ${CRON_SECRET}" \
             -H "Content-Type: application/json" \
             "${ENDPOINT}")
 
