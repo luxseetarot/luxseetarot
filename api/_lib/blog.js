@@ -3,7 +3,7 @@
 import { funnelStorageMode } from './funnel.js';
 import { getSeedArticles } from './blog-seed-articles.js';
 import { getSeedArticlesB } from './blog-seed-articles-b.js';
-import { shareBlogPostOnFacebook } from './facebook.js';
+import { facebookConfigured, shareBlogPostOnFacebook } from './facebook.js';
 
 const INDEX_KEY = 'lux:blog:index';
 const PUBLISHED_KEY = 'lux:blog:published';
@@ -155,6 +155,7 @@ function sanitizePost(raw) {
     bodyHtml: String(raw.bodyHtml || '').trim().slice(0, 120000),
     faq,
     facebookPostId: String(raw.facebookPostId || '').trim().slice(0, 80),
+    facebookPostedAt: String(raw.facebookPostedAt || '').trim().slice(0, 40) || null,
     createdAt: raw.createdAt || now,
     updatedAt: now,
     publishedAt: status === 'published' ? raw.publishedAt || now : raw.publishedAt || null,
@@ -271,13 +272,47 @@ export async function setPostStatus(slug, status) {
     const facebook = await shareBlogPostOnFacebook(saved.post);
     if (facebook.ok && facebook.id && !facebook.alreadyPosted) {
       saved.post.facebookPostId = facebook.id;
+      saved.post.facebookPostedAt = new Date().toISOString();
       const again = await savePost(saved.post);
       if (again.ok) saved.post = again.post;
     }
-    return { ...saved, facebook };
+    return { ...saved, facebook, facebookConfigured: facebookConfigured() };
   }
 
-  return saved;
+  return { ...saved, facebookConfigured: facebookConfigured() };
+}
+
+/** Posta (o riposta) un articolo già pubblicato su Facebook. */
+export async function sharePublishedPostOnFacebook(slug, { force = false } = {}) {
+  const post = await getPost(slug);
+  if (!post) return { ok: false, error: 'Articolo non trovato.' };
+  if (post.status !== 'published') {
+    return { ok: false, error: 'Pubblica prima l’articolo, poi postalo su Facebook.' };
+  }
+  const facebook = await shareBlogPostOnFacebook(post, { force });
+  if (!facebook.ok) {
+    return {
+      ok: false,
+      facebook,
+      facebookConfigured: facebookConfigured(),
+      error: facebook.error || 'Facebook ha rifiutato.',
+    };
+  }
+  if (facebook.alreadyPosted && !force) {
+    return { ok: true, post, facebook, facebookConfigured: facebookConfigured() };
+  }
+  let updated = post;
+  if (facebook.id) {
+    updated = {
+      ...post,
+      facebookPostId: facebook.id,
+      facebookPostedAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    const again = await savePost(updated);
+    if (again.ok) updated = again.post;
+  }
+  return { ok: true, post: updated, facebook, facebookConfigured: facebookConfigured() };
 }
 
 export function getDemoArticle() {

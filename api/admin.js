@@ -15,6 +15,7 @@ import {
   savePost,
   seedDemoArticle,
   setPostStatus,
+  sharePublishedPostOnFacebook,
 } from './_lib/blog.js';
 
 function getAdminSecret() {
@@ -132,6 +133,15 @@ export default async function handler(req, res) {
         return res.status(400).json({ ok: false, error: 'Slug e status obbligatori.' });
       }
       const result = await setPostStatus(slug, status);
+      if (!result.ok) return res.status(400).json(result);
+      return res.status(200).json(result);
+    }
+
+    if (action === 'blog-facebook-share') {
+      const slug = String((req.body && req.body.slug) || '').trim();
+      const force = !!(req.body && req.body.force);
+      if (!slug) return res.status(400).json({ ok: false, error: 'Slug obbligatorio.' });
+      const result = await sharePublishedPostOnFacebook(slug, { force });
       if (!result.ok) return res.status(400).json(result);
       return res.status(200).json(result);
     }

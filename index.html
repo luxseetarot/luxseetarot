@@ -3510,6 +3510,7 @@
             '<button type="button" data-blog-edit="'+slug+'">MODIFICA</button>'+
             '<button type="button" data-blog-preview="'+slug+'">ANTEPRIMA</button>'+
             (p.status !== 'published' ? '<button type="button" data-blog-status="published" data-slug="'+slug+'">PUBBLICA</button>' : '')+
+            (p.status === 'published' ? '<button type="button" data-blog-fb="'+slug+'" title="'+(p.facebookPostId ? 'Riposta su Facebook' : 'Posta su Facebook')+'">'+(p.facebookPostId ? 'RIPOSTA FB' : 'POSTA FB')+'</button>' : '')+
             (p.status !== 'draft' ? '<button type="button" data-blog-status="draft" data-slug="'+slug+'">BOZZA</button>' : '')+
             (p.status !== 'deleted' ? '<button type="button" data-blog-status="deleted" data-slug="'+slug+'">ELIMINA</button>' : '')+
           '</div></td>'+
@@ -3533,6 +3534,26 @@
           window.open(url, '_blank', 'noopener');
         });
       });
+      function applyFacebookResult(res, prefix){
+        var fb = res && res.facebook;
+        var pre = prefix || '';
+        if(!fb){
+          if(res && res.facebookConfigured === false){
+            showErr(pre + 'Facebook non configurato su Vercel (variabili + Redeploy).');
+          }
+          return;
+        }
+        if(fb.ok && !fb.skipped){
+          if(metaEl) metaEl.textContent = pre + 'Postato su Facebook (id: ' + (fb.id || '?') + ').';
+          showErr('');
+        } else if(fb.alreadyPosted){
+          if(metaEl) metaEl.textContent = pre + 'Già presente su Facebook. Usa RIPOSTA FB per riprovare.';
+        } else if(fb.skipped){
+          showErr(pre + (fb.error || 'Facebook non configurato su Vercel.'));
+        } else {
+          showErr(pre + 'Facebook ha rifiutato: ' + (fb.error || 'errore'));
+        }
+      }
       tbody.querySelectorAll('[data-blog-status]').forEach(function(btn){
         btn.addEventListener('click', function(){
           var slug = btn.getAttribute('data-slug');
@@ -3543,19 +3564,29 @@
           showErr('');
           adminFetch({ action: 'blog-set-status', slug: slug, status: status }).then(function(res){
             if(!res.ok){ showErr(res.error || 'Aggiornamento stato fallito'); return; }
-            if(status === 'published' && res.facebook){
-              if(res.facebook.ok && !res.facebook.skipped){
-                if(metaEl) metaEl.textContent = 'Pubblicato e postato su Facebook.';
-              } else if(res.facebook.alreadyPosted){
-                if(metaEl) metaEl.textContent = 'Pubblicato (già presente su Facebook).';
-              } else if(res.facebook.skipped){
-                if(metaEl) metaEl.textContent = 'Pubblicato. Facebook non configurato su Vercel.';
-              } else {
-                showErr('Pubblicato sul sito, ma Facebook ha rifiutato: ' + (res.facebook.error || 'errore'));
-              }
-            }
-            loadBlog();
+            return loadBlog().then(function(){
+              if(status === 'published') applyFacebookResult(res, 'Pubblicato. ');
+            });
           }).catch(function(){ showErr('Aggiornamento stato fallito'); });
+        });
+      });
+      tbody.querySelectorAll('[data-blog-fb]').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var slug = btn.getAttribute('data-blog-fb');
+          if(!slug) return;
+          var post = blogPosts.find(function(x){ return x.slug === slug; });
+          var force = !!(post && post.facebookPostId);
+          if(!confirm(force
+            ? 'Riposto su Facebook questo articolo? (verrà creato un nuovo post)'
+            : 'Posto ora su Facebook questo articolo?')) return;
+          showErr('');
+          adminFetch({ action: 'blog-facebook-share', slug: slug, force: force }).then(function(res){
+            if(!res.ok){
+              showErr((res.facebook && res.facebook.error) || res.error || 'Post Facebook fallito');
+              return;
+            }
+            return loadBlog().then(function(){ applyFacebookResult(res, ''); });
+          }).catch(function(){ showErr('Post Facebook fallito'); });
         });
       });
     }
@@ -3579,8 +3610,7 @@
       renderBlogList();
     }
     function loadBlog(){
-      showErr('');
-      adminFetch({ action: 'blog-list' }).then(function(res){
+      return adminFetch({ action: 'blog-list' }).then(function(res){
         if(!res.ok){
           if(res.error && /autorizzato|ADMIN_SECRET/i.test(res.error)){
             setSecret('');
@@ -3588,11 +3618,12 @@
             dashView.style.display = 'none';
           }
           showErr(res.error || 'Caricamento blog fallito');
-          return;
+          return res;
         }
         loginView.style.display = 'none';
         dashView.style.display = 'block';
         renderBlog(res);
+        return res;
       }).catch(function(){ showErr('Connessione blog fallita'); });
     }
     function refreshActive(){
