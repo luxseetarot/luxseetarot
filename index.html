@@ -158,31 +158,6 @@
   img,svg,canvas{ -webkit-user-drag:none; user-drag:none; pointer-events:none; }
   button svg, .brand svg, a svg{ pointer-events:auto; }
 
-  #screen-shield{
-    position:fixed;inset:0;z-index:2147483647;
-    background:radial-gradient(ellipse at center,#15122a 0%,#050410 100%);
-    opacity:0;pointer-events:none;transition:opacity .05s linear;
-  }
-  #screen-shield.on{opacity:1;pointer-events:auto}
-  #screen-shield .shield-msg{
-    position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-    padding:24px;text-align:center;font-family:'Cinzel',serif;letter-spacing:.18em;
-    color:rgba(212,175,106,.75);font-size:14px;
-  }
-  /* Durante cattura sospetta oscura anche il contenuto sotto lo scudo */
-  body.luxsee-capture-lock #reading,
-  body.luxsee-capture-lock .reading-box,
-  body.luxsee-capture-lock .three-cards{
-    filter:blur(18px) brightness(.25);
-    user-select:none !important;
-  }
-
-  @media print{
-    html,body{background:#050410!important;color:transparent!important}
-    body *{visibility:hidden!important}
-    #screen-shield,#screen-shield *{visibility:visible!important;opacity:1!important}
-  }
-
   .display{font-family:'Cinzel',serif;letter-spacing:.08em}
 
   .serif{font-family:'Cormorant Garamond',serif}
@@ -580,8 +555,6 @@
 <div id="stars"></div>
 
 <div id="veil"></div>
-<div id="screen-shield" aria-hidden="true"><div class="shield-msg">CONTENUTO PROTETTO</div></div>
-
 
 
 <main>
@@ -1032,175 +1005,6 @@
 <script src="/vendor/jspdf.umd.min.js"></script>
 <script src="/vendor/html2canvas.min.js"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
-
-<script>
-(function(){
-  var shield = document.getElementById('screen-shield');
-  var shieldTimer = null;
-  var clipTimer = null;
-  var captureLock = false;
-  var holdUntil = 0;
-
-  function clearClipboard(){
-    try{
-      if(navigator.clipboard && navigator.clipboard.writeText){
-        navigator.clipboard.writeText('').catch(function(){});
-      }
-    }catch(e){}
-  }
-  function startClipboardScrub(ms){
-    clearClipboard();
-    if(clipTimer) clearInterval(clipTimer);
-    var ends = Date.now() + (ms || 4000);
-    clipTimer = setInterval(function(){
-      clearClipboard();
-      if(Date.now() >= ends){
-        clearInterval(clipTimer);
-        clipTimer = null;
-      }
-    }, 200);
-  }
-  function lockCapture(msHold){
-    if(window.__luxseePdfBusy) return;
-    captureLock = true;
-    document.body.classList.add('luxsee-capture-lock');
-    if(shield) shield.classList.add('on');
-    if(shieldTimer){ clearTimeout(shieldTimer); shieldTimer = null; }
-    holdUntil = Date.now() + (msHold || 4500);
-    startClipboardScrub(msHold || 4500);
-  }
-  function showShield(ms){
-    if(window.__luxseePdfBusy) return;
-    if(!shield) return;
-    shield.classList.add('on');
-    document.body.classList.add('luxsee-capture-lock');
-    if(shieldTimer) clearTimeout(shieldTimer);
-    if(ms){
-      holdUntil = Math.max(holdUntil, Date.now() + ms);
-      shieldTimer = setTimeout(releaseCaptureIfSafe, ms);
-    }
-  }
-  function releaseCaptureIfSafe(){
-    if(window.__luxseePdfBusy) return;
-    if(document.hidden) return;
-    if(Date.now() < holdUntil){
-      shieldTimer = setTimeout(releaseCaptureIfSafe, Math.max(50, holdUntil - Date.now()));
-      return;
-    }
-    captureLock = false;
-    document.body.classList.remove('luxsee-capture-lock');
-    if(shield) shield.classList.remove('on');
-    if(shieldTimer){ clearTimeout(shieldTimer); shieldTimer = null; }
-  }
-  function hideShield(){
-    // Non togliere subito: Win+Stamp / Strumento di cattura riprendono dopo
-    if(captureLock){
-      holdUntil = Math.max(holdUntil, Date.now() + 2800);
-      startClipboardScrub(2800);
-      if(shieldTimer) clearTimeout(shieldTimer);
-      shieldTimer = setTimeout(releaseCaptureIfSafe, 2800);
-      return;
-    }
-    releaseCaptureIfSafe();
-  }
-  window.hideLuxseeShield = function(){
-    captureLock = false;
-    holdUntil = 0;
-    document.body.classList.remove('luxsee-capture-lock');
-    if(shieldTimer){ clearTimeout(shieldTimer); shieldTimer = null; }
-    if(shield) shield.classList.remove('on');
-  };
-  function isTypingTarget(el){
-    if(!el) return false;
-    var tag = (el.tagName || '').toLowerCase();
-    return tag === 'input' || tag === 'textarea' || el.isContentEditable;
-  }
-
-  document.addEventListener('contextmenu', function(e){ e.preventDefault(); });
-  document.addEventListener('dragstart', function(e){ e.preventDefault(); });
-  document.addEventListener('copy', function(e){
-    if(isTypingTarget(e.target)) return;
-    e.preventDefault();
-  });
-  document.addEventListener('cut', function(e){
-    if(isTypingTarget(e.target)) return;
-    e.preventDefault();
-  });
-
-  document.addEventListener('keydown', function(e){
-    var key = e.key || '';
-    var code = e.code || '';
-    var lower = key.toLowerCase();
-    var ctrl = e.ctrlKey || e.metaKey;
-    var win = e.metaKey; // su alcuni browser la Win non arriva; blur copre Win+Shift+S
-
-    // Print Screen / sistema cattura: tieni lo scudo finché non è passato il tool
-    if(key === 'PrintScreen' || code === 'PrintScreen'){
-      e.preventDefault();
-      lockCapture(6000);
-      return;
-    }
-
-    // Win/Ctrl+Shift+S (strumento cattura) e simili
-    if((ctrl || win) && e.shiftKey && (lower === 's' || lower === 'i' || lower === 'c' || lower === 'k')){
-      e.preventDefault();
-      lockCapture(6000);
-      return;
-    }
-
-    // Stampa pagina
-    if(ctrl && lower === 'p'){
-      e.preventDefault();
-      lockCapture(4000);
-      return;
-    }
-
-    // Scorciatoie salva / codice / copia
-    if(ctrl && (lower === 'c' || lower === 'u' || lower === 's')){
-      if(lower === 'c' && isTypingTarget(e.target)) return;
-      e.preventDefault();
-      return;
-    }
-    if(key === 'F12'){
-      e.preventDefault();
-      return;
-    }
-  }, true);
-
-  document.addEventListener('keyup', function(e){
-    if((e.key || '') === 'PrintScreen' || (e.code || '') === 'PrintScreen'){
-      e.preventDefault();
-      lockCapture(6000);
-    }
-  }, true);
-
-  function shouldIgnoreBlur(){
-    var ae = document.activeElement;
-    if(!ae) return false;
-    var tag = (ae.tagName || '').toUpperCase();
-    if(tag === 'IFRAME') return true; // es. Cloudflare Turnstile
-    if(tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
-    if(ae.closest && (ae.closest('#turnstile-wrap') || ae.closest('#turnstile-checkout-wrap'))) return true;
-    if(ae.closest && ae.closest('#admin-panel')) return true;
-    return false;
-  }
-  document.addEventListener('visibilitychange', function(){
-    if(document.hidden) lockCapture(8000);
-    else hideShield();
-  });
-  window.addEventListener('blur', function(){
-    setTimeout(function(){
-      if(shouldIgnoreBlur() && !document.hidden) return;
-      lockCapture(8000);
-    }, 0);
-  });
-  window.addEventListener('focus', function(){
-    if(!document.hidden) hideShield();
-  });
-  window.addEventListener('beforeprint', function(){ lockCapture(5000); });
-  window.addEventListener('afterprint', function(){ hideShield(); });
-})();
-</script>
 
 <script>
 
@@ -2291,7 +2095,6 @@
     }
     showToast('Generazione PDF in corso...');
     window.__luxseePdfBusy = true;
-    if(typeof window.hideLuxseeShield === 'function') window.hideLuxseeShield();
 
     return ensurePdfLibs().catch(function(err){
       console.error(err);
@@ -2402,8 +2205,6 @@
                   overlayClone.style.opacity = '1';
                   overlayClone.style.visibility = 'visible';
                 }
-                var shieldNode = clonedDoc.getElementById('screen-shield');
-                if(shieldNode) shieldNode.style.display = 'none';
               }
             });
           }).then(function(canvas){
