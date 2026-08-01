@@ -3543,6 +3543,17 @@
           showErr('');
           adminFetch({ action: 'blog-set-status', slug: slug, status: status }).then(function(res){
             if(!res.ok){ showErr(res.error || 'Aggiornamento stato fallito'); return; }
+            if(status === 'published' && res.facebook){
+              if(res.facebook.ok && !res.facebook.skipped){
+                if(metaEl) metaEl.textContent = 'Pubblicato e postato su Facebook.';
+              } else if(res.facebook.alreadyPosted){
+                if(metaEl) metaEl.textContent = 'Pubblicato (già presente su Facebook).';
+              } else if(res.facebook.skipped){
+                if(metaEl) metaEl.textContent = 'Pubblicato. Facebook non configurato su Vercel.';
+              } else {
+                showErr('Pubblicato sul sito, ma Facebook ha rifiutato: ' + (res.facebook.error || 'errore'));
+              }
+            }
             loadBlog();
           }).catch(function(){ showErr('Aggiornamento stato fallito'); });
         });

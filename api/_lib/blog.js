@@ -3,6 +3,7 @@
 import { funnelStorageMode } from './funnel.js';
 import { getSeedArticles } from './blog-seed-articles.js';
 import { getSeedArticlesB } from './blog-seed-articles-b.js';
+import { shareBlogPostOnFacebook } from './facebook.js';
 
 const INDEX_KEY = 'lux:blog:index';
 const PUBLISHED_KEY = 'lux:blog:published';
@@ -153,6 +154,7 @@ function sanitizePost(raw) {
     status,
     bodyHtml: String(raw.bodyHtml || '').trim().slice(0, 120000),
     faq,
+    facebookPostId: String(raw.facebookPostId || '').trim().slice(0, 80),
     createdAt: raw.createdAt || now,
     updatedAt: now,
     publishedAt: status === 'published' ? raw.publishedAt || now : raw.publishedAt || null,
@@ -254,13 +256,28 @@ export async function savePost(input) {
 export async function setPostStatus(slug, status) {
   const post = await getPost(slug);
   if (!post) return { ok: false, error: 'Articolo non trovato.' };
+  const prevStatus = post.status;
   const next = normalizeStatus(status);
   post.status = next;
   post.updatedAt = new Date().toISOString();
   if (next === 'published') {
     post.publishedAt = post.publishedAt || post.updatedAt;
   }
-  return savePost(post);
+  const saved = await savePost(post);
+  if (!saved.ok) return saved;
+
+  // Al primo passaggio in pubblicato → post automatico su Facebook Page
+  if (next === 'published' && prevStatus !== 'published' && !saved.post.facebookPostId) {
+    const facebook = await shareBlogPostOnFacebook(saved.post);
+    if (facebook.ok && facebook.id && !facebook.alreadyPosted) {
+      saved.post.facebookPostId = facebook.id;
+      const again = await savePost(saved.post);
+      if (again.ok) saved.post = again.post;
+    }
+    return { ...saved, facebook };
+  }
+
+  return saved;
 }
 
 export function getDemoArticle() {
