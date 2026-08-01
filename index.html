@@ -480,10 +480,13 @@
   }
   .admin-blog-editor.show{display:block}
   .admin-blog-editor label{display:block;font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);margin:0 0 6px}
-  .admin-blog-editor input,.admin-blog-editor textarea{
+  .admin-blog-editor input,.admin-blog-editor textarea,.admin-blog-editor select{
     width:100%;margin:0 0 12px;padding:10px 12px;border-radius:10px;border:1px solid rgba(212,175,106,.28);
     background:rgba(11,10,20,.55);color:var(--fg);font-family:'Inter',sans-serif;font-size:13px
   }
+  .admin-blog-editor input[type="checkbox"]{width:auto;margin:0;accent-color:var(--gold)}
+  #admin-blog-schedule .admin-blog-filters label{display:flex;align-items:center;gap:6px;margin:0}
+  #admin-blog-schedule select{width:auto;margin:0;min-width:88px;padding:8px 10px}
   .admin-blog-editor textarea{min-height:180px;resize:vertical;font-family:ui-monospace,Consolas,monospace;font-size:12px;line-height:1.45}
   .admin-blog-editor-actions{display:flex;flex-wrap:wrap;gap:8px}
   .checkout-toast{display:none;max-width:560px;margin:16px auto;padding:12px 16px;border-radius:12px;border:1px solid var(--gold-soft);background:rgba(20,16,40,.9);text-align:center;color:var(--fg);font-size:14px}
@@ -828,6 +831,38 @@
 
       <div id="admin-blog-pane" style="display:none">
         <div class="admin-kpis" id="admin-blog-kpis"></div>
+        <div class="admin-blog-editor show" id="admin-blog-schedule" style="margin-bottom:14px">
+          <div class="phase-tag" style="margin-bottom:10px">PUBBLICAZIONE AUTOMATICA</div>
+          <p id="admin-blog-schedule-hint" style="margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.5">Caricamento…</p>
+          <div class="admin-blog-filters" style="margin-bottom:10px">
+            <label style="display:flex;align-items:center;gap:8px;margin:0;color:var(--fg);font-size:12px;letter-spacing:.04em">
+              <input type="checkbox" id="admin-blog-sched-enabled" />
+              Attiva
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:var(--muted)">
+              Ogni
+              <select id="admin-blog-sched-interval" aria-label="Intervallo giorni">
+                <option value="1">1 giorno</option>
+                <option value="2" selected>2 giorni</option>
+                <option value="3">3 giorni</option>
+                <option value="4">4 giorni</option>
+                <option value="5">5 giorni</option>
+                <option value="7">7 giorni</option>
+                <option value="14">14 giorni</option>
+              </select>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:var(--muted)">
+              Alle
+              <select id="admin-blog-sched-hour" aria-label="Ora Italia"></select>
+              <span>(ora Italia)</span>
+            </label>
+          </div>
+          <p id="admin-blog-schedule-next" style="margin:0 0 12px;font-size:12px;color:rgba(212,175,106,.8)"></p>
+          <div class="admin-blog-editor-actions">
+            <button type="button" class="gold-btn" id="admin-blog-sched-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA PROGRAMMA</button>
+            <button type="button" class="ghost-btn" id="admin-blog-sched-run" style="width:auto;padding:10px 14px;font-size:11px">PUBBLICA ORA LA PROSSIMA BOZZA</button>
+          </div>
+        </div>
         <div class="admin-blog-filters">
           <select id="admin-blog-filter" aria-label="Filtra stato">
             <option value="all">Tutti</option>
@@ -3590,6 +3625,47 @@
         });
       });
     }
+    function ensureScheduleHourOptions(){
+      var hourEl = document.getElementById('admin-blog-sched-hour');
+      if(!hourEl || hourEl.options.length) return;
+      for(var h = 0; h < 24; h++){
+        var opt = document.createElement('option');
+        opt.value = String(h);
+        opt.textContent = (h < 10 ? '0' : '') + h + ':00';
+        hourEl.appendChild(opt);
+      }
+    }
+    function renderSchedule(data){
+      ensureScheduleHourOptions();
+      var s = (data && data.schedule) || {};
+      var enabledEl = document.getElementById('admin-blog-sched-enabled');
+      var intervalEl = document.getElementById('admin-blog-sched-interval');
+      var hourEl = document.getElementById('admin-blog-sched-hour');
+      var hintEl = document.getElementById('admin-blog-schedule-hint');
+      var nextEl = document.getElementById('admin-blog-schedule-next');
+      if(enabledEl) enabledEl.checked = !!s.enabled;
+      if(intervalEl) intervalEl.value = String(s.intervalDays || 2);
+      if(hourEl) hourEl.value = String(s.hour != null ? s.hour : 10);
+      if(hintEl){
+        hintEl.textContent = data.scheduleHint ||
+          'Scegli ogni quanti giorni e a che ora (Italia) pubblicare la bozza più vecchia. Parte anche il post Facebook.';
+      }
+      if(nextEl){
+        var bits = [];
+        if(data.nextDraftTitle){
+          bits.push('Prossima in coda: “' + data.nextDraftTitle + '”');
+        } else {
+          bits.push('Nessuna bozza in coda.');
+        }
+        if(s.lastPublishedSlug){
+          bits.push('Ultima auto: ' + s.lastPublishedSlug);
+        }
+        if(s.lastResult){
+          bits.push('Esito: ' + s.lastResult);
+        }
+        nextEl.textContent = bits.join(' · ');
+      }
+    }
     function renderBlog(data){
       blogPosts = data.posts || [];
       var c = data.counts || {};
@@ -3607,6 +3683,7 @@
             ? ' (temporaneo finché non configuri Upstash Redis)'
             : ' (persistente)');
       }
+      renderSchedule(data);
       renderBlogList();
     }
     function loadBlog(){
@@ -3705,6 +3782,49 @@
           if(metaEl) metaEl.textContent = msg;
           loadBlog();
         }).catch(function(){ showErr('Seed fallito'); });
+      });
+    }
+    var blogSchedSave = document.getElementById('admin-blog-sched-save');
+    if(blogSchedSave){
+      blogSchedSave.addEventListener('click', function(){
+        var enabledEl = document.getElementById('admin-blog-sched-enabled');
+        var intervalEl = document.getElementById('admin-blog-sched-interval');
+        var hourEl = document.getElementById('admin-blog-sched-hour');
+        showErr('');
+        adminFetch({
+          action: 'blog-schedule-save',
+          schedule: {
+            enabled: !!(enabledEl && enabledEl.checked),
+            intervalDays: intervalEl ? parseInt(intervalEl.value, 10) : 2,
+            hour: hourEl ? parseInt(hourEl.value, 10) : 10,
+            minute: 0
+          }
+        }).then(function(res){
+          if(!res.ok){ showErr(res.error || 'Salvataggio programma fallito'); return; }
+          if(metaEl) metaEl.textContent = res.scheduleHint || 'Programma salvato.';
+          return loadBlog();
+        }).catch(function(){ showErr('Salvataggio programma fallito'); });
+      });
+    }
+    var blogSchedRun = document.getElementById('admin-blog-sched-run');
+    if(blogSchedRun){
+      blogSchedRun.addEventListener('click', function(){
+        if(!confirm('Pubblico ora la prossima bozza in coda (e posto su Facebook)?')) return;
+        showErr('');
+        adminFetch({ action: 'blog-schedule-run' }).then(function(res){
+          if(!res.ok){ showErr(res.error || 'Pubblicazione automatica fallita'); return; }
+          if(res.skipped){
+            if(metaEl) metaEl.textContent = 'Nessuna pubblicazione: ' + (res.reason || 'skip');
+          } else if(res.published){
+            var fb = res.facebook;
+            var fbMsg = !fb ? '' :
+              (fb.ok && !fb.skipped ? ' + Facebook ok' :
+              (fb.error ? ' · Facebook: ' + fb.error : ''));
+            if(metaEl) metaEl.textContent = 'Pubblicato: ' + (res.slug || '') + fbMsg;
+            if(fb && !fb.ok && !fb.skipped) showErr('Articolo online, Facebook: ' + (fb.error || 'errore'));
+          }
+          return loadBlog();
+        }).catch(function(){ showErr('Pubblicazione automatica fallita'); });
       });
     }
     var blogSave = document.getElementById('admin-blog-save');

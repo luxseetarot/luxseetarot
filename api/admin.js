@@ -17,6 +17,13 @@ import {
   setPostStatus,
   sharePublishedPostOnFacebook,
 } from './_lib/blog.js';
+import {
+  describeNextSlot,
+  getBlogSchedule,
+  pickNextDraft,
+  runScheduledBlogPublish,
+  saveBlogSchedule,
+} from './_lib/blog-schedule.js';
 
 function getAdminSecret() {
   return (process.env.ADMIN_SECRET || '').trim();
@@ -103,12 +110,52 @@ export default async function handler(req, res) {
       // Solo inserisce slug mancanti (nessuna riscrittura massiva)
       await seedDemoArticle({ force: false, syncContent: false });
       const posts = await listPosts({ includeDeleted: true });
+      const schedule = await getBlogSchedule();
+      const nextDraft = await pickNextDraft();
       return res.status(200).json({
         ok: true,
         posts,
         counts: blogCounts(posts),
         storage: funnelStorageMode(),
+        schedule,
+        scheduleHint: describeNextSlot(schedule),
+        nextDraftSlug: nextDraft ? nextDraft.slug : null,
+        nextDraftTitle: nextDraft ? nextDraft.title : null,
       });
+    }
+
+    if (action === 'blog-schedule-get') {
+      const schedule = await getBlogSchedule();
+      const nextDraft = await pickNextDraft();
+      return res.status(200).json({
+        ok: true,
+        schedule,
+        scheduleHint: describeNextSlot(schedule),
+        nextDraftSlug: nextDraft ? nextDraft.slug : null,
+        nextDraftTitle: nextDraft ? nextDraft.title : null,
+      });
+    }
+
+    if (action === 'blog-schedule-save') {
+      const payload = (req.body && req.body.schedule) || req.body || {};
+      const result = await saveBlogSchedule({
+        enabled: payload.enabled,
+        intervalDays: payload.intervalDays,
+        hour: payload.hour,
+        minute: payload.minute,
+      });
+      return res.status(200).json({
+        ok: true,
+        schedule: result.schedule,
+        scheduleHint: describeNextSlot(result.schedule),
+      });
+    }
+
+    if (action === 'blog-schedule-run') {
+      // Pubblica subito la prossima bozza (test / recupero), con Facebook
+      const result = await runScheduledBlogPublish({ force: true });
+      if (!result.ok) return res.status(400).json(result);
+      return res.status(200).json(result);
     }
 
     if (action === 'blog-get') {
