@@ -3527,7 +3527,7 @@
         btn.addEventListener('click', function(){
           var slug = btn.getAttribute('data-blog-preview');
           if(!slug) return;
-          var url = '/blog/articolo.html?slug=' + encodeURIComponent(slug) + '&preview=1';
+          var url = '/blog/' + encodeURIComponent(slug) + '?preview=1';
           var secret = getSecret();
           if(secret) url += '&secret=' + encodeURIComponent(secret);
           window.open(url, '_blank', 'noopener');

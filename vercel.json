@@ -3,7 +3,11 @@
   "rewrites": [
     {
       "source": "/blog/:slug",
-      "destination": "/blog/articolo.html?slug=:slug"
+      "destination": "/api/blog-page?slug=:slug"
+    },
+    {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap"
     }
   ],
   "headers": [
