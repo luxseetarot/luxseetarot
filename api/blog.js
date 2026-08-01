@@ -1,5 +1,5 @@
 import { cors } from './_lib/unlock.js';
-import { getPost, listPublishedPosts, seedDemoArticle } from './_lib/blog.js';
+import { getPost, listPublishedPosts } from './_lib/blog.js';
 
 function getAdminSecret() {
   return (process.env.ADMIN_SECRET || '').trim();
@@ -35,9 +35,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Soft-seed: assicura l'articolo demo in bozza se Redis è vuoto
-    await seedDemoArticle({ force: false });
-
     const action = String((req.query && req.query.action) || (req.body && req.body.action) || 'list').trim();
     const adminSecret = getAdminSecret();
     const secret = readSecret(req);
@@ -45,6 +42,7 @@ export default async function handler(req, res) {
 
     if (action === 'list') {
       const posts = await listPublishedPosts();
+      res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
       return res.status(200).json({
         ok: true,
         posts: posts.map(publicCard),
@@ -61,6 +59,9 @@ export default async function handler(req, res) {
         if (!(preview && isAdmin)) {
           return res.status(404).json({ ok: false, error: 'Articolo non disponibile.' });
         }
+        res.setHeader('Cache-Control', 'private, no-store');
+      } else {
+        res.setHeader('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=600');
       }
       return res.status(200).json({
         ok: true,

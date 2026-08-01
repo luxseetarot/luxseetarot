@@ -99,7 +99,8 @@ export default async function handler(req, res) {
     }
 
     if (action === 'blog-list') {
-      await seedDemoArticle({ force: false });
+      // Solo inserisce slug mancanti (nessuna riscrittura massiva)
+      await seedDemoArticle({ force: false, syncContent: false });
       const posts = await listPosts({ includeDeleted: true });
       return res.status(200).json({
         ok: true,
@@ -137,7 +138,8 @@ export default async function handler(req, res) {
 
     if (action === 'blog-seed-demo' || action === 'blog-seed-all') {
       const force = !!(req.body && req.body.force);
-      const result = await seedDemoArticle({ force });
+      const syncContent = force ? true : req.body && req.body.syncContent === false ? false : true;
+      const result = await seedDemoArticle({ force, syncContent });
       if (!result.ok) return res.status(400).json(result);
       return res.status(200).json(result);
     }

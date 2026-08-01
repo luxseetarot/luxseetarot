@@ -5,6 +5,7 @@ import { getSeedArticles } from './blog-seed-articles.js';
 import { getSeedArticlesB } from './blog-seed-articles-b.js';
 
 const INDEX_KEY = 'lux:blog:index';
+const PUBLISHED_KEY = 'lux:blog:published';
 const memPosts = new Map();
 
 function postKey(slug) {
@@ -33,6 +34,78 @@ async function redisCommand(cmd) {
   } catch (e) {
     console.error('Upstash blog fetch failed:', e);
     return null;
+  }
+}
+
+async function redisPipeline(commands) {
+  const url = (process.env.UPSTASH_REDIS_REST_URL || '').trim();
+  const token = (process.env.UPSTASH_REDIS_REST_TOKEN || '').trim();
+  if (!url || !token || !commands.length) return null;
+  try {
+    const res = await fetch(`${url}/pipeline`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(commands),
+    });
+    if (!res.ok) {
+      console.error('Upstash blog pipeline error:', await res.text());
+      return null;
+    }
+    const data = await res.json();
+    return Array.isArray(data) ? data.map((d) => d.result) : null;
+  } catch (e) {
+    console.error('Upstash blog pipeline failed:', e);
+    return null;
+  }
+}
+
+function parsePostRaw(raw) {
+  if (!raw) return null;
+  try {
+    return typeof raw === 'string' ? JSON.parse(raw) : raw;
+  } catch {
+    return null;
+  }
+}
+
+async function mgetPosts(slugs) {
+  const clean = slugs.map((s) => slugify(s)).filter(Boolean);
+  if (!clean.length) return [];
+  if (funnelStorageMode() !== 'redis') {
+    return clean.map((slug) => memPosts.get(slug) || null);
+  }
+  const results = await redisPipeline(clean.map((slug) => ['GET', postKey(slug)]));
+  if (!results) {
+    const posts = [];
+    for (const slug of clean) posts.push(await getPost(slug));
+    return posts;
+  }
+  return results.map(parsePostRaw);
+}
+
+async function writePostsBatch(posts) {
+  if (!posts.length) return;
+  if (funnelStorageMode() !== 'redis') {
+    for (const post of posts) memPosts.set(post.slug, post);
+    return;
+  }
+  const commands = [];
+  for (const post of posts) {
+    commands.push(['SET', postKey(post.slug), JSON.stringify(post)]);
+    commands.push(['SADD', INDEX_KEY, post.slug]);
+    commands.push(
+      post.status === 'published'
+        ? ['SADD', PUBLISHED_KEY, post.slug]
+        : ['SREM', PUBLISHED_KEY, post.slug]
+    );
+  }
+  // Upstash pipeline batches; chunk to avoid huge payloads
+  const CHUNK = 60;
+  for (let i = 0; i < commands.length; i += CHUNK) {
+    await redisPipeline(commands.slice(i, i + CHUNK));
   }
 }
 
@@ -111,9 +184,9 @@ export async function getPost(slug) {
 
 export async function listPosts({ status = null, includeDeleted = true } = {}) {
   const slugs = await listSlugs();
+  const loaded = await mgetPosts(slugs);
   const posts = [];
-  for (const slug of slugs) {
-    const post = await getPost(slug);
+  for (const post of loaded) {
     if (!post) continue;
     if (!includeDeleted && post.status === 'deleted') continue;
     if (status && post.status !== status) continue;
@@ -128,7 +201,25 @@ export async function listPosts({ status = null, includeDeleted = true } = {}) {
 }
 
 export async function listPublishedPosts() {
-  return listPosts({ status: 'published', includeDeleted: false });
+  if (funnelStorageMode() === 'redis') {
+    const publishedSlugs = ((await redisCommand(['SMEMBERS', PUBLISHED_KEY])) || []).map(String);
+    if (publishedSlugs.length) {
+      const loaded = await mgetPosts(publishedSlugs);
+      return loaded
+        .filter((p) => p && p.status === 'published')
+        .sort((a, b) => {
+          const ta = new Date(b.updatedAt || b.createdAt || 0).getTime();
+          const tb = new Date(a.updatedAt || a.createdAt || 0).getTime();
+          return ta - tb;
+        });
+    }
+  }
+  const posts = await listPosts({ status: 'published', includeDeleted: false });
+  // Ricostruisce l'indice published la prima volta (o se vuoto)
+  if (funnelStorageMode() === 'redis' && posts.length) {
+    await redisPipeline(posts.map((p) => ['SADD', PUBLISHED_KEY, p.slug]));
+  }
+  return posts;
 }
 
 export async function savePost(input) {
@@ -147,8 +238,13 @@ export async function savePost(input) {
     }
   }
   if (funnelStorageMode() === 'redis') {
-    await redisCommand(['SET', postKey(post.slug), JSON.stringify(post)]);
-    await redisCommand(['SADD', INDEX_KEY, post.slug]);
+    await redisPipeline([
+      ['SET', postKey(post.slug), JSON.stringify(post)],
+      ['SADD', INDEX_KEY, post.slug],
+      post.status === 'published'
+        ? ['SADD', PUBLISHED_KEY, post.slug]
+        : ['SREM', PUBLISHED_KEY, post.slug],
+    ]);
   } else {
     memPosts.set(post.slug, post);
   }
@@ -297,57 +393,94 @@ function catalogArticles() {
 }
 
 /**
- * Inserisce tutti gli articoli del catalogo in bozza se assenti.
- * Sulle bozze esistenti sincronizza testo/FAQ/cover dal catalogo (non tocca i pubblicati).
+ * Seed catalogo:
+ * - default: inserisce solo gli slug mancanti (veloce)
+ * - syncContent: aggiorna testo/cover delle bozze esistenti (solo su richiesta admin)
+ * - force: riscrive anche i presenti (admin)
  */
-export async function seedDemoArticle({ force = false } = {}) {
+export async function seedDemoArticle({ force = false, syncContent = false } = {}) {
   const catalog = catalogArticles();
+  const existingSlugs = await listSlugs();
+  const existingSet = new Set(existingSlugs);
+
+  if (!force && !syncContent && catalog.every((a) => existingSet.has(a.slug))) {
+    return {
+      ok: true,
+      seeded: 0,
+      patched: 0,
+      skipped: catalog.length,
+      total: catalog.length,
+      posts: [],
+    };
+  }
+
+  const slugsToLoad = catalog
+    .filter((a) => existingSet.has(a.slug) && (force || syncContent))
+    .map((a) => a.slug);
+  const loaded = slugsToLoad.length ? await mgetPosts(slugsToLoad) : [];
+  const existingBySlug = new Map();
+  slugsToLoad.forEach((slug, i) => {
+    if (loaded[i]) existingBySlug.set(slug, loaded[i]);
+  });
+
   let seeded = 0;
   let patched = 0;
   let skipped = 0;
-  const posts = [];
+  const toWrite = [];
 
   for (const demo of catalog) {
-    const existing = await getPost(demo.slug);
-    if (existing && !force) {
-      if (existing.status === 'draft') {
-        const result = await savePost({
-          ...existing,
-          title: demo.title,
-          description: demo.description,
-          keyword: demo.keyword,
-          bodyHtml: demo.bodyHtml,
-          faq: demo.faq || existing.faq || [],
-          coverImage: demo.coverImage || existing.coverImage || '',
-          coverAlt: demo.coverAlt || existing.coverAlt || '',
-        });
-        if (result.ok) {
-          patched += 1;
-          posts.push(result.post);
-        } else {
-          posts.push(existing);
-        }
-      } else {
-        skipped += 1;
-        posts.push(existing);
+    const existing = existingBySlug.get(demo.slug) || null;
+    const has = existingSet.has(demo.slug);
+
+    if (!has) {
+      const post = sanitizePost({ ...demo, status: 'draft' });
+      if (post) {
+        toWrite.push(post);
+        seeded += 1;
       }
       continue;
     }
 
-    const payload = existing && force
-      ? {
-          ...demo,
-          status: existing.status || demo.status,
-          createdAt: existing.createdAt,
-          publishedAt: existing.publishedAt,
-        }
-      : demo;
-    const saved = await savePost(payload);
-    if (saved.ok) {
-      seeded += 1;
-      posts.push(saved.post);
+    if (force) {
+      const base = existing || demo;
+      const post = sanitizePost({
+        ...demo,
+        status: base.status || demo.status,
+        createdAt: base.createdAt,
+        publishedAt: base.publishedAt,
+      });
+      if (post) {
+        toWrite.push(post);
+        seeded += 1;
+      }
+      continue;
     }
+
+    if (syncContent && existing && existing.status === 'draft') {
+      const post = sanitizePost({
+        ...existing,
+        title: demo.title,
+        description: demo.description,
+        keyword: demo.keyword,
+        bodyHtml: demo.bodyHtml,
+        faq: demo.faq || existing.faq || [],
+        coverImage: demo.coverImage || existing.coverImage || '',
+        coverAlt: demo.coverAlt || existing.coverAlt || '',
+        status: 'draft',
+        createdAt: existing.createdAt,
+        publishedAt: existing.publishedAt,
+      });
+      if (post) {
+        toWrite.push(post);
+        patched += 1;
+      }
+      continue;
+    }
+
+    skipped += 1;
   }
+
+  await writePostsBatch(toWrite);
 
   return {
     ok: true,
@@ -355,7 +488,7 @@ export async function seedDemoArticle({ force = false } = {}) {
     patched,
     skipped,
     total: catalog.length,
-    posts,
+    posts: toWrite,
   };
 }
 
