@@ -3509,7 +3509,7 @@
           '<td><div class="admin-row-actions">'+
             '<button type="button" data-blog-edit="'+slug+'">MODIFICA</button>'+
             '<button type="button" data-blog-preview="'+slug+'">ANTEPRIMA</button>'+
-            (p.status !== 'published' ? '<button type="button" data-blog-status="published" data-slug="'+slug+'">PUBBLICA</button>' : '')+
+            (p.status !== 'published' ? '<button type="button" data-blog-status="published" data-slug="'+slug+'" title="Pubblica sul sito e posta su Facebook">PUBBLICA + FB</button>' : '')+
             (p.status === 'published' ? '<button type="button" data-blog-fb="'+slug+'" title="'+(p.facebookPostId ? 'Riposta su Facebook' : 'Posta su Facebook')+'">'+(p.facebookPostId ? 'RIPOSTA FB' : 'POSTA FB')+'</button>' : '')+
             (p.status !== 'draft' ? '<button type="button" data-blog-status="draft" data-slug="'+slug+'">BOZZA</button>' : '')+
             (p.status !== 'deleted' ? '<button type="button" data-blog-status="deleted" data-slug="'+slug+'">ELIMINA</button>' : '')+
@@ -3724,7 +3724,9 @@
           status: existing.status || 'draft',
           faq: existing.faq || [],
           createdAt: existing.createdAt,
-          publishedAt: existing.publishedAt
+          publishedAt: existing.publishedAt,
+          facebookPostId: existing.facebookPostId || '',
+          facebookPostedAt: existing.facebookPostedAt || null
         };
         showErr('');
         adminFetch({ action: 'blog-save', post: post }).then(function(res){

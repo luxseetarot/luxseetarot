@@ -239,6 +239,11 @@ export async function savePost(input) {
     if (post.status !== 'published') {
       post.publishedAt = existing.publishedAt || null;
     }
+    // Non perdere il collegamento FB se l’editor non lo reinoltra
+    if (!post.facebookPostId && existing.facebookPostId) {
+      post.facebookPostId = existing.facebookPostId;
+      post.facebookPostedAt = existing.facebookPostedAt || null;
+    }
   }
   if (funnelStorageMode() === 'redis') {
     await redisPipeline([
