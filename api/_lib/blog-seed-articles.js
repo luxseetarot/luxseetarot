@@ -136,12 +136,491 @@ const RELATED = {
   ],
 };
 
+/*
+ * Approfondimenti editoriali del lotto A. I campi sono volutamente specifici
+ * per articolo: il renderer mantiene una struttura leggibile senza duplicare
+ * paragrafi o rendere intercambiabili i contenuti.
+ */
+const EXPANSIONS = {
+  'significato-tarocchi-amore': {
+    concept: 'Prima di attribuire una carta all’altra persona, separa tre livelli: ciò che provi, ciò che osservi nei comportamenti e ciò che immagini. Questa distinzione evita che desiderio o timore diventino una falsa prova.',
+    method: [
+      'Descrivi ogni carta con un verbo: avvicinarsi, proteggersi, chiarire, attendere. I verbi mostrano il movimento della relazione meglio delle etichette “positiva” o “negativa”.',
+      'Controlla se prevalgono Coppe, Spade, Bastoni o Denari: emozione, pensiero, impulso e concretezza raccontano bisogni diversi.',
+      'Confronta infine la lettura con fatti verificabili, come continuità, disponibilità al dialogo e rispetto dei confini.',
+    ],
+    examples: [
+      'In una coppia, una carta di distanza nel presente può suggerire stanchezza o bisogno di spazio: la domanda utile diventa come riaprire un dialogo senza accusare.',
+      'Con una conoscenza recente, molto slancio e poca concretezza invitano a godere dell’incontro osservando se alle parole seguono gesti coerenti.',
+      'Davanti a una scelta sentimentale, le carte possono evidenziare quale opzione rispetta i tuoi valori, non decidere chi devi amare.',
+    ],
+    limits: 'Gli errori più comuni sono scambiare attrazione per compatibilità, interpretare ogni silenzio come rifiuto e ripetere l’estrazione finché appare una carta rassicurante. Se ci sono controllo, minacce o violenza, la priorità è cercare aiuto reale e qualificato, non ottenere un’altra lettura.',
+    lux: 'Su Luxseetarot inserisci una sola situazione e scegli tre carte. Leggi prima la sequenza completa, poi torna sulle frasi che parlano del tuo margine d’azione. Puoi approfondire sulle stesse carte chiedendo quale conversazione preparare o quale confine rendere esplicito.',
+    exercise: [
+      'Scrivi due fatti osservabili sulla relazione, senza interpretarli.',
+      'Nomina l’emozione principale e il bisogno che contiene.',
+      'Formula una domanda aperta centrata anche sul tuo ruolo.',
+      'Scegli un gesto rispettoso da compiere entro una settimana.',
+    ],
+  },
+  'lettura-tarocchi-tre-carte': {
+    concept: 'Le posizioni sono come tre capitoli, ma la storia non deve essere per forza cronologica. “Passato” può indicare la causa ancora attiva, “presente” il punto di scelta e “futuro” la conseguenza più plausibile. Prima dell’estrazione assegna le posizioni e non cambiarle dopo per ottenere un senso più comodo.',
+    method: [
+      'Dai a ogni carta un titolo di poche parole collegato alla posizione, per esempio “vecchia prudenza”, “confronto necessario”, “nuovo accordo”.',
+      'Cerca continuità visive e simboliche: direzioni degli sguardi, elementi, numeri, ripetizioni di semi e passaggio da Arcani Minori a Maggiori.',
+      'Riassumi la sequenza con “vengo da…, ora…, se proseguo così…”. Se la frase non regge, torna alla domanda anziché aggiungere significati.',
+    ],
+    examples: [
+      'In amore, un passato di chiusura, un presente di comunicazione e un futuro di equilibrio descrivono un processo che richiede dialogo, non una promessa automatica.',
+      'Nel lavoro, fatica alle spalle, competenza al centro e collaborazione davanti possono orientare verso una candidatura preparata insieme a una rete di contatti.',
+      'In una scelta, due carte contrastanti e una terza di pausa suggeriscono di raccogliere informazioni prima di impegnarsi.',
+    ],
+    limits: 'Non leggere la terza carta come verdetto, non ignorare le prime due e non trasformare ogni simbolo in una previsione letterale. Tre carte offrono sintesi, quindi una questione con molti soggetti o conseguenze tecniche richiede anche analisi concrete. Salute, denaro e diritto vanno affidati a professionisti.',
+    lux: 'Su Luxseetarot la sequenza passato-presente-futuro viene interpretata rispetto alla domanda inserita. Fai una prima lettura completa senza saltare al finale; se un passaggio resta oscuro, usa un approfondimento sulle stesse carte, così conservi il contesto invece di produrre una nuova storia.',
+    exercise: [
+      'Riduci il tema a una domanda di una riga.',
+      'Annota una parola per posizione prima di leggere il testo.',
+      'Scrivi la frase che unisce le tre parole.',
+      'Individua un’azione piccola e una verifica concreta.',
+    ],
+  },
+  'tarocchi-gratis-online-come-funzionano': {
+    concept: 'Una lettura digitale combina la domanda, l’estrazione e un sistema di interpretazione. La gratuità riguarda l’accesso o la quantità di testo, non una diversa categoria di carte. Valuta quindi il servizio per chiarezza, pertinenza e trasparenza, non per promesse di poteri speciali.',
+    method: [
+      'Controlla cosa include l’anteprima, quali eventuali parti sono a pagamento e se il prezzo viene mostrato prima della conferma.',
+      'Verifica privacy, contatti e uso dei dati: nome ed email non devono diventare un pretesto per richieste sensibili o pressioni commerciali.',
+      'Giudica il risultato chiedendoti se collega davvero le tre carte alla domanda e offre spunti comprensibili, senza minacce o certezze assolute.',
+    ],
+    examples: [
+      'Per un dubbio amoroso, una buona anteprima identifica il clima della dinamica senza dichiarare di conoscere con certezza i pensieri di un’altra persona.',
+      'Per il lavoro, dovrebbe distinguere motivazione e ostacoli simbolici da elementi reali come requisiti, contratto e mercato.',
+      'Per una scelta, il valore sta nel confronto tra possibilità e conseguenze, non in un comando da eseguire.',
+    ],
+    limits: 'Diffida dei risultati identici per qualsiasi domanda, dei contatori che simulano urgenza e delle richieste di pagare per rimuovere maledizioni o pericoli. Anche un testo ben costruito resta intrattenimento riflessivo. Non usarlo per diagnosi, investimenti, emergenze o decisioni che richiedono competenza professionale.',
+    lux: 'Su Luxseetarot puoi formulare la domanda, estrarre tre carte e valutare l’anteprima prima di scegliere se leggere il contenuto completo. Parti da un tema circoscritto e conserva ciò che è utile; se approfondisci, fallo sulla stessa estrazione per non confondere curiosità e ripetizione ansiosa.',
+    exercise: [
+      'Leggi condizioni, privacy e contenuto dell’offerta.',
+      'Prepara una domanda che non chieda garanzie.',
+      'Segna una frase utile e una che non ti rappresenta.',
+      'Decidi con calma se il livello gratuito è sufficiente.',
+    ],
+  },
+  'tarocchi-si-o-no': {
+    concept: 'Dietro una domanda binaria si nascondono spesso più bisogni: ridurre l’incertezza, ricevere permesso o evitare la responsabilità di scegliere. Portarli alla luce rende la consultazione più onesta. Un simbolo non equivale a un semaforo universale: la stessa carta cambia tono con domanda, posizione e carte vicine.',
+    method: [
+      'Individua il verbo della domanda chiusa, poi chiedi quali condizioni favoriscono quell’evento e quali lo ostacolano.',
+      'Aggiungi il tuo margine d’azione: cosa puoi chiarire, preparare o proteggere indipendentemente dall’esito.',
+      'Definisci un orizzonte ragionevole, come questa fase o il prossimo passo, evitando date esatte e promesse definitive.',
+    ],
+    examples: [
+      '“Mi ama?” diventa “Quali segnali di reciprocità posso osservare e quale bisogno devo comunicare con chiarezza?”.',
+      '“Mi assumeranno?” diventa “Come presentare meglio il mio valore e quali aspetti dell’offerta devo verificare?”.',
+      '“Devo trasferirmi?” diventa “Cosa guadagno, cosa lascio e quale informazione manca prima di decidere?”.',
+    ],
+    limits: 'Assegnare a priori sì alle carte luminose e no a quelle intense semplifica troppo. Anche il Sole può mostrare esposizione e la Torre può liberare da una situazione inadatta. Non fare estrazioni consecutive per spareggiare un risultato: aumentano l’ambiguità e riducono la capacità di scegliere.',
+    lux: 'Su Luxseetarot usa lo spazio della domanda per scrivere la versione aperta. Le tre posizioni mostrano origine, situazione attuale e direzione; l’eventuale approfondimento può concentrarsi su una condizione concreta invece di riproporre lo stesso sì/no con parole diverse.',
+    exercise: [
+      'Scrivi la domanda chiusa che ti viene spontanea.',
+      'Elenca due fattori che dipendono da te e due esterni.',
+      'Trasformala in “cosa favorisce, cosa ostacola, come agisco?”.',
+      'Stabilisci quando valuterai i fatti senza nuove estrazioni.',
+    ],
+  },
+  'differenza-tarocchi-oroscopo': {
+    concept: 'L’astrologia interpreta una mappa celeste e i suoi cicli; i tarocchi organizzano immagini estratte attorno a una domanda. Un oroscopo collettivo parte dal segno solare, mentre un tema natale completo richiede data, ora e luogo. Una lettura di carte, invece, può iniziare subito da un problema circoscritto.',
+    method: [
+      'Scegli l’oroscopo quando vuoi osservare un clima periodico ampio e confrontarlo con il tuo momento personale.',
+      'Scegli i tarocchi quando hai bisogno di mettere in sequenza antecedenti, nodo presente e possibile sviluppo di una situazione.',
+      'Se li usi entrambi, mantieni distinti i linguaggi: cerca eventuali risonanze solo dopo aver compreso ciascun messaggio nel proprio metodo.',
+    ],
+    examples: [
+      'Un transito può invitare genericamente a rivedere la comunicazione; tre carte possono applicare quel tema a una conversazione concreta di coppia.',
+      'Un oroscopo professionale descrive settimane dinamiche, mentre una lettura sul lavoro esplora il dubbio tra una proposta specifica e la permanenza.',
+      'Per una scelta personale, le carte evidenziano valori e paure; l’astrologia può offrire una cornice temporale, non sostituire l’analisi.',
+    ],
+    limits: 'Dire che uno strumento è sempre più preciso dell’altro è fuorviante: dipende dalla qualità dell’interpretazione e dalla domanda. Evita di sommare previsioni finché trovi quella desiderata. Nessuno dei due metodi sostituisce dati, dialogo, consulenza medica, legale o finanziaria.',
+    lux: 'Luxseetarot è centrato sull’estrazione a tre carte e sulla domanda personale. Inserisci il contesto essenziale senza trasformarlo in una biografia; il testo seguirà la sequenza simbolica. Puoi tenere l’oroscopo come spunto separato e verificare nella realtà ciò che emerge.',
+    exercise: [
+      'Definisci se cerchi un clima generale o una risposta focalizzata.',
+      'Scrivi il tema in una frase senza riferimenti astrologici.',
+      'Dopo la lettura, nota una convergenza e una differenza.',
+      'Concludi con una decisione basata anche su fatti reali.',
+    ],
+  },
+  'come-interpretare-i-tarocchi': {
+    concept: 'Interpretare significa passare dall’immagine a un’ipotesi coerente con la domanda. Il significato tradizionale è il vocabolario; posizione e combinazione sono la grammatica. Prima descrivi ciò che vedi, poi formula il senso: questo riduce proiezioni e conclusioni affrettate.',
+    method: [
+      'Osserva personaggi, direzione, colori, numero ed elemento senza giudicare. Trasforma poi queste note in un tema collegato alla posizione.',
+      'Distingui tra Arcani Maggiori, che amplificano snodi e archetipi, e Minori, che precisano azioni, emozioni, conflitti e risorse quotidiane.',
+      'Cerca una relazione: continuità, contrasto o soluzione. Una carta non cancella l’altra; insieme delimitano un racconto più credibile.',
+    ],
+    examples: [
+      'In amore, Coppe aperte seguite da Spade tese possono parlare di sentimento presente ma comunicazione difensiva: il passo utile è chiarire, non proclamare una fine.',
+      'Nel lavoro, un Arcano di iniziativa tra due Denari suggerisce che l’idea ha bisogno di budget, ritmo e competenze verificabili.',
+      'In una scelta, carte entrambe favorevoli possono indicare che il vero nodo non è quale opzione sia “giusta”, ma quale costo sei disposto a sostenere.',
+    ],
+    limits: 'Consultare molti manuali finché una definizione conferma il desiderio crea rumore. Evita anche letture letterali dei nomi e narrazioni troppo dettagliate non sostenute dalle carte. Se non trovi un filo, ammetti l’incertezza e torna più tardi: non tutto deve essere risolto subito.',
+    lux: 'La lettura guidata di Luxseetarot offre una sintesi contestuale delle tre carte. Confrontala con la tua prima osservazione: evidenzia i punti concordi, quelli che aprono una prospettiva e quelli non pertinenti. Le domande successive sulle stesse carte servono a chiarire, non a contraddire.',
+    exercise: [
+      'Descrivi ogni carta in una frase puramente visiva.',
+      'Associa un verbo a ciascuna posizione.',
+      'Unisci i tre verbi in una storia breve.',
+      'Scrivi una verifica concreta da fare nella vita quotidiana.',
+    ],
+  },
+  'tarocchi-lavoro-carriera': {
+    concept: 'Una domanda professionale utile separa identità, condizioni e strategia. Non essere soddisfatti non significa automaticamente dover lasciare; talvolta serve ridefinire compiti, imparare una competenza o negoziare. Le carte aiutano a vedere la tensione dominante, mentre dati e conversazioni verificano le opzioni.',
+    method: [
+      'Chiarisci il criterio principale: crescita, stabilità, reddito, autonomia, ambiente o equilibrio personale. Senza priorità, ogni alternativa sembra insieme promettente e rischiosa.',
+      'Leggi il passato come bagaglio di esperienze, il presente come risorse e vincoli attuali, il futuro come direzione da preparare.',
+      'Converti i simboli in domande operative: chi contattare, quale informazione ottenere, quale capacità dimostrare e quale limite non superare.',
+    ],
+    examples: [
+      'Prima di un colloquio, carte di visibilità e disciplina possono suggerire esempi concreti dei risultati ottenuti e una preparazione più ordinata.',
+      'Tra posto stabile e progetto autonomo, una sequenza molto creativa ma poco materiale invita a costruire budget e piano di transizione.',
+      'In un conflitto con il responsabile, carte di rigidità non provano ostilità: possono indicare aspettative non dette da rendere misurabili.',
+    ],
+    limits: 'Non attribuire alle carte decisioni aziendali, stipendi o esiti di selezione. Ignorare contratto, sostenibilità economica e salute organizzativa sarebbe imprudente. Diffida anche della lettura che trasforma ogni difficoltà in “vocazione altrove”: alcune fasi chiedono pazienza e competenza, altre un’uscita ben pianificata.',
+    lux: 'Su Luxseetarot specifica ruolo, bivio e obiettivo senza inserire dati riservati dell’azienda. Dopo le tre carte, scegli un approfondimento sul punto più concreto: preparazione, negoziazione o timore del cambiamento. Il risultato è materiale riflessivo, non consulenza finanziaria o professionale.',
+    exercise: [
+      'Elenca tre criteri e ordinali per importanza.',
+      'Scrivi una risorsa disponibile e un vincolo reale.',
+      'Formula una domanda sul prossimo passo controllabile.',
+      'Fissa un’azione: candidatura, confronto, ricerca o formazione.',
+    ],
+  },
+  'tarocchi-ex-e-ricongiungimento': {
+    concept: 'Il desiderio di ritorno mescola nostalgia, bisogno di riparazione e paura del vuoto. Prima di leggere, chiediti quale componente è più forte. Le carte possono rappresentare il legame interiorizzato anche quando l’altra persona non sta agendo: per questo simbolo e comportamento vanno tenuti separati.',
+    method: [
+      'Ricostruisci i fatti della separazione e distinguili dalla versione idealizzata dei momenti migliori.',
+      'Osserva se le carte parlano di reciprocità, responsabilità e comunicazione oppure soltanto di attrazione, rimpianto e attesa.',
+      'Interpreta il futuro come percorso tuo: riapertura possibile, elaborazione o nuovo equilibrio devono sempre essere confermati da azioni rispettose.',
+    ],
+    examples: [
+      'Un messaggio dopo mesi non equivale a ricongiungimento: la lettura può aiutarti a valutare intenzioni, confini e continuità necessarie.',
+      'Carte affettive con una forte chiusura presente possono descrivere ricordi ancora vivi ma indisponibilità concreta al dialogo.',
+      'Se devi scegliere se rispondere, chiedi quale risposta protegge dignità e chiarezza, non come provocare una reazione.',
+    ],
+    limits: 'Non usare la lettura per sorvegliare social, interpretare ogni coincidenza o aggirare un no. Un ricongiungimento sano richiede consenso, cambiamenti osservabili e disponibilità di entrambe le persone. In presenza di abuso o stalking, interrompi il contatto e rivolgiti a supporti reali.',
+    lux: 'Su Luxseetarot formula una domanda che resti valida anche se l’ex non torna, per esempio cosa elaborare o quale confine mantenere. Leggi le tre carte una volta e lascia trascorrere tempo. Un approfondimento può chiarire una dinamica, ma non sostituisce una conversazione consensuale.',
+    exercise: [
+      'Dividi una pagina in fatti, speranze e paure.',
+      'Segna quale cambiamento reale renderebbe sensato riaprire.',
+      'Scrivi una domanda centrata sulla tua scelta.',
+      'Stabilisci un limite di tempo senza nuove consultazioni.',
+    ],
+  },
+  'arcani-maggiori-significato': {
+    concept: 'La sequenza dei ventidue Arcani viene spesso chiamata viaggio del Matto: dall’apertura iniziale all’integrazione del Mondo. Non è una scala rigida, ma una mappa di esperienze umane. Numero, figura e posizione mostrano quale passaggio archetipico risuona con la domanda.',
+    method: [
+      'Individua la funzione della carta: avviare, scegliere, regolare, interrompere, trasformare o integrare. Una funzione è più utile di una previsione generica.',
+      'Osserva se nello spread compare un solo Maggiore, che può fare da chiave, oppure più Maggiori, che segnalano un tema identitario o una fase intensa.',
+      'Usa i Minori vicini per capire dove il tema prende forma: emozioni nelle Coppe, azioni nei Bastoni, pensieri nelle Spade, risorse nei Denari.',
+    ],
+    examples: [
+      'Gli Amanti in una domanda di lavoro possono rappresentare coerenza e scelta, non romanticismo in ufficio.',
+      'La Morte tra carte quotidiane può indicare la conclusione di un metodo o ruolo, senza alcun riferimento alla morte fisica.',
+      'Il Sole nel futuro favorisce chiarezza, ma può chiedere anche di esporsi e assumersi la responsabilità della propria visibilità.',
+    ],
+    limits: 'Il prestigio simbolico dei Maggiori non li rende fatalistici. Non ignorare contesto, carte Minori e libertà personale. I nomi drammatici non autorizzano diagnosi o annunci di eventi. Un Arcano mostra un tema da esplorare, non una prova oggettiva di ciò che accadrà.',
+    lux: 'Nella lettura Luxseetarot, nota quale posizione ospita il Maggiore e leggi come viene collegato alle altre due carte. Se vuoi approfondire, domanda quale comportamento rende costruttivo quel passaggio. Mantieni l’interpretazione aderente al tema iniziale.',
+    exercise: [
+      'Nomina l’Arcano senza usare “buono” o “cattivo”.',
+      'Scrivi il suo verbo e la sua possibile ombra.',
+      'Collegalo alla posizione e alle carte vicine.',
+      'Traduci il messaggio in un gesto proporzionato.',
+    ],
+  },
+  'arcani-minori-cosa-sono': {
+    concept: 'Ogni seme contiene dieci carte numerali e quattro figure di corte. I numeri mostrano lo sviluppo di un’esperienza: l’Asso concentra un potenziale, le carte centrali lo mettono alla prova, il Dieci porta compimento o saturazione. Il seme specifica il campo in cui quel ciclo si manifesta.',
+    method: [
+      'Combina numero e seme: un Due parla di relazione o alternativa, ma nelle Coppe assume tono affettivo e nelle Spade mentale o decisionale.',
+      'Leggi le figure come persone solo quando il contesto lo sostiene; altrimenti possono descrivere il modo giovane, impulsivo, ricettivo o autorevole con cui affronti il tema.',
+      'Conta prevalenze e assenze. Molte Spade segnalano forte attività mentale; pochi Denari possono suggerire che manca ancora una base pratica.',
+    ],
+    examples: [
+      'In amore, Coppe numerose con Spade difficili raccontano sentimento accompagnato da dubbi o comunicazione da chiarire.',
+      'Nel lavoro, Bastoni e Denari insieme uniscono iniziativa e realizzazione; se prevalgono solo Bastoni, il progetto può avere entusiasmo ma poca struttura.',
+      'In una scelta, due figure di corte possono rappresentare approcci diversi dentro di te prima ancora che due persone esterne.',
+    ],
+    limits: 'Non ridurre i semi a formule immutabili e non considerare i Minori messaggi di serie B. Evita di identificare automaticamente una figura con qualcuno in base a genere o aspetto. Il mazzo parla per analogie, quindi domanda e combinazione restano decisive.',
+    lux: 'Su Luxseetarot osserva prima seme e numero delle carte estratte, poi verifica come il testo li integra nella sequenza. Un approfondimento utile può chiedere quale dettaglio quotidiano richiede attenzione: parola, abitudine, risorsa o iniziativa.',
+    exercise: [
+      'Per ogni carta scrivi elemento, numero o ruolo di corte.',
+      'Individua il seme dominante e quello assente.',
+      'Collega questa distribuzione alla domanda concreta.',
+      'Scegli una modifica quotidiana osservabile.',
+    ],
+  },
+  'tarocchi-futuro-prossimo': {
+    concept: '“Prossimo” deve essere proporzionato al tema: giorni per una conversazione già prevista, settimane per un progetto in movimento, mesi per una transizione complessa. Le carte non misurano il tempo come un calendario; descrivono ritmo, condizioni e passaggi che rendono un esito più o meno plausibile.',
+    method: [
+      'Definisci l’orizzonte prima dell’estrazione e segnala gli eventi già programmati, senza chiedere il giorno esatto.',
+      'Leggi la terza carta come continuazione delle prime due: indica cosa tende ad accadere se abitudini e circostanze restano simili.',
+      'Distingui segnali anticipatori e risultato. Preparazione, comunicazione o rallentamento possono essere già parte del futuro che stai osservando.',
+    ],
+    examples: [
+      'In amore, un futuro di apertura dopo un presente chiuso suggerisce condizioni favorevoli al dialogo, non la certezza che una persona chiamerà.',
+      'Nel lavoro, una carta di riconoscimento ha più senso se passato e presente mostrano competenza coltivata e candidatura concreta.',
+      'Per una decisione, una carta di attesa può indicare che un’informazione imminente cambia il quadro: stabilisci cosa devi verificare.',
+    ],
+    limits: 'Il rischio maggiore è vivere in funzione della previsione, leggendo ogni evento come conferma. Evita scadenze inventate, nuove estrazioni quando il termine si avvicina e decisioni irreversibili basate sul testo. Il futuro resta aperto a scelte, caso e azioni altrui.',
+    lux: 'Su Luxseetarot scrivi ambito e fase, poi considera le tre carte come traiettoria. Salva un criterio di verifica nel mondo reale. Se approfondisci, chiedi quale condizione puoi preparare, non una data più precisa che le carte non possono garantire.',
+    exercise: [
+      'Scegli un orizzonte realistico per la questione.',
+      'Elenca un segnale favorevole e uno contrario.',
+      'Formula la domanda sulla tendenza e sulle condizioni.',
+      'Fissa una data per verificare i fatti, senza compulsione.',
+    ],
+  },
+  'quando-fare-una-lettura-dei-tarocchi': {
+    concept: 'La disponibilità mentale conta più dell’ora, della luna o di un rituale perfetto. Sei pronto quando riesci a tollerare una risposta diversa da quella sperata e a distinguere simboli da fatti. Una breve pausa prima della consultazione migliora attenzione e formulazione della domanda.',
+    method: [
+      'Valuta l’intensità emotiva da zero a dieci. Se è molto alta, regola prima il corpo con respiro, movimento o contatto con una persona fidata.',
+      'Controlla se sono emersi fatti nuovi dall’ultima lettura. Senza novità, ripetere la stessa domanda tende a produrre interpretazioni concorrenti.',
+      'Chiediti quale uso farai del risultato. Se non esiste alcuna azione o osservazione possibile, forse stai cercando soltanto sollievo immediato.',
+    ],
+    examples: [
+      'Dopo una discussione di coppia, attendere che l’attivazione scenda permette di chiedere come comunicare, invece di cercare colpevoli.',
+      'Prima di un colloquio, una lettura può ordinare preparazione e timori; pochi minuti prima dell’incontro rischia invece di aumentare tensione.',
+      'Davanti a una scelta con scadenza, consultare con tempo lascia spazio per verificare informazioni e non delegare la decisione.',
+    ],
+    limits: 'Rimanda in caso di panico, insonnia prolungata o impulso a estrarre finché compare la risposta voluta. I tarocchi non sono uno strumento d’emergenza psicologica. Se l’ansia interferisce con la vita quotidiana, parla con un professionista o una persona di fiducia.',
+    lux: 'Apri Luxseetarot quando puoi dedicare qualche minuto senza interruzioni. Inserisci un solo tema, leggi l’intera anteprima e chiudi la sessione con una nota. Gli approfondimenti sulle stesse carte sono utili se nasce una domanda nuova e specifica, non per cancellare una frase scomoda.',
+    exercise: [
+      'Misura agitazione, stanchezza e bisogno di rassicurazione.',
+      'Verifica se la domanda contiene un tema solo.',
+      'Decidi in anticipo quanto tempo dedicare.',
+      'Dopo la lettura, aspetta almeno un fatto nuovo.',
+    ],
+  },
+  'tarocchi-e-intuito': {
+    concept: 'L’intuito è una forma rapida di riconoscimento, costruita da sensibilità ed esperienza; non è infallibile. Diventa più affidabile quando annoti l’impressione prima di conoscere il significato e poi la confronti con contesto e fatti. Così distingui un segnale ricorrente da una reazione momentanea.',
+    method: [
+      'Descrivi l’immagine con i sensi: luminosità, postura, distanza, movimento. Nota quale dettaglio attira subito e quale avevi evitato.',
+      'Dai un nome alla reazione corporea senza trasformarla in previsione. “Sento tensione” è un dato interno; “accadrà qualcosa di brutto” è già un’interpretazione.',
+      'Confronta infine intuizione, tradizione e domanda. Se divergono, conserva più ipotesi e cerca riscontri invece di scegliere quella più emozionante.',
+    ],
+    examples: [
+      'In amore, una figura voltata può evocare distanza; verifica però se la relazione mostra davvero evitamento o se temi tu il rifiuto.',
+      'Nel lavoro, un’immagine di movimento può risuonare con il desiderio di cambiare, ma budget e opportunità dicono se il passo è maturo.',
+      'In una scelta, il sollievo davanti a una carta può indicare un valore importante, non l’autorizzazione automatica a decidere.',
+    ],
+    limits: 'Paura, desiderio e pregiudizi possono sembrare intuizione. I segnali d’allarme sono urgenza assoluta, certezza sui pensieri altrui e rifiuto di ogni prova contraria. Non usare sensazioni simboliche per diagnosi o accuse. L’intuito sano tollera verifica e possibilità di errore.',
+    lux: 'Prima di leggere il testo Luxseetarot, osserva le tre carte e annota tre parole. Poi confronta la lettura guidata con le tue note: ciò che coincide può essere approfondito, ciò che diverge merita curiosità. Conserva il diario per riconoscere nel tempo il tuo linguaggio personale.',
+    exercise: [
+      'Osserva una carta per sessanta secondi in silenzio.',
+      'Annota dettaglio, emozione e sensazione fisica.',
+      'Scrivi due interpretazioni alternative.',
+      'Controlla dopo alcuni giorni quale era più aderente ai fatti.',
+    ],
+  },
+  'significato-carta-il-matto': {
+    concept: 'Numerato zero, Il Matto può stare all’inizio o fuori dalla sequenza: rappresenta potenziale non ancora definito. Il bagaglio leggero parla di esperienza essenziale, il cammino di fiducia, il precipizio di limite. La carta tiene insieme entusiasmo e necessità di attenzione.',
+    method: [
+      'Osserva se il Matto apre la sequenza, interrompe una fase o segue una carta di conclusione: cambia il tipo di inizio che propone.',
+      'Cerca carte di terra o struttura, che aiutano a trasformare l’impulso in esperimento sostenibile, e carte confuse, che accentuano dispersione.',
+      'Domandati quale regola è diventata sterile e quale protezione resta invece necessaria. Libertà non significa ignorare conseguenze o impegni.',
+    ],
+    examples: [
+      'In amore può descrivere un incontro fresco o una relazione senza etichette; serve chiarire se leggerezza e aspettative sono condivise.',
+      'Nel lavoro favorisce candidatura, viaggio o progetto pilota, ma invita a verificare contratto, risorse e competenze prima del salto.',
+      'In una scelta personale può suggerire un piccolo test reversibile invece di aspettare una sicurezza impossibile.',
+    ],
+    limits: 'Idealizzare Il Matto porta a chiamare coraggio qualsiasi impulso; temerlo porta a perdere opportunità per eccesso di controllo. Non leggerlo come garanzia che “l’universo provvederà”. Se la decisione coinvolge salute, finanze o sicurezza, raccogli pareri qualificati e prepara un piano.',
+    lux: 'Quando appare su Luxseetarot, collega il suo invito alla posizione: nel passato può spiegare un’avventura, nel presente un’apertura, nel futuro una strada ancora fluida. Approfondisci chiedendo quale preparazione minima permette di esplorarla senza imprudenza.',
+    exercise: [
+      'Nomina ciò che desideri iniziare e ciò da cui fuggi.',
+      'Elenca il rischio reale e quello soltanto immaginato.',
+      'Progetta un primo passo piccolo e reversibile.',
+      'Stabilisci un confine di tempo, denaro o energia.',
+    ],
+  },
+  'significato-carta-gli-amanti': {
+    concept: 'Nell’iconografia tradizionale la presenza di più figure e di un principio superiore mette in scena relazione, coscienza e scelta. L’attrazione è una parte del simbolo; l’altra è assumere una direzione senza negare le conseguenze. Per questo l’Arcano parla spesso di valori resi visibili dalle decisioni.',
+    method: [
+      'Identifica le opzioni reali e la tentazione di non scegliere. Anche mantenere tutto com’è produce un effetto e consuma energia.',
+      'Distingui desiderio, valore e impegno: possono convergere oppure tirare in direzioni diverse, creando il nodo mostrato dalla carta.',
+      'Guarda le carte vicine per capire se prevalgono dialogo, idealizzazione, responsabilità o conflitto. Gli Amanti da soli non descrivono l’esito.',
+    ],
+    examples: [
+      'In coppia possono invitare a rendere esplicito un accordo su fiducia, futuro o confini, invece di affidarsi alla sola chimica.',
+      'Per un single possono mostrare disponibilità all’incontro, ma anche la scelta di non ripetere una relazione incoerente con i propri bisogni.',
+      'Nel lavoro possono rappresentare una partnership o il bivio tra prestigio esterno e attività più allineata ai valori.',
+    ],
+    limits: 'Non dedurre automaticamente matrimonio, anima gemella, triangolo o tradimento. Sono ipotesi che richiedono domanda, combinazione e fatti. La carta non autorizza a ignorare un rifiuto né a delegare una scelta morale. Reciprocità e consenso restano criteri concreti.',
+    lux: 'Su Luxseetarot rileggi la posizione degli Amanti dentro la sequenza. Se sono nel presente, individua la decisione attiva; nel futuro, osserva quale coerenza preparano le prime due carte. Un approfondimento può mettere a fuoco il criterio con cui scegliere.',
+    exercise: [
+      'Scrivi le opzioni senza descriverne una come perfetta.',
+      'Per ciascuna indica desiderio, costo e valore rispettato.',
+      'Nota quale conversazione stai rimandando.',
+      'Scegli il prossimo gesto coerente, non l’esito totale.',
+    ],
+  },
+  'significato-carta-la-torre': {
+    concept: 'La Torre rappresenta una struttura colpita nel punto in cui pretendeva stabilità assoluta. La luce improvvisa rivela, le figure in caduta perdono posizione, le fondamenta diventano la domanda centrale. Non tutto viene distrutto: ciò che è essenziale può essere separato dall’impalcatura ormai falsa.',
+    method: [
+      'Individua cosa è già instabile nei fatti: accordo, convinzione, routine, progetto o immagine personale. La carta raramente crea dal nulla il problema.',
+      'Separa la fase acuta dalla ricostruzione. Prima si protegge ciò che conta, poi si comprende, infine si decide cosa rifare diversamente.',
+      'Osserva le carte vicine: possono indicare risorsa, supporto, causa della crisi o qualità da sviluppare dopo la rottura.',
+    ],
+    examples: [
+      'In amore può coincidere con una verità detta, una crisi o la fine di un’idealizzazione; il comportamento successivo chiarisce se la relazione cambia o termina.',
+      'Nel lavoro può descrivere riorganizzazione o fallimento di un piano: documenti, rete professionale e alternative rendono la risposta più concreta.',
+      'In una scelta può mostrare che l’opzione “sicura” non lo è più e che occorre aggiornare le informazioni.',
+    ],
+    limits: 'Catastrofismo e negazione sono errori opposti. Non annunciare incidenti, lutti o disastri sulla base della carta; non minimizzare però segnali reali di rischio. Nelle emergenze segui indicazioni competenti. La lettura serve a riflettere, non a sostituire sicurezza, medicina o diritto.',
+    lux: 'Su Luxseetarot leggi La Torre nel suo posto preciso e cerca nel testo ciò che puoi proteggere o verificare. Evita di rifare subito l’estrazione per cancellarla. Se approfondisci, domanda quale fondamento resta valido e quale primo passo di ricostruzione è realistico.',
+    exercise: [
+      'Elenca ciò che sai già non essere sostenibile.',
+      'Distingui perdita temuta e danno realmente presente.',
+      'Nomina una risorsa, una persona e un confine utili.',
+      'Definisci il primo passo sicuro dopo la chiarificazione.',
+    ],
+  },
+  'errori-comuni-lettura-tarocchi': {
+    concept: 'Gli errori non dipendono soltanto dalla conoscenza delle carte, ma dal modo in cui cerchiamo certezza. Bias di conferma, memoria selettiva e paura dell’incertezza possono piegare qualsiasi simbolo. Un metodo scritto rende visibili questi automatismi e permette di correggerli.',
+    method: [
+      'Registra domanda e posizioni prima di estrarre, così non le modifichi per adattarle al risultato.',
+      'Separa descrizione, interpretazione e decisione in tre righe diverse. Questa semplice divisione impedisce di trattare un’ipotesi come fatto.',
+      'Conserva anche letture che non sembrano riuscite e verifica dopo: ricordare solo le coincidenze crea un’illusione di precisione.',
+    ],
+    examples: [
+      'In amore, leggere una carta affettuosa come prova dei pensieri altrui ignora consenso, dialogo e comportamento.',
+      'Nel lavoro, una carta di successo non sostituisce candidatura e preparazione; può diventare invito a mostrare competenze.',
+      'In una scelta, rifare lo spread finché vince l’opzione preferita segnala che la decisione è già emotivamente orientata.',
+    ],
+    limits: 'Altri errori sono leggere quando si è esausti, aggiungere carte senza una funzione, usare significati presi da mazzi diversi e spaventarsi per titoli letterali. Fermati quando la consultazione aumenta agitazione o interferisce con sonno, relazioni e responsabilità. In quel caso cerca supporto umano.',
+    lux: 'Luxseetarot organizza domanda e tre posizioni, ma la disciplina resta tua. Leggi una volta, annota ciò che è pertinente e usa gli approfondimenti soltanto per un punto distinto. Nessun sistema digitale può garantire eventi o sostituire professionisti.',
+    exercise: [
+      'Controlla se desideri comprensione o conferma.',
+      'Scrivi una sola domanda e non modificarla.',
+      'Dopo la lettura, indica fatto, ipotesi e azione.',
+      'Aspetta un cambiamento reale prima di consultare ancora.',
+    ],
+  },
+  'tarocchi-online-come-scegliere': {
+    concept: 'Affidabilità non significa capacità di predire con certezza, ma coerenza tra ciò che il servizio dichiara e ciò che offre. Un’esperienza responsabile spiega metodo, prezzo, limiti e gestione dei dati con parole accessibili, lasciando all’utente libertà di interrompere.',
+    method: [
+      'Esamina la pagina prima di inserire dati: connessione sicura, privacy, condizioni, contatti e identità del gestore devono essere raggiungibili.',
+      'Controlla il percorso economico: costo finale, contenuto sbloccato, eventuali rinnovi e modalità di assistenza non dovrebbero comparire soltanto dopo il pagamento.',
+      'Valuta il tono: un testo utile propone possibilità e domande; un testo manipolativo usa paura, urgenza, colpa o promesse impossibili.',
+    ],
+    examples: [
+      'Una lettura d’amore responsabile non vende il ritorno garantito dell’ex e non invita a violare i suoi confini.',
+      'Una lettura sul lavoro distingue riflessione simbolica da consulenza su contratto, tasse o investimento.',
+      'Per una scelta personale, il servizio dovrebbe aiutare a vedere alternative, non dichiararsi unica fonte di verità.',
+    ],
+    limits: 'Recensioni, grafica elegante e parole personalizzate non bastano da sole. Non inviare documenti, password, dati sanitari o finanziari non necessari. Evita servizi che aumentano continuamente il prezzo per rivelare un presunto pericolo. In caso di addebiti dubbi, usa canali di assistenza e pagamento ufficiali.',
+    lux: 'Per valutare Luxseetarot, osserva il percorso dichiarato: domanda, tre carte, anteprima e scelta eventuale di approfondire. Leggi privacy e condizioni, non inserire informazioni sensibili nella domanda e considera il risultato intrattenimento riflessivo. Sei libero di fermarti all’anteprima.',
+    exercise: [
+      'Verifica gestore, contatti, privacy e condizioni.',
+      'Annota prezzo e contenuto prima di confermare.',
+      'Cerca promesse assolute o pressioni emotive.',
+      'Condividi soltanto il contesto strettamente utile.',
+    ],
+  },
+  'tarocchi-quotidiani-abitudine-consapevole': {
+    concept: 'Una pratica quotidiana funziona quando allena osservazione e non pretende di anticipare ogni evento. La carta del giorno può diventare una lente: scegli un tema, lo noti nelle azioni e alla sera verifichi. Il valore nasce dal confronto ripetuto tra simbolo e vita, non dal numero di estrazioni.',
+    method: [
+      'Usa sempre una domanda leggera e orientativa, come quale qualità coltivare, evitando previsioni su tutto ciò che potrebbe succedere.',
+      'Mantieni la stessa struttura per alcune settimane: impressione iniziale, significato studiato, comportamento scelto e riscontro serale.',
+      'Rivedi il diario a fine settimana per osservare temi ricorrenti e differenze tra aspettativa mattutina ed esperienza reale.',
+    ],
+    examples: [
+      'Una carta di ascolto può tradursi nel lasciare finire un collega prima di rispondere, non nell’attendere passivamente un segno.',
+      'Una carta di confine può invitare a rimandare una conversazione impulsiva e scegliere un momento più calmo in amore.',
+      'Una carta di movimento può diventare una telefonata, una passeggiata o un piccolo compito rimasto fermo.',
+    ],
+    limits: 'Se estrai di nuovo perché la prima carta non piace, controlli compulsivamente gli eventi o temi di agire senza consultare, interrompi la routine. Saltare un giorno non produce conseguenze. Una pratica sana aumenta autonomia; se aumenta ansia, riduci la frequenza e cerca altri strumenti di regolazione.',
+    lux: 'Riserva Luxseetarot ai temi che meritano una sequenza a tre carte, invece di usarlo automaticamente per ogni dettaglio giornaliero. Formula una domanda chiara, leggi l’anteprima e annota un gesto. Gli approfondimenti servono quando emerge un nodo specifico, non come rituale obbligatorio.',
+    exercise: [
+      'Scegli un orario e un limite di cinque minuti.',
+      'Annota tre parole prima di cercare significati.',
+      'Associa una sola azione osservabile.',
+      'Alla sera scrivi cosa hai verificato e cosa no.',
+    ],
+  },
+  'tarocchi-amore-domande-esempi': {
+    concept: 'La qualità della domanda dipende dal suo scopo. Una domanda esplorativa descrive la dinamica, una decisionale confronta strade, una di crescita cerca il tuo schema. Sapere quale stai ponendo impedisce di accumulare quesiti diversi dentro una sola estrazione.',
+    method: [
+      'Sostituisci “sempre”, “mai” e “sicuramente” con un riferimento alla fase attuale. Le relazioni cambiano e una formulazione temporale resta più onesta.',
+      'Inserisci un elemento osservabile: comunicazione, reciprocità, confini, disponibilità o bisogno. Evita di chiedere la lettura completa della mente altrui.',
+      'Concludi con il tuo margine di azione, così la risposta non ti lascia in attesa passiva di una scelta esterna.',
+    ],
+    examples: [
+      'Per una relazione nuova: “Quale ritmo ci permette di conoscerci senza idealizzare e quali segnali di reciprocità osservare?”.',
+      'Per una crisi: “Cosa alimenta il conflitto, quale bisogno non stiamo esprimendo e come posso aprire un confronto rispettoso?”.',
+      'Per un bivio: “Quali valori proteggo restando, quali lasciando e cosa devo verificare prima di scegliere?”.',
+    ],
+    limits: 'Non unire ex, nuova conoscenza e futuro sentimentale nella stessa frase. Evita domande che cercano garanzie, autorizzano controllo o ignorano un rifiuto esplicito. Le carte non provano tradimento, amore o intenzioni. Se una relazione è violenta o coercitiva, cerca supporto competente.',
+    lux: 'Scegli su Luxseetarot una domanda principale tra gli esempi e personalizzala con il minimo contesto necessario. La sequenza a tre carte mostrerà radice, clima e direzione. Solo dopo, se serve, formula una domanda successiva sulle stesse carte relativa a un punto preciso.',
+    exercise: [
+      'Definisci se vuoi esplorare, decidere o crescere.',
+      'Cancella le richieste di certezza e controllo.',
+      'Aggiungi un comportamento o bisogno concreto.',
+      'Rileggi: la domanda deve restituirti un margine d’azione.',
+    ],
+  },
+};
+
+const EXTRA_NOTES = {
+  'tarocchi-si-o-no': 'Un criterio semplice è immaginare entrambi gli esiti. Se fosse sì, quale responsabilità avresti? Se fosse no, quale alternativa resterebbe disponibile? Questo doppio scenario riduce il peso del responso e restituisce alla domanda la sua funzione: prepararti a scegliere con maggiore lucidità.',
+  'differenza-tarocchi-oroscopo': 'Puoi anche osservare la diversa frequenza d’uso: un quadro astrologico periodico può accompagnare settimane o mesi, mentre una lettura di carte nasce da una questione presente. Consultarli con ritmi distinti evita di sovrapporre messaggi e cercare conferme incrociate.',
+  'come-interpretare-i-tarocchi': 'Quando studi, crea un dizionario personale con tre colonne: significato tradizionale, dettaglio visivo e applicazione sperimentata. Col tempo vedrai quali associazioni sono solide e quali dipendevano dall’umore. La pratica migliora non accumulando definizioni, ma motivando ogni passaggio interpretativo.',
+  'tarocchi-lavoro-carriera': 'Per rendere la lettura misurabile, stabilisci un indicatore: numero di candidature, ore di studio, conversazioni esplorative o risposta a una proposta. Dopo alcune settimane confronta l’intuizione iniziale con questi dati. La verifica può confermare una direzione oppure suggerire di correggerla senza vivere il cambiamento come fallimento.',
+  'tarocchi-ex-e-ricongiungimento': 'Una domanda particolarmente utile riguarda ciò che dovrebbe essere diverso rispetto al passato. Elenca cambiamenti reciproci, non soltanto promesse: comunicazione, gestione dei conflitti, disponibilità e rispetto. Se l’elenco dipende interamente dall’altra persona, concentra l’energia su ciò che puoi proteggere oggi e sulla tua rete di sostegno.',
+  'arcani-maggiori-significato': 'Per studiarli senza confonderti, raggruppali per funzione invece di imparare ventidue definizioni isolate: figure che avviano, formano, mettono alla prova e completano. Poi osserva come la stessa funzione cambia quando l’Arcano occupa passato, presente o futuro.',
+  'arcani-minori-cosa-sono': 'Un esercizio comparativo chiarisce bene il sistema: prendi lo stesso numero nei quattro semi e nota cosa cambia. Il Cinque, per esempio, introduce una difficoltà, ma questa può essere competitiva nei Bastoni, emotiva nelle Coppe, mentale nelle Spade o materiale nei Denari. Numero e elemento lavorano sempre insieme.',
+  'tarocchi-futuro-prossimo': 'Rileggere la consultazione alla scadenza scelta è più istruttivo che farne una nuova. Segna quali condizioni si sono manifestate, quali sono cambiate grazie alle tue azioni e quali dipendevano da altri. In questo modo impari a usare il futuro come scenario adattabile e non come promessa da attendere passivamente.',
+  'quando-fare-una-lettura-dei-tarocchi': 'Può essere utile creare una regola personale di pausa: una settimana per lo stesso tema, salvo fatti davvero nuovi. Non è una norma esoterica, ma un confine pratico. Nel frattempo applica il passo scelto, parla con chi è coinvolto e raccogli informazioni; la realtà deve avere il tempo di rispondere.',
+  'tarocchi-e-intuito': 'Il diario permette anche di riconoscere il tono delle proiezioni. Se le impressioni cambiano radicalmente con l’ansia, probabilmente descrivono lo stato emotivo più che la situazione. Non è tempo perso: hai comunque scoperto un bisogno da regolare prima di interpretare o decidere.',
+  'significato-carta-il-matto': 'Il suo insegnamento più concreto è progettare l’esplorazione. Puoi concederti curiosità senza impegnare subito tutte le risorse: una conversazione prima di una relazione, un prototipo prima di un’impresa, una visita prima di un trasferimento. Se il test porta energia e informazioni, il passo seguente sarà meno cieco; se mostra limiti, fermarti non annulla il coraggio iniziale. Il Matto maturo resta mobile anche quando deve correggere rotta con consapevolezza.',
+  'significato-carta-gli-amanti': 'Quando il dilemma sembra insolubile, prova a descrivere la persona che diventi scegliendo ciascuna strada. Non concentrarti soltanto sul beneficio immediato: considera fiducia, coerenza e conseguenze sulle relazioni. La carta invita a integrare parti diverse, ma talvolta integrare significa anche rinunciare con chiarezza a un’opzione incompatibile. Una scelta consapevole non elimina il dispiacere; gli dà un significato.',
+  'significato-carta-la-torre': 'Dopo una Torre, la fretta di ricostruire può riprodurre lo stesso problema. Concediti una fase di inventario: cosa funzionava davvero, cosa veniva sostenuto per paura e quali segnali erano stati ignorati? Questa analisi trasforma lo shock in apprendimento e aiuta a scegliere fondamenta più semplici, verificabili e condivise.',
+  'errori-comuni-lettura-tarocchi': 'Per migliorare, rivedi periodicamente tre consultazioni passate. Chiediti quali frasi erano davvero collegate alle carte, quali erano così generiche da adattarsi a tutto e quali azioni hanno prodotto risultati. Questo controllo sviluppa umiltà interpretativa. Puoi scoprire che una carta “sbagliata” aveva descritto bene il tuo atteggiamento, oppure che avevi aggiunto dettagli mai suggeriti dallo spread. Correggere il metodo vale più che difendere ogni previsione.',
+  'tarocchi-online-come-scegliere': 'Prima di usare regolarmente una piattaforma, prova una domanda di cui conosci bene il contesto. Non per testare capacità soprannaturali, ma per valutare se il testo distingue sfumature, mantiene un tono rispettoso e non inventa pericoli. Controlla inoltre che uscire, chiedere assistenza o esercitare i diritti sui dati sia comprensibile. Un buon servizio non rende difficile fermarsi. Conserva ricevute e conferme delle operazioni, soprattutto se acquisti contenuti aggiuntivi, e rileggi sempre con calma le condizioni.',
+  'tarocchi-quotidiani-abitudine-consapevole': 'Alterna anche giorni di osservazione senza carte. Chiediti al mattino quale qualità vuoi praticare e confrontala la sera con le azioni. Questa pausa dimostra che il rituale è un supporto, non la fonte della tua capacità di riflettere. Se torni al mazzo con più curiosità e meno urgenza, la routine sta lavorando nella direzione giusta.',
+  'tarocchi-amore-domande-esempi': 'Prima dell’estrazione prova a rispondere tu stesso alla domanda con ciò che sai. Elenca segnali favorevoli, contrari e informazioni mancanti. La lettura non parte così da un vuoto emotivo, ma dialoga con una base reale. Al termine potrai distinguere meglio uno spunto nuovo da una semplice ripetizione di ciò che desideravi sentirti dire.',
+};
+
+function renderExpansion(item, slug) {
+  if (!item) return '';
+  const extraNote = EXTRA_NOTES[slug]
+    ? `<p>${EXTRA_NOTES[slug]}</p>`
+    : '';
+  return `
+<h2>Un metodo più preciso</h2>
+<p>${item.concept}</p>
+<p>Per procedere senza perdere il filo, usa questa sequenza:</p>
+<ol>${item.method.map((value) => `<li>${value}</li>`).join('')}</ol>
+<h2>Esempi pratici</h2>
+<p>Lo stesso simbolo acquista significato quando viene riportato a una situazione reale. Ecco tre applicazioni da adattare con prudenza:</p>
+<ul>${item.examples.map((value) => `<li>${value}</li>`).join('')}</ul>
+<p>In tutti e tre i casi, la lettura è più utile se produce una domanda verificabile o un passo proporzionato. Non occorre trasformare ogni carta in un evento: a volte descrive un atteggiamento, una risorsa o un conflitto già presente.</p>
+<h2>Errori, limiti e realtà</h2>
+<p>${item.limits}</p>
+<p>Considera quindi i tarocchi come uno strumento di intrattenimento e riflessione. Mantieni la libertà di non riconoscerti nel testo e confronta sempre l’interpretazione con comportamenti, informazioni e conseguenze concrete.</p>
+<h2>Come applicarlo su Luxseetarot</h2>
+<p>${item.lux}</p>
+<p>Prima di iniziare, riduci il contesto agli elementi che cambiano davvero la lettura. Dopo, riassumi il messaggio con parole tue: questo passaggio mostra se hai ottenuto chiarezza oppure soltanto nuove domande.</p>
+${extraNote}
+<h2>Mini esercizio</h2>
+<p>Prendi un foglio o una nota e completa la checklist:</p>
+<ul>${item.exercise.map((value) => `<li>${value}</li>`).join('')}</ul>
+<p>Chiudi scrivendo una frase: “Dopo questa lettura posso osservare o fare…”. Se non trovi nulla di concreto, lascia riposare il tema invece di estrarre subito altre carte.</p>`.trim();
+}
+
 function article(partial) {
   const slug = String(partial.slug || '');
   const coverImage =
     partial.coverImage ||
     (slug ? `/images/blog/${slug}.jpg?v=3` : '');
   let bodyHtml = String(partial.bodyHtml || '');
+  const expansion = EXPANSIONS[slug];
+  if (expansion && bodyHtml.includes(CTA)) {
+    bodyHtml = bodyHtml.replace(CTA, `${renderExpansion(expansion, slug)}\n${CTA}`);
+  }
   const links = RELATED[slug];
   if (links && !bodyHtml.includes('<h2>Approfondisci</h2>')) {
     const block = related(links);

@@ -26,6 +26,26 @@ function related(items) {
     .join('')}</ul>`;
 }
 
+function expand({ method, example, limits, lux, exercise }) {
+  return `
+<h2>Un metodo per passare dal simbolo alla vita reale</h2>
+<p>Prima di cercare una risposta definitiva, chiarisci il contesto: che cosa è successo, quale parte dipende da te e quale informazione ti manca. Leggi poi ogni simbolo come un’ipotesi da confrontare con i fatti, non come una sentenza. Questo passaggio rende la consultazione più concreta: invece di domandarti soltanto «che cosa accadrà?», osservi atteggiamenti, risorse, rischi e prossime azioni possibili. Annota la prima impressione, ma rileggi tutto alla luce della domanda iniziale.</p>
+<p>${method}</p>
+<h2>Un esempio concreto di interpretazione</h2>
+<p>Gli esempi servono come modello, non come dizionario rigido. La stessa immagine cambia sfumatura secondo la posizione occupata, le carte vicine e la situazione descritta. Cerca quindi una frase completa che colleghi simbolo, contesto e comportamento osservabile. Se la frase resta vaga, chiediti quale fatto potrebbe confermarla o smentirla nei prossimi giorni.</p>
+<p>${example}</p>
+<h2>Limiti e uso responsabile</h2>
+<p>I tarocchi non sostituiscono medici, psicologi, avvocati, consulenti finanziari né una conversazione diretta con le persone coinvolte. Non leggono con certezza la mente altrui e non garantiscono date o risultati. Sono più utili come strumento narrativo per mettere ordine tra emozioni e possibilità. Se una lettura aumenta paura, dipendenza o bisogno di ripetere la stessa domanda, fermati, torna ai fatti e cerca un sostegno adeguato.</p>
+<p>${limits}</p>
+<h2>Come usare Luxseetarot su questo tema</h2>
+<p>Su Luxseetarot parti da una domanda aperta e circoscritta, scegli tre carte e considera la lettura come una mappa del momento. Leggi prima l’insieme, poi i dettagli; salva mentalmente una sola idea centrale e trasformala in un gesto verificabile. Evita estrazioni consecutive per ottenere un testo più rassicurante: se vuoi approfondire, formula una domanda diversa ma collegata allo stesso nodo.</p>
+<p>${lux}</p>
+<h2>Mini esercizio di integrazione</h2>
+<p>Prendi carta e penna e dedica dieci minuti all’esercizio seguente. Scrivere rallenta le interpretazioni impulsive e permette di distinguere intuizione, desiderio e paura. Concludi sempre con una frase al presente e un’azione piccola, realistica e sotto il tuo controllo; poi stabilisci quando verificare che cosa è cambiato, senza consultare di nuovo le carte nel frattempo.</p>
+<p>${exercise}</p>
+`.trim();
+}
+
 export function getSeedArticlesB() {
   return [
     article({
@@ -67,6 +87,13 @@ export function getSeedArticlesB() {
   <li>Sto trattenendo per amore o per paura del vuoto?</li>
   <li>Quale piccolo rito di chiusura posso fare questa settimana?</li>
 </ul>
+${expand({
+  method: 'Con La Morte separa tre livelli: ciò che è già concluso nei fatti, ciò che stai ancora elaborando e ciò che può essere costruito dopo. Osserva le carte vicine: Coppe possono mettere l’accento sul distacco emotivo, Denari su lavoro o casa, Spade su una decisione ormai inevitabile. Non trasformare automaticamente una chiusura simbolica nella fine di una relazione.',
+  example: 'Immagina una domanda su un lavoro diventato stretto. La Morte nel presente, accanto a Otto di Denari e Matto, può raccontare la conclusione di un ruolo, le competenze acquisite e un nuovo percorso da esplorare. Non promette dimissioni immediate: invita a preparare portfolio, risparmi e conversazioni, riconoscendo che la vecchia identità professionale non basta più.',
+  limits: 'Evita letture letterali su morte, malattie o incidenti: una carta non offre diagnosi né previsioni affidabili su eventi tragici. Se stai vivendo un lutto, usala solo con delicatezza per parlare del tuo processo interiore. La trasformazione richiede anche tempi pratici; lasciare andare non significa ignorare responsabilità, contratti o bisogni delle persone coinvolte.',
+  lux: 'Puoi chiedere: «Che cosa devo riconoscere nella fase che si chiude, che cosa mi aiuta ad attraversarla e quale qualità coltivare dopo?». Nella sequenza a tre carte, tratta La Morte come una soglia e verifica se le altre immagini descrivono resistenza, sostegno o direzione. Conserva una sintesi sobria, senza cercare conferme catastrofiche.',
+  exercise: 'Dividi un foglio in tre colonne: “finito”, “da salutare”, “da nutrire”. Inserisci un fatto concreto in ciascuna colonna, poi scegli un gesto di chiusura: archiviare un documento, restituire un oggetto, cancellare un impegno non più autentico. Termina scrivendo quale spazio libero creerà quel gesto e controlla dopo sette giorni come ti senti.',
+})}
 ${related([
   ['/blog/significato-carta-la-torre', 'Carta La Torre: rotture e verità improvvise'],
   ['/blog/tarocchi-cambiamento-e-trasformazione', 'Tarocchi e cambiamento: leggere i passaggi di vita'],
@@ -109,6 +136,13 @@ ${CTA}
 <h2>Come leggerlo nel contesto</h2>
 <p>Accanto a carte di conflitto può indicare risoluzione. Accanto a carte di inizio (come <a href="/blog/significato-carta-il-matto">Il Matto</a>) suggerisce un avvio fortunato se resti genuino. In amore parla di apertura e calore; nel lavoro di risultati visibili o di un clima più sereno.</p>
 <p>Attenzione all’ombra del Sole: ottimismo cieco. La carta invita alla lucidità solare, non a negare i dettagli pratici.</p>
+${expand({
+  method: 'Quando appare Il Sole, individua ciò che è già chiaro e ciò che invece stai illuminando troppo in fretta. Guarda chi o che cosa viene reso visibile, quali risultati possono essere condivisi e dove serve trasparenza. In una stesa temporale può rappresentare l’esito di un chiarimento; in una posizione di consiglio invita a comunicare apertamente e a valorizzare competenze reali.',
+  example: 'In una domanda su un progetto creativo, Sole, Tre di Denari e Sei di Bastoni possono indicare collaborazione ben riuscita e riconoscimento pubblico. Il messaggio utile non è “successo garantito”, ma “mostra il lavoro, chiedi feedback e costruisci alleanze”. Se accanto compare Sette di Coppe, l’entusiasmo va accompagnato da una scelta precisa tra troppe possibilità.',
+  limits: 'Una carta favorevole non elimina scadenze, incompatibilità o segnali di rischio. In amore, calore e sincerità non equivalgono automaticamente a impegno duraturo; nel lavoro, visibilità non significa contratto certo. Usa Il Sole per riconoscere condizioni promettenti, poi verifica accordi e comportamenti. Diffida anche della pressione a mostrarti felice quando hai bisogno di riposo o riservatezza.',
+  lux: 'Formula una domanda come: «Quale verità posso rendere più visibile e come farlo in modo sostenibile?». Leggi le tre carte cercando fonte della vitalità, modo di esprimerla e possibile risultato. Se Il Sole domina il testo, estrai una indicazione concreta sulla comunicazione o sulla collaborazione, evitando di interpretare ogni frase come una promessa senza condizioni.',
+  exercise: 'Scrivi tre cose che oggi funzionano davvero, corredandole di una prova osservabile. Scegline una da rendere più visibile con un messaggio, una candidatura o una conversazione sincera. Aggiungi un controllo di realtà: quale dettaglio pratico devi ancora verificare? Agisci entro quarantotto ore e annota se la chiarezza ha prodotto energia, risposta o un limite utile.',
+})}
 ${related([
   ['/blog/significato-carta-la-luna', 'Carta La Luna: intuizione e illusioni'],
   ['/blog/arcani-maggiori-significato', 'Arcani Maggiori: ruolo in una lettura'],
@@ -151,6 +185,13 @@ ${CTA}
 <h2>In pratica</h2>
 <p>In amore può segnalare attrazione intensa ma poco chiara, o gelosia che crea scenari. Nel lavoro invita a non firmare sulla base di voci. Se stai allenando <a href="/blog/tarocchi-e-intuito">tarocchi e intuito</a>, La Luna dice: ascolta, ma verifica.</p>
 <p>Contrasta bene con <a href="/blog/significato-carta-il-sole">Il Sole</a>: dalla nebbia alla chiarezza è un percorso, non un click.</p>
+${expand({
+  method: 'Con La Luna crea due elenchi distinti: sensazioni e fatti. Le sensazioni meritano ascolto, ma non diventano prove solo perché sono intense. Osserva poi le carte vicine per capire se la nebbia nasce da paura, informazioni nascoste o tempi prematuri. In posizione di consiglio, La Luna suggerisce spesso di rallentare, fare domande e tollerare temporaneamente una risposta incompleta.',
+  example: 'Se chiedi di una conoscenza recente e compaiono Luna, Cavaliere di Coppe e Due di Spade, potresti sentire forte attrazione mentre mancano dati per scegliere. Una lettura equilibrata riconosce romanticismo e indecisione: invece di concludere che l’altra persona mente, osserva coerenza, disponibilità e confini durante incontri reali. La verifica vale più di una nuova estrazione.',
+  limits: 'La Luna non autorizza accuse, pedinamenti o interpretazioni paranoiche. Ambiguità non significa inganno deliberato e un sogno non è una prova. Se l’incertezza attiva ansia forte, insonnia o pensieri ossessivi, interrompi le consultazioni e parla con una persona competente. Per questioni mediche o di sicurezza, raccogli informazioni affidabili e agisci direttamente.',
+  lux: 'Chiedi: «Quale parte della situazione percepisco con chiarezza, quale sto proiettando e che cosa posso verificare?». Assegna idealmente queste tre funzioni alle carte estratte. Quando leggi il responso, evidenzia parole che descrivono emozioni e parole che indicano azioni: le seconde devono restare prudenti, reversibili e fondate su contatti o dati reali.',
+  exercise: 'Traccia una linea verticale. A sinistra scrivi cinque impressioni sulla situazione; a destra inserisci per ciascuna il fatto che la sostiene, oppure “nessuna prova”. Scegli una sola domanda da porre o informazione da cercare. Prima di agire fai tre respiri e nota il corpo. Rileggi il foglio dopo due giorni, senza nuove carte, per vedere cosa resta credibile.',
+})}
 ${related([
   ['/blog/tarocchi-e-sogni', 'Tarocchi e sogni: come leggerli insieme'],
   ['/blog/tarocchi-e-ansia-usarli-bene', 'Tarocchi e ansia: come usarli senza peggiorare'],
@@ -193,6 +234,13 @@ ${CTA}
 <h2>In lettura</h2>
 <p>In amore può indicare calore e generosità emotiva. Nel lavoro, progetti che hanno bisogno di tempo per maturare. Se compare dopo carte di crisi, spesso invita a ricostruire con gentilezza e concretezza.</p>
 <p>Si bilancia con <a href="/blog/significato-carta-limperatore">L’Imperatore</a>: cura e struttura insieme funzionano meglio di sola dolcezza o solo controllo.</p>
+${expand({
+  method: 'Per leggere L’Imperatrice chiediti che cosa sta crescendo e di quali condizioni ha bisogno: tempo, attenzione, denaro, piacere o collaborazione. Distingui il nutrire dal salvare tutti. Le carte circostanti mostrano se la creatività può prendere forma oppure se è dispersa. In posizione di ostacolo può indicare eccesso di disponibilità, comodità stagnante o difficoltà a ricevere.',
+  example: 'In una lettura su un’attività personale, Imperatrice, Asso di Denari e Tre di Bastoni descrivono un’idea fertile che richiede un primo investimento misurato e una visione più ampia. La traduzione pratica può essere preparare un prototipo e mostrarlo a tre persone. Con Dieci di Bastoni, invece, il progetto rischia di essere soffocato da troppe cure rivolte altrove.',
+  limits: 'Non usare L’Imperatrice per dedurre gravidanze, fertilità clinica o condizioni del corpo: servono test e professionisti sanitari. Abbondanza non vuol dire guadagno garantito, e generosità non obbliga a tollerare sfruttamento. Considera risorse disponibili, consenso e reciprocità. Anche il riposo è fertile, ma non deve diventare un modo elegante per rimandare indefinitamente una scelta.',
+  lux: 'Una domanda efficace è: «Che cosa merita di essere nutrito adesso, con quali risorse e quale confine?». Nelle tre carte cerca seme, cura e forma possibile. Se emerge L’Imperatrice, annota il bisogno concreto indicato dal resto della stesa: potrebbe essere spazio creativo, collaborazione, recupero fisico o una conversazione affettuosa, non necessariamente crescita materiale.',
+  exercise: 'Scegli un progetto o rapporto e disegna una pianta con radici, fusto e frutti. Nelle radici scrivi le risorse già presenti; sul fusto una pratica settimanale; nei frutti il risultato desiderato. Aggiungi un ramo da potare, cioè un compito che consuma energia senza nutrire. Entro domani dedica venti minuti alla pratica e proteggili con un confine chiaro.',
+})}
 ${related([
   ['/blog/significato-carta-limperatore', 'Carta L’Imperatore: struttura e responsabilità'],
   ['/blog/arcani-maggiori-significato', 'Arcani Maggiori: significato generale'],
@@ -233,6 +281,13 @@ ${CTA}
   <li>Richiesta di confini chiari in una relazione.</li>
 </ul>
 <p>Nel lavoro è spesso alleato: struttura, leadership, risultati. In amore può indicare stabilità… o controllo eccessivo. Confrontalo sempre con la tua domanda, come spieghiamo in <a href="/blog/come-interpretare-i-tarocchi">come interpretare i tarocchi</a>.</p>
+${expand({
+  method: 'Con L’Imperatore identifica struttura, responsabilità e potere decisionale. Chiedi quali regole proteggono davvero il progetto e quali servono solo a evitare l’incertezza. Valuta la posizione: come risorsa favorisce pianificazione e confini; come ostacolo segnala rigidità o autorità non discussa. Le carte vicine chiariscono se occorre guidare, negoziare o delegare.',
+  example: 'Per una domanda su un gruppo di lavoro, Imperatore, Giustizia e Tre di Denari suggeriscono ruoli scritti, criteri equi e cooperazione professionale. L’azione non è comandare di più, ma definire responsabilità e scadenze condivise. Se compare Cinque di Spade, la leadership può essere vissuta come lotta: conviene verificare ascolto, trasparenza e possibilità di dissenso.',
+  limits: 'L’Imperatore non giustifica controllo, gelosia, intimidazione o obbedienza cieca. Stabilità senza consenso è dominio. Non attribuire automaticamente la carta a un uomo specifico: può rappresentare un’istituzione, una tua funzione interiore o una procedura. Per contratti, controversie e diritti servono informazioni legali reali; i simboli possono aiutarti a preparare domande, non a sostituire consulenze.',
+  lux: 'Prova a chiedere: «Quale struttura rende questa situazione più sicura senza irrigidirla?». Leggi le tre carte come regola necessaria, rischio del controllo e responsabilità personale. Se l’Imperatore appare nel risultato, traduci il testo in un piano con chi, cosa e quando. Se appare nell’ostacolo, individua una regola da ridiscutere con rispetto.',
+  exercise: 'Scrivi un obiettivo e sotto tre righe: “responsabilità mia”, “responsabilità altrui”, “fuori controllo”. Scegli un confine formulato senza minacce, per esempio una disponibilità oraria o una condizione per collaborare. Poi definisci il primo passo, la scadenza e una misura minima di successo. Dopo una settimana valuta se la struttura ha aumentato sicurezza o soltanto tensione.',
+})}
 ${related([
   ['/blog/significato-carta-limperatrice', 'Carta L’Imperatrice: cura e creatività'],
   ['/blog/tarocchi-lavoro-carriera', 'Tarocchi e lavoro'],
@@ -279,6 +334,13 @@ ${CTA}
   <li>Cosa resta vero di me in entrambe le strade?</li>
 </ul>
 <p>Su Luxseetarot puoi fare una <a href="/blog/lettura-tarocchi-tre-carte">lettura a tre carte</a> centrata sulla decisione, poi approfondire il nodo che emerge.</p>
+${expand({
+  method: 'Aggiungi ai quattro passi una griglia semplice: valori, conseguenze reversibili, conseguenze irreversibili e informazioni mancanti. Estrai le carte solo dopo aver scritto questa base, così non confonderai un simbolo con un dato. Per ogni opzione formula la stessa domanda e usa lo stesso numero di carte. Infine confronta i temi ricorrenti, senza scegliere soltanto il responso più piacevole.',
+  example: 'Devi decidere se accettare un trasferimento. Per l’opzione A emergono Carro, Tre di Bastoni e Cinque di Denari: crescita e movimento insieme a un costo materiale o sociale. Per restare compaiono Quattro di Denari, Eremita e Otto di Coppe: sicurezza, riflessione e possibile insoddisfazione. La lettura indica criteri da quantificare: budget, rete di sostegno, apprendimento e rimpianto.',
+  limits: 'Non affidare alle carte decisioni urgenti su salute, sicurezza, investimenti o aspetti legali. Una lettura non conosce tutte le probabilità e può amplificare il tuo orientamento iniziale. Se entrambe le strade hanno rischi seri, consulta persone competenti e costruisci un piano di mitigazione. Ambivalenza non significa che stai sbagliando: spesso due valori importanti sono realmente in conflitto.',
+  lux: 'Su Luxseetarot puoi impostare la domanda su un criterio comune: «Che cosa devo comprendere per scegliere tra A e B con responsabilità?». Usa passato, presente e tendenza per vedere origine del dilemma, nodo attuale e direzione se non cambi nulla. Poi fai un approfondimento solo sul punto oscuro, non una seconda votazione simbolica tra le opzioni.',
+  exercise: 'Disegna due colonne per A e B. Inserisci per entrambe un beneficio, un costo, una paura e un dato da verificare. Lancia una moneta senza usarla per decidere: osserva quale esito speravi mentre cadeva. Scrivi quel desiderio accanto alle carte e scegli una micro-prova reversibile, come una telefonata o una giornata di simulazione, da completare entro quarantotto ore.',
+})}
 ${related([
   ['/blog/come-fare-una-domanda-ai-tarocchi', 'Come fare una domanda ai tarocchi'],
   ['/blog/significato-carta-gli-amanti', 'Gli Amanti: la carta della scelta'],
@@ -325,6 +387,13 @@ ${CTA}
   <li>Dove confondo solitudine e indipendenza?</li>
 </ul>
 <p>Per esempi più ampi sul tema affettivo, puoi anche guardare le <a href="/blog/tarocchi-amore-domande-esempi">20 domande utili in amore</a>.</p>
+${expand({
+  method: 'Parti dalla tua esperienza presente, non dall’identikit di una persona futura. Esamina disponibilità emotiva, confini, ambienti frequentati e schemi che si ripetono. Una stesa utile può distinguere ciò che desideri, ciò che temi e il comportamento che favorisce incontri compatibili. Se compare una figura di corte, leggila prima come qualità da riconoscere o coltivare, non come promessa di arrivo.',
+  example: 'Una persona chiede perché gli incontri si interrompono presto. Eremita, Regina di Spade e Due di Coppe possono mostrare bisogno di autonomia, selettività protettiva e reale desiderio di reciprocità. Il punto non è abbassare gli standard, ma comunicare interesse e limiti prima che la distanza sembri disinteresse. Un piccolo esperimento è proporre un secondo incontro chiaro invece di attendere segnali perfetti.',
+  limits: 'I tarocchi non possono garantire quando arriverà un partner, descriverne con certezza aspetto o iniziali, né stabilire compatibilità senza conoscenza reciproca. Evita letture ripetute su sconosciuti o profili online: alimentano proiezione. Se solitudine, rifiuto o esperienze passate pesano molto, il supporto di amici o di un professionista offre strumenti che una stesa non può sostituire.',
+  lux: 'Chiedi: «Quale qualità porto oggi negli incontri, quale schema mi limita e quale apertura posso praticare?». Nella lettura a tre carte mantieni il centro su di te. Se il testo parla di una nuova possibilità, traducila in disponibilità osservabile: aggiornare un profilo con autenticità, accettare un invito, frequentare un ambiente coerente con i tuoi interessi o esprimere un confine.',
+  exercise: 'Scrivi cinque qualità che desideri in una relazione e, accanto, come le pratichi tu. Cerchia quella con lo scarto maggiore. Scegli un comportamento di dieci minuti che la renda visibile questa settimana: rispondere con chiarezza, chiedere ciò che vuoi o partecipare a un’attività. Dopo l’esperimento annota non se hai trovato qualcuno, ma se ti sei mostrato in modo più autentico.',
+})}
 ${related([
   ['/blog/significato-tarocchi-amore', 'Significato dei tarocchi in amore'],
   ['/blog/tarocchi-amore-domande-esempi', 'Domande tarocchi amore: esempi'],
@@ -366,6 +435,13 @@ ${CTA}
 <h2>Cosa osservare</h2>
 <p>Le Coppe parlano di affetto; le Spade di verità scomode; i Denari di sostegno pratico; i Bastoni di progetti condivisi. Gli <a href="/blog/arcani-minori-cosa-sono">Arcani Minori</a> qui sono preziosi perché raccontano il quotidiano del legame.</p>
 <p>Evita di usare le carte per controllare l’altro: usa la lettura per decidere come muoverti tu — con chiarezza e rispetto.</p>
+${expand({
+  method: 'Descrivi prima la relazione con comportamenti osservabili: frequenza dei contatti, iniziative reciproche, promesse mantenute e momenti di tensione. Poi chiedi alle carte quale dinamica stai alimentando e quale conversazione serve. Evita domande che invadono la mente dell’amico. Le figure di corte possono rappresentare stili relazionali; i semi mostrano se prevalgono affetto, parole, attività o sostegno concreto.',
+  example: 'Dopo mesi di distanza compaiono Sei di Coppe, Due di Spade e Paggio di Bastoni. La storia condivisa è ancora importante, ma c’è esitazione e serve un contatto leggero. Invece di concludere che l’amicizia tornerà come prima, puoi inviare un messaggio senza pressione e osservare la risposta. La qualità del seguito conta più del simbolo nostalgico.',
+  limits: 'Non usare una lettura per accusare un amico di invidia, tradimento o manipolazione senza prove. Le carte riflettono anche le tue paure e non danno accesso autorizzato alla privacy altrui. Se ci sono molestie, minacce o dipendenza economica, cerca sostegno concreto. Accettare la fine di un’amicizia può essere doloroso ma talvolta più sano che inseguire reciprocità inesistente.',
+  lux: 'Una domanda adatta è: «Come posso contribuire a chiarezza e reciprocità in questo rapporto?». Leggi le tre carte come tuo bisogno, dinamica condivisa e prossimo gesto possibile. Su Luxseetarot evita di inserire dati sensibili dell’altra persona. Ricava dal responso una frase da comunicare in prima persona, senza presentare le carte come prova o autorità sul rapporto.',
+  exercise: 'Disegna una bilancia. Su un lato elenca ciò che dai all’amicizia, sull’altro ciò che ricevi, includendo presenza, ascolto e iniziativa. Non cercare uguaglianza matematica: osserva il ritmo nel tempo. Scrivi una richiesta concreta e gentile, poi un confine se non viene accolta. Fai il primo contatto entro tre giorni e valuta la risposta reale senza estrarre altre carte.',
+})}
 ${related([
   ['/blog/come-fare-una-domanda-ai-tarocchi', 'Come formulare una domanda chiara'],
   ['/blog/arcani-minori-cosa-sono', 'Arcani Minori: i semi in sintesi'],
@@ -412,6 +488,13 @@ ${CTA}
   <li>Cosa mi frena dal chiedere ciò che valgo?</li>
 </ul>
 <p>Per il lavoro in senso stretto, vedi anche la guida ai <a href="/blog/tarocchi-lavoro-carriera">tarocchi e carriera</a>.</p>
+${expand({
+  method: 'Prima della stesa raccogli numeri essenziali: entrate, spese fisse, debiti, tempo e competenze disponibili. Poi usa le carte per esplorare comportamenti e priorità, non rendimenti. I Denari parlano spesso di concretezza, ma una Spada può indicare un contratto da capire e un Bastone iniziativa da testare. Collega ogni simbolo a una voce reale del tuo quadro economico.',
+  example: 'Se chiedi come rendere sostenibile un progetto e compaiono Sette di Denari, Regina di Spade e Due di Denari, il tema è valutare risultati, tagliare con lucidità e gestire flussi variabili. La traduzione pratica può essere calcolare il margine per servizio, eliminare una spesa poco utile e creare una riserva. Non è un segnale per comprare titoli o indebitarti.',
+  limits: 'Non prendere decisioni di investimento, prestito, tasse o pensione in base a una carta. Mercati e normative richiedono dati aggiornati e consulenza qualificata. Diffida di chi promette ricchezza certa o chiede denaro per rimuovere blocchi energetici. Se le finanze causano forte stress, affronta prima scadenze, documenti e supporti disponibili; la riflessione simbolica viene dopo.',
+  lux: 'Puoi chiedere: «Quale abitudine influenza maggiormente le mie risorse e quale passo realistico posso fare questo mese?». Leggi le tre carte come mentalità, comportamento e correzione. Se emerge una carta espansiva, verifica comunque budget e capacità; se emerge una carta di scarsità, cerca risorse ignorate senza negare i vincoli materiali. Salva un solo impegno misurabile.',
+  exercise: 'Fai un inventario in quattro categorie: denaro, tempo, competenze e relazioni di supporto. Per ciascuna scrivi una risorsa presente e una dispersione. Scegli la dispersione più facile da ridurre per sette giorni, per esempio un abbonamento o un’ora improduttiva. Stima prima il valore recuperato e controllalo alla fine: il risultato concreto vale più di una previsione.',
+})}
 ${related([
   ['/blog/tarocchi-lavoro-carriera', 'Tarocchi e lavoro'],
   ['/blog/arcani-minori-cosa-sono', 'Arcani Minori e semi'],
@@ -458,6 +541,13 @@ ${CTA}
   <li>Credere che un rito lungo sostituisca una domanda chiara.</li>
 </ul>
 <p>In digitale, il gesto cambia ma il principio no: presenza + domanda + lettura d’insieme. Poi, se serve, approfondisci senza ricominciare da zero.</p>
+${expand({
+  method: 'Scegli una tecnica compatibile con il mazzo e con le tue mani. Puoi mescolare a incastro con delicatezza, distribuire le carte sul tavolo oppure spostare piccoli pacchetti. Decidi prima se userai rovesciate e mantieni la regola per tutta la sessione. Il punto di arresto può essere un numero di passaggi, non una sensazione mistica: la coerenza riduce il dubbio.',
+  example: 'Per una stesa a tre, scrivi la domanda, mescola sette volte, taglia in tre mazzetti e ricomponili. Estrai dall’alto senza scartare carte sgradite. Se una carta cade, stabilisci in anticipo se la includerai; altrimenti rimettila nel mazzo. Questa procedura semplice evita di attribuire significato a ogni incidente e lascia energia all’interpretazione vera.',
+  limits: 'Non esiste una tecnica che garantisca carte “più giuste”. Mescolare male non attira eventi negativi e nessun altro rovina permanentemente il mazzo toccandolo. Proteggi però le carte fisicamente e fermati se le mani fanno male. Se rituali e ripetizioni diventano obbligatori o ansiogeni, riduci la procedura a pochi passaggi chiari e considera una pausa.',
+  lux: 'Nell’interfaccia di Luxseetarot la selezione digitale sostituisce il gesto fisico, ma puoi mantenere lo stesso ritmo: leggi la domanda, fai un respiro, scegli senza cambiare continuamente criterio e osserva le tre carte insieme. Il valore non dipende da un algoritmo “magico”, bensì dalla capacità di usare immagini e testo per riflettere con attenzione sul contesto.',
+  exercise: 'Prova per tre letture la stessa procedura: domanda scritta, cinque mescolate, un taglio, tre estrazioni. Annota quanto tempo impieghi e quante volte senti l’impulso di ricominciare. Non cedere all’impulso; scrivi invece il motivo. Alla terza prova valuta se il rito ti ha aiutato a concentrarti e semplificalo eliminando ogni passaggio che non aggiunge presenza.',
+})}
 ${related([
   ['/blog/lettura-tarocchi-tre-carte', 'Lettura a tre carte'],
   ['/blog/preparazione-prima-di-una-lettura', 'Preparazione prima di una lettura'],
@@ -499,6 +589,13 @@ ${CTA}
 <h2>Se non le usi</h2>
 <p>Puoi comunque vedere resistenze dalle combinazioni e dalle posizioni. Una carta “difficile” nel presente, o un contrasto tra passato e futuro, racconta già il nodo — come in <a href="/blog/come-interpretare-i-tarocchi">come interpretare i tarocchi</a>.</p>
 <p>Regola d’oro: non raddoppiare la paura. Una rovesciata non è una condanna; è un dettaglio sul <em>come</em> l’energia si sta esprimendo.</p>
+${expand({
+  method: 'Decidi il tuo vocabolario prima di estrarre: per esempio blocco, eccesso, interiorizzazione e ritardo. Quando appare una rovesciata, prova queste quattro lenti e scegli quella coerente con domanda e carte vicine. Non sommare tutte le interpretazioni. Confronta anche la versione diritta: chiediti quale qualità fondamentale è disponibile ma difficile da esprimere in modo equilibrato.',
+  example: 'Un Imperatore rovesciato in una domanda lavorativa, vicino a Tre di Denari e Giustizia, può indicare leadership rigida che ostacola collaborazione e regole eque. Non significa automaticamente licenziamento o capo malvagio. Il consiglio pratico è chiarire ruoli, documentare accordi e osservare come viene gestito il dissenso. In posizione interiore potrebbe invece descrivere paura di assumerti autorità.',
+  limits: 'Le inversioni moltiplicano le sfumature, ma anche il rischio di confusione. Se ogni rovesciata ti sembra negativa, sospendile e impara prima i significati diritti. Non usare l’orientamento per trasformare una lettura in diagnosi o verdetto. Un mazzo caduto o ruotato accidentalmente non richiede rituali di purificazione; basta ricomporlo secondo la regola scelta.',
+  lux: 'Luxseetarot privilegia il significato contestuale anche quando l’interfaccia non presenta inversioni come regola centrale. Puoi comunque chiederti se l’energia descritta appare fluida, bloccata o eccessiva nelle tre posizioni. Formula una domanda sul modo in cui il tema si manifesta e usa il testo per individuare segnali concreti, senza aggiungere automaticamente un significato opposto a ogni difficoltà.',
+  exercise: 'Scegli una carta e scrivi il suo nucleo diritto in cinque parole. Poi crea quattro frasi: “questa energia è bloccata perché…”, “è eccessiva quando…”, “resta interiore se…”, “arriva in ritardo finché…”. Collega ogni frase a un comportamento reale. Cerchia la più plausibile e definisci un’azione che riporti equilibrio, verificandola per una settimana.',
+})}
 ${related([
   ['/blog/combinazioni-di-carte-tarocchi', 'Combinazioni di carte: leggere l’insieme'],
   ['/blog/arcani-maggiori-significato', 'Arcani Maggiori'],
@@ -540,6 +637,13 @@ ${CTA}
 <h2>Esempio rapido</h2>
 <p>Passato di idealizzazione + presente di dubbio + futuro di chiarezza: non è “amore finito”, è “stai smettendo di sognare a occhi aperti”. Il significato nasce dal legame, non dalla singola carta.</p>
 <p>Se escono tanti Maggiori, alza l’attenzione al tema di vita (vedi <a href="/blog/arcani-maggiori-significato">Arcani Maggiori</a>). Se dominano i Minori, scendi nel dettaglio quotidiano.</p>
+${expand({
+  method: 'Inizia assegnando a ogni posizione una funzione precisa, poi descrivi ciascuna carta con un verbo. Cerca soggetto, tensione e direzione: chi agisce, che cosa ostacola, verso dove evolve. Nota ripetizioni di numeri, semi, colori o posture solo dopo aver costruito la frase principale. Le corrispondenze arricchiscono il racconto, ma non devono sostituire il senso evidente.',
+  example: 'In una domanda su un colloquio, Mago nel passato, Otto di Spade nel presente e Tre di Denari nella tendenza raccontano competenze già disponibili, autosvalutazione attuale e possibilità di collaborazione. La combinazione non promette assunzione: suggerisce di preparare esempi concreti del proprio lavoro e chiedere feedback. Il Mago diventa risorsa per sciogliere il blocco mentale dell’Otto.',
+  limits: 'Non memorizzare migliaia di coppie come formule inevitabili. Una combinazione “Torre più Dieci di Spade” non annuncia automaticamente tragedie; può descrivere la fine netta di un’idea. Più carte aggiungi, più aumentano interpretazioni possibili e rumore. Per iniziare resta su tre, torna alla domanda e scarta collegamenti che non producono comprensione o azione responsabile.',
+  lux: 'Con Luxseetarot leggi una volta i significati individuali, poi nascondili mentalmente e riassumi la sequenza in una frase con “perché”, “ma” oppure “quindi”. Chiedi un approfondimento soltanto sulla relazione meno chiara tra due posizioni. Se il responso sembra contraddittorio, trattalo come tensione reale da esplorare, non come errore da correggere con nuove carte.',
+  exercise: 'Estrai tre carte senza una domanda predittiva e assegna loro “situazione, tensione, risposta”. Scrivi un verbo per ciascuna e crea tre frasi diverse collegandole con “e”, “ma”, “quindi”. Scegli la frase più aderente alle immagini e applicala a un episodio della settimana. Segna quale dettaglio ha guidato la scelta: così alleni sintesi, non memoria meccanica.',
+})}
 ${related([
   ['/blog/come-interpretare-i-tarocchi', 'Metodo di interpretazione'],
   ['/blog/arcani-minori-cosa-sono', 'Arcani Minori'],
@@ -582,6 +686,13 @@ ${CTA}
 <p>Se sei agitata/o, magari non è il momento: vedi anche <a href="/blog/quando-fare-una-lettura-dei-tarocchi">quando fare una lettura</a> e <a href="/blog/tarocchi-e-ansia-usarli-bene">tarocchi e ansia</a>.</p>
 <h2>Ambiente</h2>
 <p>Luce soffusa, tavolo libero, bicchiere d’acqua: utili ma non magici. L’elemento non negoziabile è l’attenzione.</p>
+${expand({
+  method: 'Crea una soglia breve e ripetibile: sistema lo spazio, definisci il tempo disponibile, scrivi la domanda e valuta il tuo stato da zero a dieci. Se agitazione o stanchezza superano sette, rimanda oppure limita la sessione a una riflessione non predittiva. Decidi prima numero di carte e durata. Questa cornice protegge da estrazioni infinite e mantiene il tema circoscritto.',
+  example: 'Hai quindici minuti prima di una riunione e vuoi sapere se andrà male. Il tempo stretto e l’ansia rendono facile leggere ogni Spada come minaccia. Una preparazione utile consiste nel cambiare domanda: «Come posso presentarmi con chiarezza?», fare tre respiri e scegliere una sola carta-consiglio. Dopo annoti un comportamento, per esempio portare dati o chiedere un chiarimento.',
+  limits: 'Candele, cristalli e incensi sono facoltativi e richiedono normale sicurezza domestica; non migliorano automaticamente la qualità. Evita letture sotto effetto di sostanze, durante una crisi o mentre guidi. Non raccogliere dati privati non necessari. Se la domanda riguarda un’altra persona, centra la stesa sul tuo modo di comunicare e rispettane autonomia e consenso.',
+  lux: 'Prima di aprire Luxseetarot, chiudi altre schede e scrivi la domanda fuori dall’interfaccia. Leggila ad alta voce per verificare che sia una sola. Durante la scelta delle carte evita notifiche e non tornare indietro per modificare l’estrazione. Alla fine copia nel diario soltanto messaggio centrale e azione, così la sessione ha un inizio e una chiusura riconoscibili.',
+  exercise: 'Prepara una scheda riutilizzabile con cinque caselle: tema, domanda, stato emotivo, numero di carte, tempo massimo. Compilala per la prossima lettura. Aggiungi una frase di intenzione, come “cerco prospettive, non certezze”. Al termine assegna un voto alla concentrazione e annota una distrazione da eliminare. Ripeti tre volte e conserva la routine che funziona davvero.',
+})}
 ${related([
   ['/blog/come-mescolare-e-scegliere-le-carte', 'Come mescolare e scegliere le carte'],
   ['/blog/come-fare-una-domanda-ai-tarocchi', 'Come fare una domanda'],
@@ -628,6 +739,13 @@ ${CTA}
   <li>Di cosa ho bisogno per stare più stabile oggi?</li>
 </ul>
 <p>Evita le domande sul controllo totale dell’altro e le date assolute. Se riconosci gli <a href="/blog/errori-comuni-lettura-tarocchi">errori comuni</a>, hai già fatto mezzo lavoro.</p>
+${expand({
+  method: 'Usa una scala da zero a dieci prima di consultare. Sotto sei puoi procedere con una domanda centrata sulle risorse; sopra sei fai prima un’attività regolatrice e rivaluta. Stabilisci un intervallo minimo, per esempio sette giorni sullo stesso tema, salvo fatti nuovi. Scrivi il responso una volta sola: reinterpretarlo continuamente è spesso un’altra forma di rassicurazione compulsiva.',
+  example: 'Hai inviato un messaggio e non ricevi risposta. L’impulso è chiedere ogni ora se l’altra persona tornerà. Una stesa più sana, fatta solo quando sei calma, può esplorare ciò che controlli, il confine da rispettare e come occuparti di te nell’attesa. L’azione potrebbe essere silenziare il telefono per due ore, non inviare altri messaggi e continuare la giornata.',
+  limits: 'I tarocchi non curano disturbi d’ansia e non sostituiscono psicoterapia o assistenza medica. Se hai attacchi di panico, pensieri autolesivi o difficoltà a funzionare, contatta servizi sanitari o una persona fidata. Anche una pratica spirituale può diventare compulsiva: segnali importanti sono spesa crescente, sonno perso, isolamento e incapacità di decidere senza consultare.',
+  lux: 'Imposta una sola lettura su Luxseetarot e scegli una domanda come: «Quale azione sotto il mio controllo sostiene la mia stabilità oggi?». Evita temi che chiedono garanzie sulla mente o sul ritorno di qualcuno. Dopo il responso chiudi la pagina e avvia subito l’azione scelta. Se senti bisogno di ripetere, annota l’impulso e aspetta almeno venti minuti.',
+  exercise: 'Crea una carta personale “stop” con tre istruzioni: appoggia il telefono, nomina cinque cose che vedi, contatta qualcuno o cammina dieci minuti. Sul retro scrivi la data dell’ultima lettura e il prossimo momento consentito. Quando arriva l’impulso, usa la carta stop prima del mazzo. Registra intensità iniziale e finale per capire quali alternative calmano davvero.',
+})}
 ${related([
   ['/blog/quando-fare-una-lettura-dei-tarocchi', 'Quando rimandare una lettura'],
   ['/blog/tarocchi-quotidiani-abitudine-consapevole', 'Abitudine quotidiana consapevole'],
@@ -670,6 +788,13 @@ ${CTA}
 <p>Questa guida approfondisce ciò che abbiamo introdotto negli <a href="/blog/arcani-minori-cosa-sono">Arcani Minori</a>: qui il focus è sull’elemento dominante e su come bilanciare uno spread “tutto Spade” o “tutte Coppe”.</p>
 <h2>Esercizio</h2>
 <p>Guarda le tue tre carte e conta i semi. Se vedi solo Spade, forse stai pensando troppo. Se solo Coppe, forse senti senza decidere. Usa il seme mancante come suggerimento pratico.</p>
+${expand({
+  method: 'Conta i semi, ma considera anche numeri e figure. Un seme dominante mostra il linguaggio prevalente; quello assente suggerisce una prospettiva poco rappresentata, non necessariamente un problema. Collega Bastoni a iniziativa, Coppe a relazione, Spade a valutazione e Denari a realizzazione. Poi domanda come l’elemento dominante può collaborare con quello mancante invece di opporli.',
+  example: 'In una stesa su un progetto escono Tre di Bastoni, Nove di Bastoni e Regina di Bastoni: energia e perseveranza abbondano, mentre mancano Denari e Coppe. Prima di spingere ancora, servono budget, tempi e ascolto dei collaboratori. In una lettura tutta Coppe su una scelta professionale, invece, valori e motivazione sono chiari ma occorrono dati e una decisione esplicita.',
+  limits: 'Le associazioni elemento-seme variano tra tradizioni e mazzi; usa il sistema dichiarato dal tuo mazzo con coerenza. Un seme non è buono o cattivo: molte Spade possono indicare lucidità oltre che conflitto, molti Denari concretezza oltre che materialismo. Non dedurre diagnosi fisiche dagli elementi. Il conteggio è una lente sintetica, non sostituisce immagini, posizioni e domanda.',
+  lux: 'Dopo una lettura a tre carte su Luxseetarot, identifica il seme di ciascun Arcano Minore e nota se un elemento domina. Se compare un Maggiore, trattalo come tema di fondo e usa i semi per vedere dove si manifesta nel quotidiano. Formula l’approfondimento sul seme mancante: «Quale passo concreto/emotivo/mentale/creativo integra questa situazione?».',
+  exercise: 'Dividi un foglio in quattro quadranti con i nomi dei semi. Per ogni carta della stesa annota una parola nel quadrante corretto. Nel quadrante vuoto scrivi un gesto compensativo: muovere il corpo per Bastoni, parlare per Coppe, fare una lista per Spade, completare un compito per Denari. Esegui il gesto più piccolo e verifica se cambia la lettura.',
+})}
 ${related([
   ['/blog/arcani-minori-cosa-sono', 'Arcani Minori: panoramica'],
   ['/blog/combinazioni-di-carte-tarocchi', 'Combinazioni di carte'],
@@ -715,6 +840,13 @@ ${CTA}
   <li>Cosa posso lasciare con rispetto?</li>
   <li>Quale risorsa mi sostiene nella fase intermedia?</li>
 </ul>
+${expand({
+  method: 'Leggi il cambiamento come una curva: segnale iniziale, perdita di equilibrio, fase di soglia, sperimentazione e nuova stabilità. Individua dove ti trovi senza pretendere di saltare il passaggio scomodo. Le carte possono mostrare risorse diverse per ogni fase: una Spada chiarisce, una Coppa aiuta a elaborare, un Bastone riaccende iniziativa, un Denaro costruisce routine e basi.',
+  example: 'Dopo una separazione compaiono Torre, Quattro di Spade e Stella. La sequenza descrive rottura, recupero e fiducia che torna gradualmente. Non promette un nuovo amore immediato né un ricongiungimento; suggerisce di proteggere il riposo, ricostruire una rete e immaginare il futuro senza forzarlo. La Stella acquista senso perché viene dopo una pausa reale, non perché cancella il dolore.',
+  limits: 'Non romanticizzare ogni perdita come necessaria o destinata: alcuni cambiamenti sono ingiusti e richiedono sostegno concreto. I tarocchi non stabiliscono quando lasciare cure, casa o lavoro senza valutare sicurezza e risorse. Se il passaggio coinvolge trauma, violenza o lutto, procedi con delicatezza e aiuto professionale. Trasformarsi non significa perdonare, dimenticare o essere subito positivi.',
+  lux: 'Chiedi su Luxseetarot: «In quale fase del cambiamento mi trovo, quale risorsa possiedo e quale passo sostiene la transizione?». Usa le tre posizioni come fotografia, non calendario rigido. Se compare una carta di rottura, osserva le altre per trovare contenimento e direzione. Approfondisci la risorsa più concreta invece di chiedere continuamente quando finirà la fase difficile.',
+  exercise: 'Disegna un ponte. Sulla riva sinistra scrivi ciò che non funziona più; sulla destra una qualità della vita nuova; sulle assi del ponte cinque risorse già disponibili. Cerchia l’asse più solida e trasformala in un gesto settimanale. Aggiungi ciò che devi chiedere ad altri. Dopo sette giorni valuta il movimento compiuto, non la distanza ancora da percorrere.',
+})}
 ${related([
   ['/blog/significato-carta-la-morte', 'Carta La Morte'],
   ['/blog/cosa-fare-dopo-una-lettura-tarocchi', 'Cosa fare dopo una lettura'],
@@ -756,6 +888,13 @@ ${CTA}
 <p>Per scegliere con criterio, leggi anche <a href="/blog/tarocchi-online-come-scegliere">come scegliere tarocchi online</a> e <a href="/blog/tarocchi-gratis-online-come-funzionano">come funzionano i tarocchi gratis online</a>.</p>
 <h2>Come prepararti</h2>
 <p>Stessa preparazione di una lettura in presenza ridotta all’essenziale: domanda scritta, attenzione, ambiente non caotico. Poi integra ciò che leggi con i fatti della tua vita.</p>
+${expand({
+  method: 'Valuta un servizio a distanza attraverso criteri verificabili: identità o informazioni sul gestore, spiegazione del processo, costi visibili, privacy, limiti e possibilità di interrompere. Prepara una domanda che includa contesto sufficiente senza dati sensibili. Durante la lettura separa ciò che il testo afferma da ciò che aggiungi tu; dopo, controlla se emergono prospettive utili e non solo frasi universali.',
+  example: 'Vuoi riflettere su un cambio di lavoro. Invece di inviare nome dell’azienda, documenti o dati personali, chiedi quali risorse e rischi considerare. Una lettura a tre carte può evidenziare motivazione, ostacolo e passo successivo. Se il risultato parla di chiarezza contrattuale, l’azione è leggere l’offerta e fare domande a chi assume, non prenotare consulti ripetuti.',
+  limits: 'Proteggi email, indirizzi, dati sanitari e finanziari. Diffida di urgenze costruite, minacce di maledizioni, garanzie assolute e richieste di pagamenti crescenti. Un servizio online non può verificare emergenze né sostituire professionisti. Leggi condizioni e politiche; se qualcosa non è chiaro, non procedere. L’assenza di contatto fisico non elimina il bisogno di consenso e trasparenza.',
+  lux: 'Su Luxseetarot scegli autonomamente le carte e ricevi un testo da integrare con il tuo contesto. Usa una connessione e un dispositivo privati se la domanda è delicata, evita nomi completi e chiudi la sessione quando hai ottenuto un orientamento. Il valore sta nella qualità della riflessione e dell’azione successiva, non nella quantità di informazioni personali condivise.',
+  exercise: 'Prima della prossima lettura crea una checklist con cinque domande: so quanto costa, capisco cosa ricevo, conosco i limiti, condivido solo dati necessari, posso fermarmi? Poi scrivi la tua domanda eliminando nomi e dettagli identificativi. Dopo la sessione assegna un voto a chiarezza, rispetto e utilità pratica. Se uno è insufficiente, non ripetere automaticamente il servizio.',
+})}
 ${related([
   ['/blog/tarocchi-online-come-scegliere', 'Servizi online affidabili'],
   ['/blog/preparazione-prima-di-una-lettura', 'Preparazione alla lettura'],
@@ -798,6 +937,13 @@ ${CTA}
 </ol>
 <p>Se fai <a href="/blog/tarocchi-quotidiani-abitudine-consapevole">tarocchi quotidiani</a>, il diario evita che diventino rumore. Se lavori sull’ansia, ti mostra quando stai entrando in loop (vedi <a href="/blog/tarocchi-e-ansia-usarli-bene">tarocchi e ansia</a>).</p>
 <p>Nota: sul sito pubblico non mostriamo la data negli articoli; nel tuo diario personale, invece, la data ti serve proprio per rileggere i cicli.</p>
+${expand({
+  method: 'Usa sempre lo stesso formato minimo, così potrai confrontare le pagine. Distingui descrizione delle immagini, interpretazione e fatti successivi con colori o sezioni diverse. Non correggere a posteriori la prima impressione: aggiungi una nota datata. Ogni mese rivedi poche letture e cerca domande ripetute, azioni completate, previsioni vaghe e interpretazioni che i fatti hanno smentito.',
+  example: 'Il lunedì annoti Eremita, Otto di Denari e Carro per una domanda sullo studio, interpretandoli come concentrazione, pratica e avanzamento. Una settimana dopo scopri che hai lavorato bene solo quando hai spento le notifiche. Il diario mostra quale simbolo si è tradotto in comportamento. Se il progresso non arriva, puoi vedere se l’azione era troppo grande o mai iniziata.',
+  limits: 'Il diario non deve diventare sorveglianza ossessiva di ogni coincidenza. Evita di registrare dettagli privati di terzi senza necessità e custodisci il quaderno o file in modo sicuro. Non giudicarti quando un’interpretazione risulta errata: l’obiettivo è imparare, non dimostrare poteri. Se scrivere alimenta ruminazione, riduci frequenza e usa domande orientate al presente.',
+  lux: 'Dopo una sessione su Luxseetarot annota data, domanda, tre carte, una frase di sintesi e un’azione. Non serve copiare tutto il testo. Aggiungi un promemoria per la verifica dopo sette giorni, prima di fare un’altra lettura sul tema. Con il tempo potrai riconoscere quali formulazioni producono decisioni utili e quali ti portano soltanto a cercare rassicurazione.',
+  exercise: 'Crea oggi la tua pagina modello con sei campi: contesto, domanda, carte, impressione, azione, verifica. Compilala usando una lettura passata e aggiungi ciò che è realmente accaduto. Sottolinea una differenza tra aspettativa e realtà, poi scrivi quale regola ne ricavi. Per esempio: “non interpreto una figura di corte come persona certa senza altri fatti”.',
+})}
 ${related([
   ['/blog/tarocchi-quotidiani-abitudine-consapevole', 'Abitudine quotidiana'],
   ['/blog/cosa-fare-dopo-una-lettura-tarocchi', 'Dopo la lettura'],
@@ -839,6 +985,13 @@ ${CTA}
 <h2>Domanda tipo</h2>
 <p>“Quale messaggio utile posso trarre da questo sogno per la mia situazione attuale?” funziona meglio di “Il sogno predice X?”.</p>
 <p>La <a href="/blog/significato-carta-la-luna">carta La Luna</a> compare spesso in questi temi; l’<a href="/blog/tarocchi-e-intuito">intuito</a> aiuta, ma resta necessario il confronto con i fatti.</p>
+${expand({
+  method: 'Appena sveglio annota scene, emozioni, personaggi e svolta finale prima di cercare significati. Scegli poi un solo elemento centrale e formula una domanda al presente. Estrai una o tre carte per esplorare associazioni, non per decodificare un dizionario universale. Confronta immagini del sogno e della carta: somiglianze, contrasti e reazione corporea possono suggerire un tema personale.',
+  example: 'Sogni ripetutamente di perdere un treno e peschi Carro, Due di Denari ed Eremita. Potresti esplorare tensione tra avanzamento, troppi impegni e bisogno di scegliere il tuo ritmo. Non significa che perderai davvero un viaggio. L’azione utile è rivedere l’agenda, identificare una scadenza temuta e decidere quale compito delegare o preparare in anticipo.',
+  limits: 'Né sogni né carte diagnosticano disturbi o predicono eventi. Incubi frequenti, paralisi del sonno o riposo compromesso meritano attenzione sanitaria, soprattutto se persistono. Evita interpretazioni rigide di simboli culturali: acqua, case e animali hanno significati personali diversi. Non usare un sogno per accusare qualcuno o prendere decisioni irreversibili senza fatti.',
+  lux: 'Su Luxseetarot inserisci una domanda breve sul tema, senza raccontare ogni dettaglio: «Che cosa mi invita a osservare l’emozione di questo sogno?». Leggi le tre carte come radice, messaggio e integrazione. Se emerge La Luna, non considerarla conferma soprannaturale; usala per approfondire ambivalenza e bisogno di verifica. Registra poi il sogno nel diario.',
+  exercise: 'Scegli un’immagine del sogno e scrivila al centro del foglio. Intorno aggiungi cinque associazioni spontanee e una emozione per ciascuna. Estrai una carta e annota tre differenze, non soltanto somiglianze. Completa la frase: “Nella vita di oggi entrambe mi ricordano…”. Concludi con un gesto semplice, come preparare una conversazione o proteggere il sonno.',
+})}
 ${related([
   ['/blog/significato-carta-la-luna', 'Carta La Luna'],
   ['/blog/diario-dei-tarocchi', 'Diario dei tarocchi'],
@@ -881,6 +1034,13 @@ ${CTA}
 <h2>Se la lettura ti ha scosso</h2>
 <p>Non decidere nulla di irreversibile nei 30 minuti successivi. Cammina, bevi acqua, riparla domani. Carte intense come <a href="/blog/significato-carta-la-torre">La Torre</a> o <a href="/blog/significato-carta-la-morte">La Morte</a> chiedono digestione, non reazione automatica.</p>
 <p>Su Luxseetarot, se ti serve dettaglio sullo stesso estratto, approfondisci con nuove domande sulle stesse carte invece di ricominciare da zero.</p>
+${expand({
+  method: 'Dopo la prima reazione, separa messaggio, prova e azione. Il messaggio è la sintesi simbolica; la prova è ciò che nella vita la rende plausibile; l’azione è un gesto sotto il tuo controllo. Se manca la prova, conserva l’idea come ipotesi. Fissa una data di verifica coerente con il tema, evitando di controllare ogni ora se la lettura “si avvera”.',
+  example: 'Una lettura sul lavoro mostra Giustizia, Sette di Denari e Asso di Spade. La sintesi può essere: valuta con criteri chiari e chiedi una risposta precisa. Le prove sono contratto, risultati e comunicazioni ricevute. L’azione è preparare tre domande per il responsabile. Rifare la stesa non aggiunge informazioni; una conversazione e una scadenza sì.',
+  limits: 'Non agire impulsivamente su messaggi che sembrano minacciosi o assoluti. Nessuna carta ordina di lasciare una terapia, interrompere un rapporto in sicurezza precaria o investire denaro. Se il responso ti turba, allontanati e confrontati con una persona affidabile. È legittimo non riconoscersi nella lettura: conserva spirito critico e lascia cadere interpretazioni non utili.',
+  lux: 'Chiudi la sessione Luxseetarot con una nota di tre righe: “ho capito”, “verificherò”, “farò”. Se desideri approfondire, mantieni visibili le stesse carte e chiedi come applicare il consiglio o comprendere una tensione specifica. Non cambiare domanda per ottenere l’esito contrario. Torna al servizio solo dopo l’azione o quando un fatto nuovo modifica davvero il contesto.',
+  exercise: 'Imposta un timer di dieci minuti. Riassumi la lettura in massimo quindici parole, elenca due fatti collegati e scegli un’azione completabile entro quarantotto ore. Scrivi anche una cosa che non farai, come inviare un messaggio impulsivo o estrarre altre carte. Alla scadenza verifica l’azione e annota che cosa hai imparato, indipendentemente dall’esito desiderato.',
+})}
 ${related([
   ['/blog/preparazione-prima-di-una-lettura', 'Preparazione prima della lettura'],
   ['/blog/tarocchi-e-ansia-usarli-bene', 'Gestire l’ansia'],
