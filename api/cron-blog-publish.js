@@ -6,19 +6,33 @@ function headerValue(req, name) {
   return String(v || '').trim();
 }
 
+function querySecret(req) {
+  const fromQuery = req.query && req.query.secret;
+  if (fromQuery != null && String(fromQuery).trim()) {
+    return String(fromQuery).trim();
+  }
+  try {
+    const host = headerValue(req, 'host') || 'localhost';
+    const rawUrl = String(req.url || '');
+    const u = new URL(rawUrl, `https://${host}`);
+    return String(u.searchParams.get('secret') || '').trim();
+  } catch {
+    return '';
+  }
+}
+
 function authorized(req) {
   const cronSecret = (process.env.CRON_SECRET || '').trim();
   const adminSecret = (process.env.ADMIN_SECRET || '').trim();
   const header = headerValue(req, 'authorization');
   const bearer = header.toLowerCase().startsWith('bearer ') ? header.slice(7).trim() : '';
   const cronHeader = headerValue(req, 'x-cron-secret');
-  const q = String((req.query && req.query.secret) || '').trim();
+  const q = querySecret(req);
   const isVercelCron = headerValue(req, 'x-vercel-cron') === '1';
   const provided = [bearer, cronHeader, q].filter(Boolean);
 
   if (cronSecret && provided.some((v) => v === cronSecret)) return true;
   if (adminSecret && provided.some((v) => v === adminSecret)) return true;
-  // Invocazioni Cron di Vercel (header dedicato) se CRON_SECRET non è ancora impostato
   if (isVercelCron && !cronSecret) return true;
   return false;
 }
@@ -28,7 +42,12 @@ export default async function handler(req, res) {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
   if (!authorized(req)) {
-    return res.status(401).json({ ok: false, error: 'Non autorizzato.' });
+    return res.status(401).json({
+      ok: false,
+      error: 'Non autorizzato.',
+      hasCronSecret: !!(process.env.CRON_SECRET || '').trim(),
+      hasAdminSecret: !!(process.env.ADMIN_SECRET || '').trim(),
+    });
   }
 
   try {

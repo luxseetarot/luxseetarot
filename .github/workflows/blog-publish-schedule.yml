@@ -26,34 +26,32 @@ jobs:
           fi
 
           RESOLVED_SITE_URL="${SITE_URL:-https://www.luxseetarot.com}"
-          if [ -z "${SITE_URL:-}" ]; then
-            echo "::warning::SITE_URL non impostato su GitHub: uso ${RESOLVED_SITE_URL}"
-          fi
-
           RESOLVED_SITE_URL="${RESOLVED_SITE_URL%/}"
           if [[ "${RESOLVED_SITE_URL}" == http://* ]]; then
-            echo "::warning::SITE_URL usa http://, forzo https://"
             RESOLVED_SITE_URL="https://${RESOLVED_SITE_URL#http://}"
           fi
-          # Evita redirect apex → www che fa perdere Authorization a curl -L
-          if [[ "${RESOLVED_SITE_URL}" == "https://luxseetarot.com" ]]; then
-            RESOLVED_SITE_URL="https://www.luxseetarot.com"
-          fi
+          # Sempre www: senza www Vercel fa 308 e curl perde Authorization
+          RESOLVED_SITE_URL="${RESOLVED_SITE_URL/https:\/\/luxseetarot.com/https:\/\/www.luxseetarot.com}"
 
-          # secret anche in query: resta valido anche se un redirect toglie Authorization
-          ENDPOINT="${RESOLVED_SITE_URL}/api/cron-blog-publish?secret=${CRON_SECRET}"
+          SECRET_ENC=$(python3 -c 'import os,urllib.parse; print(urllib.parse.quote(os.environ["CRON_SECRET"], safe=""))')
+          ENDPOINT="${RESOLVED_SITE_URL}/api/cron-blog-publish?secret=${SECRET_ENC}"
+
           echo "Chiamata ${RESOLVED_SITE_URL}/api/cron-blog-publish"
-          HTTP_CODE=$(curl -sS --location-trusted -o /tmp/cron-blog-response.json -w "%{http_code}" -X POST \
+          HTTP_CODE=$(curl -sS --location-trusted \
+            -o /tmp/cron-blog-response.json -w "%{http_code}" -X POST \
             -H "Authorization: Bearer ${CRON_SECRET}" \
             -H "x-cron-secret: ${CRON_SECRET}" \
             -H "Content-Type: application/json" \
             "${ENDPOINT}")
 
           echo "HTTP ${HTTP_CODE}"
-          cat /tmp/cron-blog-response.json
+          cat /tmp/cron-blog-response.json || true
           echo
 
           if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
             echo "::error::Chiamata cron blog fallita con HTTP ${HTTP_CODE}"
+            if grep -q '"hasCronSecret":false' /tmp/cron-blog-response.json 2>/dev/null; then
+              echo "::error::Su Vercel manca CRON_SECRET in Production (o non hai rifatto Redeploy)."
+            fi
             exit 1
           fi
