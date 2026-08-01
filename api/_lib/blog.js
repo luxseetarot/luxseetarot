@@ -274,6 +274,14 @@ export function getDemoArticle() {
   <li>Se la risposta mi facesse un po’ di male, sarei comunque disposto/a a ascoltarla?</li>
 </ul>
 <p>Se la risposta è sì, sei pronto. Puoi iniziare subito la lettura gratuita dalla home di Luxseetarot e usare questa guida come riferimento ogni volta che non sai da dove partire.</p>
+<h2>Approfondisci</h2>
+<ul>
+  <li><a href="/blog/tarocchi-si-o-no">Tarocchi sì o no: quando ha senso</a></li>
+  <li><a href="/blog/lettura-tarocchi-tre-carte">Lettura a tre carte: passato, presente, futuro</a></li>
+  <li><a href="/blog/tarocchi-amore-domande-esempi">20 domande utili in amore</a></li>
+  <li><a href="/blog/errori-comuni-lettura-tarocchi">Errori comuni nella lettura</a></li>
+  <li><a href="/blog/preparazione-prima-di-una-lettura">Preparazione prima di una lettura</a></li>
+</ul>
 <p><a href="/">Inizia la lettura gratuita →</a></p>
 `.trim(),
   };
@@ -290,7 +298,7 @@ function catalogArticles() {
 
 /**
  * Inserisce tutti gli articoli del catalogo in bozza se assenti.
- * Aggiorna le cover dal catalogo sulle bozze esistenti (senza toccare i pubblicati).
+ * Sulle bozze esistenti sincronizza testo/FAQ/cover dal catalogo (non tocca i pubblicati).
  */
 export async function seedDemoArticle({ force = false } = {}) {
   const catalog = catalogArticles();
@@ -302,14 +310,15 @@ export async function seedDemoArticle({ force = false } = {}) {
   for (const demo of catalog) {
     const existing = await getPost(demo.slug);
     if (existing && !force) {
-      const needsCover =
-        !!demo.coverImage &&
-        existing.coverImage !== demo.coverImage &&
-        (existing.status === 'draft' || !existing.coverImage);
-      if (needsCover) {
+      if (existing.status === 'draft') {
         const result = await savePost({
           ...existing,
-          coverImage: demo.coverImage,
+          title: demo.title,
+          description: demo.description,
+          keyword: demo.keyword,
+          bodyHtml: demo.bodyHtml,
+          faq: demo.faq || existing.faq || [],
+          coverImage: demo.coverImage || existing.coverImage || '',
           coverAlt: demo.coverAlt || existing.coverAlt || '',
         });
         if (result.ok) {

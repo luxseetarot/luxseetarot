@@ -3,21 +3,163 @@
  * Tutti partono in draft; seed non sovrascrive post già presenti.
  */
 
+const CTA = `<p><a href="/">Prova una lettura a tre carte su Luxseetarot →</a></p>`;
+
+function related(items) {
+  if (!items || !items.length) return '';
+  return `<h2>Approfondisci</h2><ul>${items
+    .map(([href, label]) => `<li><a href="${href}">${label}</a></li>`)
+    .join('')}</ul>`;
+}
+
+/** Link interni per ogni slug del lotto A (+ collegamenti al lotto B). */
+const RELATED = {
+  'significato-tarocchi-amore': [
+    ['/blog/tarocchi-amore-domande-esempi', '20 domande utili sui tarocchi in amore'],
+    ['/blog/tarocchi-ex-e-ricongiungimento', 'Tarocchi sull’ex: ritorno e chiusura'],
+    ['/blog/tarocchi-per-single', 'Tarocchi per single'],
+    ['/blog/come-fare-una-domanda-ai-tarocchi', 'Come fare una domanda ai tarocchi'],
+  ],
+  'lettura-tarocchi-tre-carte': [
+    ['/blog/come-fare-una-domanda-ai-tarocchi', 'Come fare una domanda ai tarocchi'],
+    ['/blog/combinazioni-di-carte-tarocchi', 'Combinazioni di carte: leggere l’insieme'],
+    ['/blog/come-interpretare-i-tarocchi', 'Come interpretare i tarocchi'],
+    ['/blog/cosa-fare-dopo-una-lettura-tarocchi', 'Cosa fare dopo una lettura'],
+  ],
+  'tarocchi-gratis-online-come-funzionano': [
+    ['/blog/tarocchi-online-come-scegliere', 'Come scegliere tarocchi online'],
+    ['/blog/lettura-tarocchi-a-distanza', 'Lettura tarocchi a distanza'],
+    ['/blog/lettura-tarocchi-tre-carte', 'Lettura a tre carte'],
+    ['/blog/come-fare-una-domanda-ai-tarocchi', 'Come fare una domanda ai tarocchi'],
+  ],
+  'tarocchi-si-o-no': [
+    ['/blog/come-fare-una-domanda-ai-tarocchi', 'Come fare una domanda ai tarocchi'],
+    ['/blog/tarocchi-e-decisioni-difficili', 'Tarocchi e decisioni difficili'],
+    ['/blog/errori-comuni-lettura-tarocchi', 'Errori comuni in lettura'],
+    ['/blog/lettura-tarocchi-tre-carte', 'Spread a tre carte'],
+  ],
+  'differenza-tarocchi-oroscopo': [
+    ['/blog/tarocchi-futuro-prossimo', 'Tarocchi e futuro prossimo'],
+    ['/blog/come-interpretare-i-tarocchi', 'Come interpretare i tarocchi'],
+    ['/blog/arcani-maggiori-significato', 'Arcani Maggiori'],
+    ['/blog/tarocchi-online-come-scegliere', 'Come scegliere un servizio online'],
+  ],
+  'come-interpretare-i-tarocchi': [
+    ['/blog/combinazioni-di-carte-tarocchi', 'Combinazioni di carte'],
+    ['/blog/carte-tarocchi-rovesciate', 'Carte rovesciate'],
+    ['/blog/arcani-maggiori-significato', 'Arcani Maggiori'],
+    ['/blog/arcani-minori-cosa-sono', 'Arcani Minori'],
+  ],
+  'tarocchi-lavoro-carriera': [
+    ['/blog/tarocchi-e-decisioni-difficili', 'Decisioni difficili'],
+    ['/blog/tarocchi-soldi-e-risorse', 'Soldi e risorse (con disclaimer)'],
+    ['/blog/significato-carta-limperatore', 'Carta L’Imperatore'],
+    ['/blog/come-fare-una-domanda-ai-tarocchi', 'Come formulare la domanda'],
+  ],
+  'tarocchi-ex-e-ricongiungimento': [
+    ['/blog/significato-tarocchi-amore', 'Tarocchi in amore'],
+    ['/blog/tarocchi-per-single', 'Tarocchi per single'],
+    ['/blog/tarocchi-e-ansia-usarli-bene', 'Tarocchi e ansia'],
+    ['/blog/tarocchi-amore-domande-esempi', 'Esempi di domande in amore'],
+  ],
+  'arcani-maggiori-significato': [
+    ['/blog/arcani-minori-cosa-sono', 'Arcani Minori'],
+    ['/blog/i-quattro-semi-dei-tarocchi', 'I quattro semi'],
+    ['/blog/significato-carta-il-matto', 'Carta Il Matto'],
+    ['/blog/tarocchi-cambiamento-e-trasformazione', 'Tarocchi e cambiamento'],
+  ],
+  'arcani-minori-cosa-sono': [
+    ['/blog/i-quattro-semi-dei-tarocchi', 'I quattro semi in dettaglio'],
+    ['/blog/arcani-maggiori-significato', 'Arcani Maggiori'],
+    ['/blog/combinazioni-di-carte-tarocchi', 'Combinazioni di carte'],
+    ['/blog/come-interpretare-i-tarocchi', 'Come interpretare'],
+  ],
+  'tarocchi-futuro-prossimo': [
+    ['/blog/lettura-tarocchi-tre-carte', 'Passato, presente, futuro'],
+    ['/blog/tarocchi-si-o-no', 'Perché evitare il puro sì/no'],
+    ['/blog/differenza-tarocchi-oroscopo', 'Tarocchi e oroscopo'],
+    ['/blog/cosa-fare-dopo-una-lettura-tarocchi', 'Dopo la lettura'],
+  ],
+  'quando-fare-una-lettura-dei-tarocchi': [
+    ['/blog/preparazione-prima-di-una-lettura', 'Preparazione alla lettura'],
+    ['/blog/tarocchi-e-ansia-usarli-bene', 'Tarocchi e ansia'],
+    ['/blog/tarocchi-quotidiani-abitudine-consapevole', 'Abitudine quotidiana'],
+    ['/blog/cosa-fare-dopo-una-lettura-tarocchi', 'Cosa fare dopo'],
+  ],
+  'tarocchi-e-intuito': [
+    ['/blog/tarocchi-e-sogni', 'Tarocchi e sogni'],
+    ['/blog/significato-carta-la-luna', 'Carta La Luna'],
+    ['/blog/diario-dei-tarocchi', 'Diario dei tarocchi'],
+    ['/blog/come-interpretare-i-tarocchi', 'Metodo di interpretazione'],
+  ],
+  'significato-carta-il-matto': [
+    ['/blog/arcani-maggiori-significato', 'Arcani Maggiori'],
+    ['/blog/tarocchi-cambiamento-e-trasformazione', 'Cambiamento e nuovi inizi'],
+    ['/blog/significato-carta-il-sole', 'Carta Il Sole'],
+    ['/blog/lettura-tarocchi-tre-carte', 'Spread a tre carte'],
+  ],
+  'significato-carta-gli-amanti': [
+    ['/blog/significato-tarocchi-amore', 'Tarocchi in amore'],
+    ['/blog/tarocchi-e-decisioni-difficili', 'Decisioni difficili'],
+    ['/blog/tarocchi-amore-domande-esempi', 'Domande utili in amore'],
+    ['/blog/arcani-maggiori-significato', 'Arcani Maggiori'],
+  ],
+  'significato-carta-la-torre': [
+    ['/blog/significato-carta-la-morte', 'Carta La Morte'],
+    ['/blog/tarocchi-cambiamento-e-trasformazione', 'Tarocchi e cambiamento'],
+    ['/blog/errori-comuni-lettura-tarocchi', 'Errori comuni (allarmismo)'],
+    ['/blog/cosa-fare-dopo-una-lettura-tarocchi', 'Cosa fare dopo una lettura intensa'],
+  ],
+  'errori-comuni-lettura-tarocchi': [
+    ['/blog/come-fare-una-domanda-ai-tarocchi', 'Come fare una domanda'],
+    ['/blog/tarocchi-e-ansia-usarli-bene', 'Tarocchi e ansia'],
+    ['/blog/tarocchi-si-o-no', 'Limiti del sì/no'],
+    ['/blog/quando-fare-una-lettura-dei-tarocchi', 'Quando fare (o rimandare) una lettura'],
+  ],
+  'tarocchi-online-come-scegliere': [
+    ['/blog/tarocchi-gratis-online-come-funzionano', 'Tarocchi gratis online'],
+    ['/blog/lettura-tarocchi-a-distanza', 'Lettura a distanza'],
+    ['/blog/errori-comuni-lettura-tarocchi', 'Errori comuni da evitare'],
+    ['/blog/preparazione-prima-di-una-lettura', 'Preparazione alla lettura'],
+  ],
+  'tarocchi-quotidiani-abitudine-consapevole': [
+    ['/blog/diario-dei-tarocchi', 'Diario dei tarocchi'],
+    ['/blog/tarocchi-e-ansia-usarli-bene', 'Evitare il loop ansioso'],
+    ['/blog/quando-fare-una-lettura-dei-tarocchi', 'Quando consultare'],
+    ['/blog/come-mescolare-e-scegliere-le-carte', 'Mescolare e scegliere le carte'],
+  ],
+  'tarocchi-amore-domande-esempi': [
+    ['/blog/significato-tarocchi-amore', 'Significato dei tarocchi in amore'],
+    ['/blog/come-fare-una-domanda-ai-tarocchi', 'Come formulare la domanda'],
+    ['/blog/tarocchi-ex-e-ricongiungimento', 'Domande sull’ex'],
+    ['/blog/tarocchi-per-single', 'Se sei single'],
+  ],
+};
+
 function article(partial) {
   const slug = String(partial.slug || '');
   const coverImage =
     partial.coverImage ||
     (slug ? `/images/blog/${slug}.jpg?v=3` : '');
+  let bodyHtml = String(partial.bodyHtml || '');
+  const links = RELATED[slug];
+  if (links && !bodyHtml.includes('<h2>Approfondisci</h2>')) {
+    const block = related(links);
+    if (bodyHtml.includes(CTA)) {
+      bodyHtml = bodyHtml.replace(CTA, `${block}\n${CTA}`);
+    } else {
+      bodyHtml = `${bodyHtml}\n${block}\n${CTA}`;
+    }
+  }
   return {
     status: 'draft',
     faq: partial.faq || [],
     ...partial,
+    bodyHtml,
     coverImage,
     coverAlt: partial.coverAlt || partial.title || '',
   };
 }
-
-const CTA = `<p><a href="/">Prova una lettura a tre carte su Luxseetarot →</a></p>`;
 
 export function getSeedArticles() {
   return [
