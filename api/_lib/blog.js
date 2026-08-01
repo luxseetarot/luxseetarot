@@ -2,6 +2,7 @@
 
 import { funnelStorageMode } from './funnel.js';
 import { getSeedArticles } from './blog-seed-articles.js';
+import { getSeedArticlesB } from './blog-seed-articles-b.js';
 
 const INDEX_KEY = 'lux:blog:index';
 const memPosts = new Map();
@@ -281,7 +282,7 @@ export function getDemoArticle() {
 function catalogArticles() {
   const map = new Map();
   map.set('come-fare-una-domanda-ai-tarocchi', getDemoArticle());
-  for (const post of getSeedArticles()) {
+  for (const post of [...getSeedArticles(), ...getSeedArticlesB()]) {
     if (!map.has(post.slug)) map.set(post.slug, post);
   }
   return Array.from(map.values());
