@@ -8,6 +8,14 @@
     {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap"
+    },
+    {
+      "source": "/api/pinterest-oauth-callback",
+      "destination": "/api/pinterest-oauth?step=callback"
+    },
+    {
+      "source": "/api/cron-pinterest",
+      "destination": "/api/cron-blog-publish?job=pinterest"
     }
   ],
   "headers": [

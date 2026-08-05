@@ -1,4 +1,5 @@
 import { runScheduledBlogPublish } from './_lib/blog-schedule.js';
+import { runScheduledPinterestPublish } from './_lib/pinterest.js';
 
 function headerValue(req, name) {
   const v = req.headers[name] || req.headers[name.toLowerCase()];
@@ -26,6 +27,18 @@ function querySecret(req) {
     const rawUrl = String(req.url || '');
     const u = new URL(rawUrl, `https://${host}`);
     return normalizeSecret(u.searchParams.get('secret') || '');
+  } catch {
+    return '';
+  }
+}
+
+function jobName(req) {
+  const fromQuery = req.query && req.query.job;
+  if (fromQuery != null) return String(fromQuery).trim().toLowerCase();
+  try {
+    const host = headerValue(req, 'host') || 'localhost';
+    const u = new URL(String(req.url || ''), `https://${host}`);
+    return String(u.searchParams.get('job') || '').trim().toLowerCase();
   } catch {
     return '';
   }
@@ -62,11 +75,23 @@ export default async function handler(req, res) {
     });
   }
 
+  const job = jobName(req) || 'blog';
+
   try {
+    if (job === 'pinterest' || job === 'pin') {
+      const result = await runScheduledPinterestPublish({ force: false });
+      return res.status(200).json({ ok: true, job: 'pinterest', ...result });
+    }
     const result = await runScheduledBlogPublish({ force: false });
-    return res.status(200).json({ ok: true, ...result });
+    return res.status(200).json({ ok: true, job: 'blog', ...result });
   } catch (err) {
     console.error('cron-blog-publish error:', err);
-    return res.status(500).json({ ok: false, error: 'Cron blog publish fallito.' });
+    return res.status(500).json({
+      ok: false,
+      error:
+        job === 'pinterest' || job === 'pin'
+          ? 'Cron Pinterest fallito.'
+          : 'Cron blog publish fallito.',
+    });
   }
 }
