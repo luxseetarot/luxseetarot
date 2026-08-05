@@ -3,6 +3,11 @@ node_modules/
 .env.local
 .vercel
 .DS_Store
-
-.vercel
 .env*
+
+# Pin PNG troppo pesanti per il deploy Vercel Hobby (~100MB upload).
+# Restano in locale / Buffer-Metricool; non li includere nel repo.
+pinterest-pins/*.png
+luxseetarot-pinterest-avatar.png
+luxseetarot-profile.png
+

@@ -43,11 +43,16 @@ export default async function handler(req, res) {
       ['/privacy.html', today, 'yearly', '0.3'],
     ];
 
-    const posts = await listPublishedPosts();
-    const blogEntries = posts.map((p) => {
-      const last = (p.updatedAt || p.publishedAt || today).slice(0, 10);
-      return urlEntry(`${site}/blog/${encodeURIComponent(p.slug)}`, last, 'monthly', '0.65');
-    });
+    let blogEntries = [];
+    try {
+      const posts = await listPublishedPosts();
+      blogEntries = posts.map((p) => {
+        const last = (p.updatedAt || p.publishedAt || today).slice(0, 10);
+        return urlEntry(`${site}/blog/${encodeURIComponent(p.slug)}`, last, 'monthly', '0.65');
+      });
+    } catch (blogErr) {
+      console.error('sitemap blog list error:', blogErr);
+    }
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -62,8 +67,16 @@ ${blogEntries.join('\n')}
     res.end(xml);
   } catch (err) {
     console.error('sitemap error:', err);
-    res.statusCode = 500;
-    res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.end('Sitemap error');
+    // Non lasciare Google a mani vuote: almeno le pagine statiche.
+    const site = siteOrigin();
+    const today = new Date().toISOString().slice(0, 10);
+    const fallback = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urlEntry(`${site}/`, today, 'weekly', '1.0')}
+</urlset>
+`;
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.end(fallback);
   }
 }

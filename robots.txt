@@ -3,4 +3,4 @@ Allow: /
 Disallow: /api/
 Disallow: /admin
 
-Sitemap: https://luxseetarot.com/sitemap.xml
+Sitemap: https://www.luxseetarot.com/sitemap.xml

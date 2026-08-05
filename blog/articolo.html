@@ -13,14 +13,14 @@
   gtag('js', new Date());
   gtag('config', 'G-2MZ9MQ7RGE');
 </script>
-<link rel="canonical" href="https://luxseetarot.com/blog.html" />
+<link rel="canonical" href="https://www.luxseetarot.com/blog.html" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="it_IT" />
 <meta property="og:title" content="Articolo | Luxseetarot" />
 <meta property="og:description" content="Articolo del blog Luxseetarot." />
-<meta property="og:url" content="https://luxseetarot.com/blog.html" />
-<meta property="og:image" content="https://luxseetarot.com/og-image.jpg" />
+<meta property="og:url" content="https://www.luxseetarot.com/blog.html" />
+<meta property="og:image" content="https://www.luxseetarot.com/og-image.jpg" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
@@ -145,7 +145,7 @@
           return;
         }
         var post = res.body.post;
-        var cleanUrl = 'https://luxseetarot.com/blog/' + encodeURIComponent(post.slug);
+        var cleanUrl = 'https://www.luxseetarot.com/blog/' + encodeURIComponent(post.slug);
         document.title = post.title + ' | Luxseetarot';
         setMeta('description', post.description || '');
         setOg('og:title', post.title + ' | Luxseetarot');
@@ -154,7 +154,7 @@
         if(post.coverImage){
           var absCover = post.coverImage.indexOf('http') === 0
             ? post.coverImage
-            : ('https://luxseetarot.com' + (post.coverImage.charAt(0) === '/' ? '' : '/') + post.coverImage);
+            : ('https://www.luxseetarot.com' + (post.coverImage.charAt(0) === '/' ? '' : '/') + post.coverImage);
           setOg('og:image', absCover);
         }
         var canon = document.querySelector('link[rel="canonical"]');
@@ -205,13 +205,13 @@
           datePublished: post.publishedAt || post.createdAt,
           dateModified: post.updatedAt || post.publishedAt || post.createdAt,
           author: { '@type': 'Organization', name: 'Luxseetarot' },
-          publisher: { '@type': 'Organization', name: 'Luxseetarot', url: 'https://luxseetarot.com/' },
+          publisher: { '@type': 'Organization', name: 'Luxseetarot', url: 'https://www.luxseetarot.com/' },
           mainEntityOfPage: cleanUrl
         };
         if(post.coverImage){
           articleLd.image = [post.coverImage.indexOf('http') === 0
             ? post.coverImage
-            : ('https://luxseetarot.com' + (post.coverImage.charAt(0) === '/' ? '' : '/') + post.coverImage)];
+            : ('https://www.luxseetarot.com' + (post.coverImage.charAt(0) === '/' ? '' : '/') + post.coverImage)];
         }
         var aScript = document.createElement('script');
         aScript.type = 'application/ld+json';
