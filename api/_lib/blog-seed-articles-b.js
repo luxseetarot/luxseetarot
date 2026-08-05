@@ -17,11 +17,16 @@ function article(partial) {
   };
 }
 
-const CTA = `<p><a href="/">Prova una lettura a tre carte su Luxseetarot →</a></p>`;
+const CTA = `<p><a href="/tarocchi-gratis.html">Prova i tarocchi gratis su Luxseetarot →</a></p>`;
+const GRATIS_RELATED = ['/tarocchi-gratis.html', 'Tarocchi gratis: anteprima a tre carte'];
 
 function related(items) {
-  if (!items || !items.length) return '';
-  return `<h2>Approfondisci</h2><ul>${items
+  const list = Array.isArray(items) ? [...items] : [];
+  if (!list.some(([href]) => String(href || '').includes('tarocchi-gratis.html'))) {
+    list.unshift(GRATIS_RELATED);
+  }
+  if (!list.length) return '';
+  return `<h2>Approfondisci</h2><ul>${list
     .map(([href, label]) => `<li><a href="${href}">${label}</a></li>`)
     .join('')}</ul>`;
 }
@@ -38,7 +43,7 @@ function expand({ method, example, limits, lux, exercise }) {
 <p>I tarocchi non sostituiscono medici, psicologi, avvocati, consulenti finanziari né una conversazione diretta con le persone coinvolte. Non leggono con certezza la mente altrui e non garantiscono date o risultati. Sono più utili come strumento narrativo per mettere ordine tra emozioni e possibilità. Se una lettura aumenta paura, dipendenza o bisogno di ripetere la stessa domanda, fermati, torna ai fatti e cerca un sostegno adeguato.</p>
 <p>${limits}</p>
 <h2>Come usare Luxseetarot su questo tema</h2>
-<p>Su Luxseetarot parti da una domanda aperta e circoscritta, scegli tre carte e considera la lettura come una mappa del momento. Leggi prima l’insieme, poi i dettagli; salva mentalmente una sola idea centrale e trasformala in un gesto verificabile. Evita estrazioni consecutive per ottenere un testo più rassicurante: se vuoi approfondire, formula una domanda diversa ma collegata allo stesso nodo.</p>
+<p>Su Luxseetarot puoi partire dai <a href="/tarocchi-gratis.html">tarocchi gratis</a>: una domanda aperta e circoscritta, tre carte e una mappa del momento. Leggi prima l’insieme, poi i dettagli; salva mentalmente una sola idea centrale e trasformala in un gesto verificabile. Evita estrazioni consecutive per ottenere un testo più rassicurante: se vuoi approfondire, formula una domanda diversa ma collegata allo stesso nodo.</p>
 <p>${lux}</p>
 <h2>Mini esercizio di integrazione</h2>
 <p>Prendi carta e penna e dedica dieci minuti all’esercizio seguente. Scrivere rallenta le interpretazioni impulsive e permette di distinguere intuizione, desiderio e paura. Concludi sempre con una frase al presente e un’azione piccola, realistica e sotto il tuo controllo; poi stabilisci quando verificare che cosa è cambiato, senza consultare di nuovo le carte nel frattempo.</p>

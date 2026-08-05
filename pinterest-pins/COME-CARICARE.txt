@@ -1,0 +1,24 @@
+LOTTO PIN LUXSEETAROT — come usarli
+===================================
+
+Cartella: pinterest-pins/
+Profilo: https://it.pinterest.com/luxseetarot/
+
+Ritmo consigliato (per non sembrare spam):
+- 1 pin al giorno (o max 2)
+- Orari: mattina 9–11 Italia
+
+Per ogni riga di pins-guida.csv:
+1. Apri Tailwind / Metricool collegato a Pinterest
+2. Carica il file immagine indicato
+3. Incolla TITOLO + DESCRIZIONE
+4. Link di destinazione = colonna "link"
+5. Bacheca = colonna "bacheca"
+6. Programma la data
+
+Nota stile:
+- Visual navy/oro, poco "cartomante stock"
+- Il gratis è suggerito (anteprima 3 carte), non urlato in ogni pin
+- Pin 01 e 10 sono i più diretti sul gratis; gli altri sono più soft
+
+Quando finisci questo lotto, se vuoi ne preparo altri 10 su temi nuovi.

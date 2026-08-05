@@ -166,10 +166,11 @@ ${faqLd ? `<script type="application/ld+json">${JSON.stringify(faqLd)}</script>`
       ${coverHtml}
       <div class="article">${post.bodyHtml || ''}</div>
       ${faqHtml}
-      <a class="cta" href="/">Inizia la lettura gratuita →</a>
+      <a class="cta" href="/tarocchi-gratis.html">Prova i tarocchi gratis →</a>
     </article>
     <nav class="footer-nav" aria-label="Link utili">
       <a href="/blog.html">Blog</a>
+      <a href="/tarocchi-gratis.html">Gratis</a>
       <a href="/tarocchi-amore.html">Amore</a>
       <a href="/contatti.html">Contatti</a>
       <a href="/privacy.html">Privacy</a>

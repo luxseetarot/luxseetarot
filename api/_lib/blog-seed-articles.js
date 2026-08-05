@@ -3,11 +3,16 @@
  * Tutti partono in draft; seed non sovrascrive post già presenti.
  */
 
-const CTA = `<p><a href="/">Prova una lettura a tre carte su Luxseetarot →</a></p>`;
+const CTA = `<p><a href="/tarocchi-gratis.html">Prova i tarocchi gratis su Luxseetarot →</a></p>`;
+const GRATIS_RELATED = ['/tarocchi-gratis.html', 'Tarocchi gratis: anteprima a tre carte'];
 
 function related(items) {
-  if (!items || !items.length) return '';
-  return `<h2>Approfondisci</h2><ul>${items
+  const list = Array.isArray(items) ? [...items] : [];
+  if (!list.some(([href]) => String(href || '').includes('tarocchi-gratis.html'))) {
+    list.unshift(GRATIS_RELATED);
+  }
+  if (!list.length) return '';
+  return `<h2>Approfondisci</h2><ul>${list
     .map(([href, label]) => `<li><a href="${href}">${label}</a></li>`)
     .join('')}</ul>`;
 }
@@ -621,8 +626,8 @@ function article(partial) {
   if (expansion && bodyHtml.includes(CTA)) {
     bodyHtml = bodyHtml.replace(CTA, `${renderExpansion(expansion, slug)}\n${CTA}`);
   }
-  const links = RELATED[slug];
-  if (links && !bodyHtml.includes('<h2>Approfondisci</h2>')) {
+  const links = RELATED[slug] || [];
+  if (!bodyHtml.includes('<h2>Approfondisci</h2>')) {
     const block = related(links);
     if (bodyHtml.includes(CTA)) {
       bodyHtml = bodyHtml.replace(CTA, `${block}\n${CTA}`);
@@ -731,7 +736,7 @@ ${CTA}
 <p>Esempio: passato di idealizzazione, presente di dubbio, futuro di chiarezza. Non è “brutto”: è un invito a vedere meglio prima di investire altre energie.</p>
 <h2>Quando usarla</h2>
 <p>Funziona bene per amore, lavoro, scelte personali e momenti in cui hai bisogno di ordine mentale. Meno adatta se vuoi un elenco di eventi precisi giorno per giorno.</p>
-<p>Su Luxseetarot poni la domanda, scegli tre carte e ricevi un testo che tiene insieme simboli e contesto. L’anteprima è gratuita; puoi poi approfondire se ti serve più dettaglio.</p>
+<p>Su Luxseetarot puoi fare <a href="/tarocchi-gratis.html">tarocchi gratis</a>: poni la domanda, scegli tre carte e ricevi un testo che tiene insieme simboli e contesto. L’anteprima è gratuita; puoi poi approfondire se ti serve più dettaglio.</p>
 <h2>Consiglio pratico</h2>
 <p>Prima di estrarre, scrivi la domanda in una riga. Dopo la lettura, annota una sola azione concreta che puoi fare nei prossimi giorni. Così la consultazione resta utile e non diventa solo curiosità.</p>
 ${CTA}
@@ -759,7 +764,7 @@ ${CTA}
         },
       ],
       bodyHtml: `
-<p>Cercare <strong>tarocchi gratis online</strong> è spesso il primo passo: vuoi capire se una lettura digitale ti parla, senza impegno. Ha senso, a patto di sapere cosa stai chiedendo al servizio e cosa invece non può darti.</p>
+<p>Cercare <strong>tarocchi gratis online</strong> è spesso il primo passo: vuoi capire se una lettura digitale ti parla, senza impegno. Ha senso, a patto di sapere cosa stai chiedendo al servizio e cosa invece non può darti. Su Luxseetarot la pagina dedicata <a href="/tarocchi-gratis.html">Tarocchi gratis</a> spiega l’anteprima a tre carte e ti porta subito a iniziare.</p>
 <h2>Cosa significa “gratis” in una lettura online</h2>
 <p>Di solito indica un’anteprima o una consultazione breve. Su Luxseetarot, ad esempio, puoi estrarre tre carte e leggere un’anteprima: abbastanza per cogliere il tono della risposta. La lettura completa approfondisce dinamiche, sfumature e spunti pratici.</p>
 <p>Gratis non significa “oracolo infallibile”. Significa accesso leggero a un’esperienza simbolica generata digitalmente.</p>
@@ -1380,7 +1385,7 @@ ${CTA}
   <li>Nessuna informazione su chi gestisce il servizio.</li>
 </ul>
 <h2>Come valutare Luxseetarot in quest’ottica</h2>
-<p>Il percorso è esplicito: domanda, tre carte, anteprima gratuita, eventuale approfondimento. I testi sono digitali e simbolici. Puoi leggere privacy e contatti dal sito. L’obiettivo è darti materiale per riflettere, non venderti una garanzia di destino.</p>
+<p>Il percorso è esplicito: domanda, tre carte, <a href="/tarocchi-gratis.html">anteprima tarocchi gratis</a>, eventuale approfondimento. I testi sono digitali e simbolici. Puoi leggere privacy e contatti dal sito. L’obiettivo è darti materiale per riflettere, non venderti una garanzia di destino.</p>
 ${CTA}
 `.trim(),
     }),

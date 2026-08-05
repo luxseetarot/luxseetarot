@@ -1,0 +1,58 @@
+name: Pinterest publish schedule
+
+on:
+  schedule:
+    # Solo 2 volte al giorno (risparmio minuti GitHub Free), come il blog.
+    # UTC 07:05 e 08:05 → circa 09:05/10:05 Italia in estate, 08:05/09:05 in inverno.
+    # L’API pubblica solo se intervallo + ora admin (Europe/Rome) sono dovuti.
+    - cron: "5 7,8 * * *"
+  workflow_dispatch:
+
+jobs:
+  check-schedule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Ask Luxseetarot if a pin should publish now
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::Manca CRON_SECRET nei secrets GitHub (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+
+          RESOLVED_SITE_URL="${SITE_URL:-https://www.luxseetarot.com}"
+          RESOLVED_SITE_URL="${RESOLVED_SITE_URL%/}"
+          if [[ "${RESOLVED_SITE_URL}" == http://* ]]; then
+            RESOLVED_SITE_URL="https://${RESOLVED_SITE_URL#http://}"
+          fi
+          # Sempre www: senza www Vercel fa 308 e curl perde Authorization
+          RESOLVED_SITE_URL="${RESOLVED_SITE_URL/https:\/\/luxseetarot.com/https:\/\/www.luxseetarot.com}"
+
+          SECRET_ENC=$(python3 -c 'import os,urllib.parse; print(urllib.parse.quote(os.environ["CRON_SECRET"], safe=""))')
+          ENDPOINT="${RESOLVED_SITE_URL}/api/cron-pinterest?secret=${SECRET_ENC}"
+
+          echo "Chiamata ${RESOLVED_SITE_URL}/api/cron-pinterest"
+          HTTP_CODE=$(curl -sS --location-trusted \
+            -o /tmp/cron-pinterest-response.json -w "%{http_code}" -X POST \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "x-cron-secret: ${CRON_SECRET}" \
+            -H "Content-Type: application/json" \
+            "${ENDPOINT}")
+
+          echo "HTTP ${HTTP_CODE}"
+          cat /tmp/cron-pinterest-response.json || true
+          echo
+
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "::error::Chiamata cron Pinterest fallita con HTTP ${HTTP_CODE}"
+            if grep -q '"hasCronSecret":false' /tmp/cron-pinterest-response.json 2>/dev/null; then
+              echo "::error::Su Vercel manca CRON_SECRET in Production (o non hai rifatto Redeploy)."
+            fi
+            exit 1
+          fi

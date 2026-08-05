@@ -33,6 +33,7 @@ export default async function handler(req, res) {
     const today = new Date().toISOString().slice(0, 10);
     const staticPages = [
       ['/', today, 'weekly', '1.0'],
+      ['/tarocchi-gratis.html', today, 'weekly', '0.9'],
       ['/tarocchi-amore.html', today, 'monthly', '0.8'],
       ['/tarocchi-lavoro.html', today, 'monthly', '0.8'],
       ['/tarocchi-futuro.html', today, 'monthly', '0.8'],

@@ -411,7 +411,7 @@ export function getDemoArticle() {
 <h2>Come usarla su Luxseetarot</h2>
 <p>Quando hai la domanda pronta:</p>
 <ol>
-  <li>Vai alla home e inserisci nome, data di nascita, email e la domanda.</li>
+  <li>Vai su <a href="/tarocchi-gratis.html">tarocchi gratis</a>, inserisci nome, data di nascita, email e la domanda.</li>
   <li>Scegli tre carte.</li>
   <li>Leggi l’anteprima gratuita.</li>
   <li>Se vuoi, sblocca la lettura completa o approfondisci con nuove domande sulle stesse carte.</li>
@@ -426,16 +426,17 @@ export function getDemoArticle() {
   <li>C’è un solo tema principale?</li>
   <li>Se la risposta mi facesse un po’ di male, sarei comunque disposto/a a ascoltarla?</li>
 </ul>
-<p>Se la risposta è sì, sei pronto. Puoi iniziare subito la lettura gratuita dalla home di Luxseetarot e usare questa guida come riferimento ogni volta che non sai da dove partire.</p>
+<p>Se la risposta è sì, sei pronto. Puoi iniziare subito i <a href="/tarocchi-gratis.html">tarocchi gratis</a> su Luxseetarot e usare questa guida come riferimento ogni volta che non sai da dove partire.</p>
 <h2>Approfondisci</h2>
 <ul>
+  <li><a href="/tarocchi-gratis.html">Tarocchi gratis: anteprima a tre carte</a></li>
   <li><a href="/blog/tarocchi-si-o-no">Tarocchi sì o no: quando ha senso</a></li>
   <li><a href="/blog/lettura-tarocchi-tre-carte">Lettura a tre carte: passato, presente, futuro</a></li>
   <li><a href="/blog/tarocchi-amore-domande-esempi">20 domande utili in amore</a></li>
   <li><a href="/blog/errori-comuni-lettura-tarocchi">Errori comuni nella lettura</a></li>
   <li><a href="/blog/preparazione-prima-di-una-lettura">Preparazione prima di una lettura</a></li>
 </ul>
-<p><a href="/">Inizia la lettura gratuita →</a></p>
+<p><a href="/tarocchi-gratis.html">Prova i tarocchi gratis su Luxseetarot →</a></p>
 `.trim(),
   };
 }
@@ -452,7 +453,7 @@ function catalogArticles() {
 /**
  * Seed catalogo:
  * - default: inserisce solo gli slug mancanti (veloce)
- * - syncContent: aggiorna testo/cover delle bozze esistenti (solo su richiesta admin)
+ * - syncContent: aggiorna testo/cover dei post esistenti (bozze e pubblicati; preserva status)
  * - force: riscrive anche i presenti (admin)
  */
 export async function seedDemoArticle({ force = false, syncContent = false } = {}) {
@@ -513,7 +514,7 @@ export async function seedDemoArticle({ force = false, syncContent = false } = {
       continue;
     }
 
-    if (syncContent && existing && existing.status === 'draft') {
+    if (syncContent && existing) {
       const post = sanitizePost({
         ...existing,
         title: demo.title,
@@ -523,7 +524,7 @@ export async function seedDemoArticle({ force = false, syncContent = false } = {
         faq: demo.faq || existing.faq || [],
         coverImage: demo.coverImage || existing.coverImage || '',
         coverAlt: demo.coverAlt || existing.coverAlt || '',
-        status: 'draft',
+        status: existing.status || 'draft',
         createdAt: existing.createdAt,
         publishedAt: existing.publishedAt,
       });
