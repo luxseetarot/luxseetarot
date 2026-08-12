@@ -701,9 +701,13 @@ ${CTA}
       slug: 'lettura-tarocchi-tre-carte',
       title: 'Lettura tarocchi a tre carte: passato, presente e futuro',
       description:
-        'Come funziona la lettura dei tarocchi a tre carte: significato delle posizioni, esempi pratici e come usarla su Luxseetarot.',
-      keyword: 'lettura tarocchi tre carte',
+        'Come funziona la lettura a tre carte: estrai tre carte gratis (passato, presente, futuro), leggi le posizioni e usale su Luxseetarot.',
+      keyword: 'estrai tre carte',
       faq: [
+        {
+          q: 'Posso estrarre tre carte gratis online?',
+          a: 'Sì: su Luxseetarot puoi fare una lettura a tre carte con anteprima gratuita, senza account obbligatorio.',
+        },
         {
           q: 'Perché proprio tre carte?',
           a: 'Tre posizioni danno un arco narrativo chiaro senza sovraccaricare. È un formato ideale per una domanda principale.',
@@ -718,7 +722,7 @@ ${CTA}
         },
       ],
       bodyHtml: `
-<p>La <strong>lettura tarocchi a tre carte</strong> è uno degli schemi più usati perché è semplice e narrativa: una storia in tre tempi. Non serve conoscere a memoria tutti i significati: serve una domanda chiara e la disponibilità a leggere le carte come un insieme, non come tre messaggi isolati.</p>
+<p>La <strong>lettura tarocchi a tre carte</strong> è uno degli schemi più usati perché è semplice e narrativa: una storia in tre tempi. Su Luxseetarot puoi <strong>estrarre tre carte gratis</strong>, fare una domanda e leggere subito l’anteprima. Non serve conoscere a memoria tutti i significati: serve una domanda chiara e la disponibilità a leggere le carte come un insieme, non come tre messaggi isolati.</p>
 <h2>Le tre posizioni</h2>
 <ul>
   <li><strong>Passato</strong>: radice, abitudine, esperienza che ha preparato il terreno.</li>

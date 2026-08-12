@@ -1,8 +1,13 @@
 import { listPublishedPosts } from './_lib/blog.js';
 
 function siteOrigin() {
-  const raw = (process.env.SITE_URL || 'https://www.luxseetarot.com').trim();
-  return raw.replace(/\/$/, '') || 'https://www.luxseetarot.com';
+  let raw = (process.env.SITE_URL || 'https://www.luxseetarot.com').trim().replace(/\/$/, '');
+  if (!raw) raw = 'https://www.luxseetarot.com';
+  // Canonical sempre su www
+  if (raw === 'https://luxseetarot.com' || raw === 'http://luxseetarot.com') {
+    raw = 'https://www.luxseetarot.com';
+  }
+  return raw;
 }
 
 function escapeXml(s) {

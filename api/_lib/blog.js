@@ -173,16 +173,19 @@ async function listSlugs() {
 export async function getPost(slug) {
   const clean = slugify(slug);
   if (!clean) return null;
+  let post = null;
   if (funnelStorageMode() === 'redis') {
     const raw = await redisCommand(['GET', postKey(clean)]);
     if (!raw) return null;
     try {
-      return typeof raw === 'string' ? JSON.parse(raw) : raw;
+      post = typeof raw === 'string' ? JSON.parse(raw) : raw;
     } catch {
       return null;
     }
+  } else {
+    post = memPosts.get(clean) || null;
   }
-  return memPosts.get(clean) || null;
+  return post ? applySeedSeo(post) : null;
 }
 
 export async function listPosts({ status = null, includeDeleted = true } = {}) {
@@ -191,9 +194,10 @@ export async function listPosts({ status = null, includeDeleted = true } = {}) {
   const posts = [];
   for (const post of loaded) {
     if (!post) continue;
-    if (!includeDeleted && post.status === 'deleted') continue;
-    if (status && post.status !== status) continue;
-    posts.push(post);
+    const enriched = applySeedSeo(post);
+    if (!includeDeleted && enriched.status === 'deleted') continue;
+    if (status && enriched.status !== status) continue;
+    posts.push(enriched);
   }
   posts.sort((a, b) => {
     const ta = new Date(b.updatedAt || b.createdAt || 0).getTime();
@@ -210,6 +214,7 @@ export async function listPublishedPosts() {
       const loaded = await mgetPosts(publishedSlugs);
       return loaded
         .filter((p) => p && p.status === 'published')
+        .map(applySeedSeo)
         .sort((a, b) => {
           const ta = new Date(b.updatedAt || b.createdAt || 0).getTime();
           const tb = new Date(a.updatedAt || a.createdAt || 0).getTime();
@@ -324,10 +329,10 @@ export function getDemoArticle() {
   const now = new Date().toISOString();
   return {
     slug: 'come-fare-una-domanda-ai-tarocchi',
-    title: 'Come fare una domanda ai tarocchi (guida pratica)',
+    title: 'Come fare una domanda ai tarocchi: guida pratica con esempi',
     description:
-      'Impara a formulare una domanda chiara ai tarocchi: esempi utili, errori da evitare e come ottenere una lettura più leggibile su Luxseetarot.',
-    keyword: 'come fare una domanda ai tarocchi',
+      'Come fare una domanda ai tarocchi in modo chiaro: esempi utili, errori da evitare e come ottenere una lettura più leggibile su Luxseetarot.',
+    keyword: 'fare una domanda ai tarocchi',
     coverImage: '/images/blog/come-fare-una-domanda-ai-tarocchi.jpg?v=3',
     coverAlt: 'Taccuino, penna e carte dei tarocchi per formulare una domanda',
     status: 'draft',
@@ -335,6 +340,10 @@ export function getDemoArticle() {
     updatedAt: now,
     publishedAt: null,
     faq: [
+      {
+        q: 'Come fare una domanda ai tarocchi se non so da dove partire?',
+        a: 'Parti da un solo tema (amore, lavoro, scelta) e scrivi una domanda aperta: cosa vuoi capire e quale prossimo passo ti sarebbe utile. Evita sì/no assoluti e date certe.',
+      },
       {
         q: 'Meglio una domanda chiusa o aperta?',
         a: 'Meglio una domanda aperta e concreta. Le domande sì/no assolute tendono a irrigidire la lettura; quelle aperte lasciano spazio a dinamiche e consigli pratici.',
@@ -349,8 +358,8 @@ export function getDemoArticle() {
       },
     ],
     bodyHtml: `
-<p>Una lettura dei tarocchi funziona meglio quando la domanda è chiara. Non serve essere “esperti”: basta sapere <strong>cosa vuoi capire</strong> e formulare la richiesta in modo onesto, senza forzare la risposta.</p>
-<p>Su Luxseetarot poni una domanda, estrai tre carte (passato, presente, futuro) e ricevi un testo simbolico per riflettere. Questa guida ti aiuta a scrivere una domanda che renda la lettura più utile e meno confusa, soprattutto se è la prima volta che consulti le carte online.</p>
+<p>Se ti chiedi <strong>come fare una domanda ai tarocchi</strong>, parti da qui: una lettura funziona meglio quando la richiesta è chiara. Non serve essere “esperti”: basta sapere <strong>cosa vuoi capire</strong> e formulare la frase in modo onesto, senza forzare la risposta.</p>
+<p>Su Luxseetarot poni una domanda, estrai tre carte (passato, presente, futuro) e ricevi un testo simbolico per riflettere. Questa guida ti aiuta a <strong>fare una domanda ai tarocchi</strong> che renda la lettura più utile e meno confusa, soprattutto se è la prima volta che consulti le carte online.</p>
 
 <h2>Perché la domanda conta così tanto</h2>
 <p>Le carte non “leggono la mente”: rispondono al focus che dai. Se la domanda è vaga (“Cosa mi aspetta?”), anche la lettura rischia di restare generica. Se invece indichi un tema preciso — una relazione, un lavoro, una scelta — il testo può entrare nel merito di emozioni, tempi e prossimi passi simbolici.</p>
@@ -412,7 +421,7 @@ export function getDemoArticle() {
 <p>Quando hai la domanda pronta:</p>
 <ol>
   <li>Vai su <a href="/tarocchi-gratis.html">tarocchi gratis</a>, inserisci nome, data di nascita, email e la domanda.</li>
-  <li>Scegli tre carte.</li>
+  <li>Estrai tre carte gratis dal mazzo.</li>
   <li>Leggi l’anteprima gratuita.</li>
   <li>Se vuoi, sblocca la lettura completa o approfondisci con nuove domande sulle stesse carte.</li>
 </ol>
@@ -429,12 +438,13 @@ export function getDemoArticle() {
 <p>Se la risposta è sì, sei pronto. Puoi iniziare subito i <a href="/tarocchi-gratis.html">tarocchi gratis</a> su Luxseetarot e usare questa guida come riferimento ogni volta che non sai da dove partire.</p>
 <h2>Approfondisci</h2>
 <ul>
-  <li><a href="/tarocchi-gratis.html">Tarocchi gratis: anteprima a tre carte</a></li>
-  <li><a href="/blog/tarocchi-si-o-no">Tarocchi sì o no: quando ha senso</a></li>
+  <li><a href="/tarocchi-gratis.html">Tarocchi gratis: estrai tre carte</a></li>
   <li><a href="/blog/lettura-tarocchi-tre-carte">Lettura a tre carte: passato, presente, futuro</a></li>
   <li><a href="/blog/tarocchi-amore-domande-esempi">20 domande utili in amore</a></li>
+  <li><a href="/blog/tarocchi-si-o-no">Tarocchi sì o no: quando ha senso</a></li>
   <li><a href="/blog/errori-comuni-lettura-tarocchi">Errori comuni nella lettura</a></li>
   <li><a href="/blog/preparazione-prima-di-una-lettura">Preparazione prima di una lettura</a></li>
+  <li><a href="/blog.html">Blog tarocchi</a></li>
 </ul>
 <p><a href="/tarocchi-gratis.html">Prova i tarocchi gratis su Luxseetarot →</a></p>
 `.trim(),
@@ -448,6 +458,31 @@ function catalogArticles() {
     if (!map.has(post.slug)) map.set(post.slug, post);
   }
   return Array.from(map.values());
+}
+
+let seedSeoCache = null;
+function seedSeoBySlug() {
+  if (!seedSeoCache) {
+    seedSeoCache = new Map(catalogArticles().map((p) => [p.slug, p]));
+  }
+  return seedSeoCache;
+}
+
+/** Applica titolo/descrizione/corpo aggiornati dal catalogo seed, preservando status e date Redis. */
+function applySeedSeo(post) {
+  if (!post || !post.slug) return post;
+  const seed = seedSeoBySlug().get(post.slug);
+  if (!seed) return post;
+  return {
+    ...post,
+    title: seed.title || post.title,
+    description: seed.description || post.description,
+    keyword: seed.keyword || post.keyword,
+    bodyHtml: seed.bodyHtml || post.bodyHtml,
+    faq: Array.isArray(seed.faq) && seed.faq.length ? seed.faq : post.faq,
+    coverImage: seed.coverImage || post.coverImage || '',
+    coverAlt: seed.coverAlt || post.coverAlt || '',
+  };
 }
 
 /**

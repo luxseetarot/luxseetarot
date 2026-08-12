@@ -2,5 +2,6 @@
 Allow: /
 Disallow: /api/
 Disallow: /admin
+Disallow: /blog/articolo.html
 
 Sitemap: https://www.luxseetarot.com/sitemap.xml

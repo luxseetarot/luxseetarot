@@ -1,5 +1,17 @@
 {
   "version": 2,
+  "redirects": [
+    {
+      "source": "/blog/articolo.html",
+      "destination": "/blog.html",
+      "permanent": true
+    },
+    {
+      "source": "/articolo.html",
+      "destination": "/blog.html",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/blog/:slug",

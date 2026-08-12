@@ -11,7 +11,7 @@
     return { ok: false, skipped: true };
   }
 
-  const site = (process.env.SITE_URL || 'https://luxseetarot.com').replace(/\/$/, '');
+  const site = (process.env.SITE_URL || 'https://www.luxseetarot.com').replace(/\/$/, '');
   const recoverUrl = `${site}/?recover=${encodeURIComponent(sessionId)}`;
   const left = Math.max(0, Number(remaining) || 0);
   const total = Math.max(1, Number(max) || 0);
