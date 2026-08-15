@@ -184,22 +184,22 @@ export async function shareBlogPostOnFacebook(post, options = {}) {
   const imageUrl = absImageUrl(post.coverImage || '/og-image.jpg');
 
   try {
-    // 1) Post foto: Facebook scarica la cover e la mostra nel feed.
-    let { res, data } = await graphPostPhoto(pageId, token, {
-      url: imageUrl,
-      caption: message,
-      published: 'true',
-    });
+    // Preferisci link share: Facebook mostra immagine OG + dominio + titolo sotto la foto.
+    let { res, data } = await graphPostFeed(pageId, token, { message, link: url });
 
-    // 2) Fallback: link post (anteprima Open Graph).
+    // Fallback: post foto (immagine sì, ma senza card titolo/dominio).
     if ((!res.ok || data.error) && data.error) {
-      console.warn('Facebook photo post failed, retry link:', data.error);
-      ({ res, data } = await graphPostFeed(pageId, token, { message, link: url }));
+      console.warn('Facebook link post failed, retry photo:', data.error);
+      ({ res, data } = await graphPostPhoto(pageId, token, {
+        url: imageUrl,
+        caption: message,
+        published: 'true',
+      }));
     }
 
-    // 3) Ultimo fallback: solo testo + URL.
+    // Ultimo fallback: solo testo + URL.
     if ((!res.ok || data.error) && data.error) {
-      console.warn('Facebook link post failed, retry message-only:', data.error);
+      console.warn('Facebook photo post failed, retry message-only:', data.error);
       ({ res, data } = await graphPostFeed(pageId, token, { message }));
     }
 
