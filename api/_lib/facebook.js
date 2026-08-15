@@ -15,6 +15,14 @@ export function facebookConfigured() {
   return !!(pageId && token);
 }
 
+function absImageUrl(pathOrUrl) {
+  const site = siteOrigin();
+  const p = String(pathOrUrl || '').trim();
+  if (!p) return `${site}/og-image.jpg`;
+  if (/^https?:\/\//i.test(p)) return p;
+  return site + (p.startsWith('/') ? p : `/${p}`);
+}
+
 function buildPostMessage(post, url) {
   return [
     'Nuovo articolo sul blog Luxseetarot',
@@ -63,8 +71,8 @@ async function graphGet(path, token, params = {}) {
   return { res, data };
 }
 
-async function graphPostFeed(pageId, token, fields) {
-  const endpoint = `https://graph.facebook.com/v21.0/${encodeURIComponent(pageId)}/feed`;
+async function graphPost(path, token, fields) {
+  const endpoint = `https://graph.facebook.com/v21.0/${path}`;
   const body = new URLSearchParams();
   Object.entries(fields).forEach(([k, v]) => {
     if (v != null && v !== '') body.set(k, String(v));
@@ -77,6 +85,14 @@ async function graphPostFeed(pageId, token, fields) {
   });
   const data = await res.json().catch(() => ({}));
   return { res, data };
+}
+
+function graphPostFeed(pageId, token, fields) {
+  return graphPost(`${encodeURIComponent(pageId)}/feed`, token, fields);
+}
+
+function graphPostPhoto(pageId, token, fields) {
+  return graphPost(`${encodeURIComponent(pageId)}/photos`, token, fields);
 }
 
 /**
@@ -95,9 +111,13 @@ export async function facebookStatus() {
   }
 
   try {
-    const { res, data } = await graphGet(encodeURIComponent(pageId), token, {
-      fields: 'id,name,link',
-    });
+    // Con Page token, /me restituisce la Page. Richiede meno permessi di GET /{page-id}.
+    let { res, data } = await graphGet('me', token, { fields: 'id,name,link' });
+    if ((!res.ok || data.error) && pageId) {
+      ({ res, data } = await graphGet(encodeURIComponent(pageId), token, {
+        fields: 'id,name,link',
+      }));
+    }
     if (!res.ok || data.error) {
       return {
         ok: false,
@@ -106,10 +126,20 @@ export async function facebookStatus() {
         error: formatGraphError(data, res.status),
       };
     }
+    const resolvedId = String(data.id || pageId);
+    if (pageId && resolvedId && pageId !== resolvedId) {
+      return {
+        ok: false,
+        configured: true,
+        pageId,
+        pageName: String(data.name || ''),
+        error: `Il token è della Page “${data.name || resolvedId}” (id ${resolvedId}), ma FACEBOOK_PAGE_ID su Vercel è ${pageId}. Allinea i due valori.`,
+      };
+    }
     return {
       ok: true,
       configured: true,
-      pageId: String(data.id || pageId),
+      pageId: resolvedId,
       pageName: String(data.name || ''),
       pageLink: String(data.link || ''),
       tokenPreview: `${token.slice(0, 6)}…${token.slice(-4)}`,
@@ -151,22 +181,40 @@ export async function shareBlogPostOnFacebook(post, options = {}) {
 
   const url = `${siteOrigin()}/blog/${encodeURIComponent(post.slug)}`;
   const message = buildPostMessage(post, url);
+  const imageUrl = absImageUrl(post.coverImage || '/og-image.jpg');
 
   try {
-    // Message-only (URL nel testo): più affidabile. Il campo `link` spesso viene rifiutato.
-    let { res, data } = await graphPostFeed(pageId, token, { message });
+    // 1) Post foto: Facebook scarica la cover e la mostra nel feed.
+    let { res, data } = await graphPostPhoto(pageId, token, {
+      url: imageUrl,
+      caption: message,
+      published: 'true',
+    });
+
+    // 2) Fallback: link post (anteprima Open Graph).
     if ((!res.ok || data.error) && data.error) {
-      console.warn('Facebook message-only failed, retry with link:', data.error);
+      console.warn('Facebook photo post failed, retry link:', data.error);
       ({ res, data } = await graphPostFeed(pageId, token, { message, link: url }));
     }
+
+    // 3) Ultimo fallback: solo testo + URL.
+    if ((!res.ok || data.error) && data.error) {
+      console.warn('Facebook link post failed, retry message-only:', data.error);
+      ({ res, data } = await graphPostFeed(pageId, token, { message }));
+    }
+
     if (!res.ok || data.error) {
       console.error('Facebook post error:', data.error || data);
       return { ok: false, error: formatGraphError(data, res.status) };
     }
+
+    // /photos restituisce { id, post_id }; /feed restituisce { id }.
+    const id = String(data.post_id || data.id || '').trim();
     return {
       ok: true,
-      id: String(data.id || '').trim(),
+      id,
       url,
+      imageUrl,
     };
   } catch (e) {
     console.error('Facebook fetch failed:', e);
