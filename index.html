@@ -863,7 +863,9 @@
           <div class="admin-blog-editor-actions">
             <button type="button" class="gold-btn" id="admin-blog-sched-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA PROGRAMMA</button>
             <button type="button" class="ghost-btn" id="admin-blog-sched-run" style="width:auto;padding:10px 14px;font-size:11px">PUBBLICA ORA LA PROSSIMA BOZZA</button>
+            <button type="button" class="ghost-btn" id="admin-facebook-test" style="width:auto;padding:10px 14px;font-size:11px">TEST FACEBOOK</button>
           </div>
+          <p id="admin-facebook-status" style="margin:10px 0 0;font-size:12px;color:var(--muted);line-height:1.45"></p>
         </div>
         <div class="admin-blog-filters">
           <select id="admin-blog-filter" aria-label="Filtra stato">
@@ -3683,6 +3685,9 @@
         } else {
           showErr(pre + 'Facebook ha rifiutato: ' + (fb.error || 'errore'));
         }
+        if(res && res.facebookConfigured === false && !fb.error){
+          showErr(pre + 'Facebook non configurato su Vercel (variabili + Redeploy).');
+        }
       }
       tbody.querySelectorAll('[data-blog-status]').forEach(function(btn){
         btn.addEventListener('click', function(){
@@ -4008,9 +4013,33 @@
               (fb.error ? ' · Facebook: ' + fb.error : ''));
             if(metaEl) metaEl.textContent = 'Pubblicato: ' + (res.slug || '') + fbMsg;
             if(fb && !fb.ok && !fb.skipped) showErr('Articolo online, Facebook: ' + (fb.error || 'errore'));
+            if(fb && fb.skipped && fb.error) showErr('Articolo online, Facebook: ' + fb.error);
           }
           return loadBlog();
         }).catch(function(){ showErr('Pubblicazione automatica fallita'); });
+      });
+    }
+    var fbTestBtn = document.getElementById('admin-facebook-test');
+    var fbStatusEl = document.getElementById('admin-facebook-status');
+    if(fbTestBtn){
+      fbTestBtn.addEventListener('click', function(){
+        showErr('');
+        if(fbStatusEl) fbStatusEl.textContent = 'Verifica Facebook in corso…';
+        adminFetch({ action: 'facebook-status' }).then(function(res){
+          if(res.ok){
+            var msg = 'Facebook OK: Page “' + (res.pageName || res.pageId || '?') + '” collegata.';
+            if(fbStatusEl) fbStatusEl.textContent = msg;
+            if(metaEl) metaEl.textContent = msg;
+          } else {
+            var err = res.error || 'Facebook non raggiungibile';
+            if(fbStatusEl) fbStatusEl.textContent = err;
+            showErr(err);
+          }
+        }).catch(function(){
+          var err = 'Test Facebook fallito (rete o admin).';
+          if(fbStatusEl) fbStatusEl.textContent = err;
+          showErr(err);
+        });
       });
     }
     var pinConnect = document.getElementById('admin-pin-connect');

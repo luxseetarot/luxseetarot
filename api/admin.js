@@ -17,6 +17,7 @@ import {
   setPostStatus,
   sharePublishedPostOnFacebook,
 } from './_lib/blog.js';
+import { facebookStatus } from './_lib/facebook.js';
 import {
   describeNextSlot,
   getBlogSchedule,
@@ -202,6 +203,11 @@ export default async function handler(req, res) {
       const result = await sharePublishedPostOnFacebook(slug, { force });
       if (!result.ok) return res.status(400).json(result);
       return res.status(200).json(result);
+    }
+
+    if (action === 'facebook-status') {
+      const status = await facebookStatus();
+      return res.status(status.ok ? 200 : 400).json(status);
     }
 
     if (action === 'blog-seed-demo' || action === 'blog-seed-all') {
