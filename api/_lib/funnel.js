@@ -10,6 +10,11 @@ function dayKey(ts = Date.now()) {
   return new Date(ts).toISOString().slice(0, 10);
 }
 
+/** Chiave mese UTC YYYY-MM (limite anteprime gratuite mensile). */
+function monthKey(ts = Date.now()) {
+  return new Date(ts).toISOString().slice(0, 7);
+}
+
 function normalizeIp(ip) {
   return String(ip || 'unknown').trim().slice(0, 80) || 'unknown';
 }
@@ -77,7 +82,7 @@ function emptyProfile(ip) {
     ip: normalizeIp(ip),
     teaserTotal: 0,
     teaserToday: 0,
-    teaserDay: dayKey(),
+    teaserDay: monthKey(),
     purchaseTotal: 0,
     spentCents: 0,
     lastAmountCents: 0,
@@ -90,15 +95,15 @@ function emptyProfile(ip) {
   };
 }
 
-const FREE_READINGS_PER_DAY = 2;
+const FREE_READINGS_PER_MONTH = 4;
 
 function memGet(ip) {
   const key = normalizeIp(ip);
   if (!memIps.has(key)) memIps.set(key, emptyProfile(key));
   const p = memIps.get(key);
-  const today = dayKey();
-  if (p.teaserDay !== today) {
-    p.teaserDay = today;
+  const month = monthKey();
+  if (p.teaserDay !== month) {
+    p.teaserDay = month;
     p.teaserToday = 0;
   }
   return p;
@@ -116,13 +121,15 @@ async function loadProfile(ip) {
     if (!raw || !raw.length) return emptyProfile(ip);
     const obj = {};
     for (let i = 0; i < raw.length; i += 2) obj[raw[i]] = raw[i + 1];
-    const today = dayKey();
-    const teaserDay = obj.teaserDay || today;
+    const month = monthKey();
+    const teaserDay = obj.teaserDay || month;
+    // teaserDay = chiave periodo (mese YYYY-MM); teaserToday = conteggio nel periodo
+    const inPeriod = teaserDay === month || (teaserDay.length === 10 && teaserDay.slice(0, 7) === month);
     return {
       ip: normalizeIp(ip),
       teaserTotal: parseInt(obj.teaserTotal || '0', 10) || 0,
-      teaserToday: teaserDay === today ? parseInt(obj.teaserToday || '0', 10) || 0 : 0,
-      teaserDay: teaserDay === today ? teaserDay : today,
+      teaserToday: inPeriod ? parseInt(obj.teaserToday || '0', 10) || 0 : 0,
+      teaserDay: month,
       purchaseTotal: parseInt(obj.purchaseTotal || '0', 10) || 0,
       spentCents: parseInt(obj.spentCents || '0', 10) || 0,
       lastAmountCents: parseInt(obj.lastAmountCents || '0', 10) || 0,
@@ -149,8 +156,8 @@ async function saveEvent(event) {
   pushMemEvent(event);
 }
 
-/** True se l'IP può ancora fare una lettura gratuita oggi. Non incrementa. */
-export async function canDoTeaserToday(ip, max = FREE_READINGS_PER_DAY) {
+/** True se l'IP può ancora fare una lettura gratuita questo mese. Non incrementa. */
+export async function canDoTeaserToday(ip, max = FREE_READINGS_PER_MONTH) {
   const p = await loadProfile(ip);
   return p.teaserToday < max;
 }
@@ -158,9 +165,9 @@ export async function canDoTeaserToday(ip, max = FREE_READINGS_PER_DAY) {
 /** Registra anteprima gratuita e restituisce { ok, remainingToday, profile }. */
 export async function recordTeaser({ ip, email = '', name = '' }) {
   const now = Date.now();
-  const today = dayKey(now);
+  const month = monthKey(now);
   const cleanIp = normalizeIp(ip);
-  const max = FREE_READINGS_PER_DAY;
+  const max = FREE_READINGS_PER_MONTH;
 
   if (funnelStorageMode() === 'redis') {
     const key = ipKey(cleanIp);
@@ -179,7 +186,7 @@ export async function recordTeaser({ ip, email = '', name = '' }) {
         'teaserToday',
         String(nextToday),
         'teaserDay',
-        today,
+        month,
         'lastTeaserAt',
         String(now),
         'lastEmail',
@@ -193,7 +200,7 @@ export async function recordTeaser({ ip, email = '', name = '' }) {
       ...current,
       teaserTotal: nextTotal,
       teaserToday: nextToday,
-      teaserDay: today,
+      teaserDay: month,
       lastTeaserAt: now,
       lastEmail: String(email || current.lastEmail || '').slice(0, 120),
       lastName: String(name || current.lastName || '').slice(0, 80),
@@ -215,7 +222,7 @@ export async function recordTeaser({ ip, email = '', name = '' }) {
   }
   p.teaserToday += 1;
   p.teaserTotal += 1;
-  p.teaserDay = today;
+  p.teaserDay = month;
   p.lastTeaserAt = now;
   if (email) p.lastEmail = String(email).slice(0, 120);
   if (name) p.lastName = String(name).slice(0, 80);
@@ -328,7 +335,7 @@ export async function recordPurchase({
 
 export async function resetTeaserDay(ip) {
   const cleanIp = normalizeIp(ip);
-  const today = dayKey();
+  const month = monthKey();
   if (funnelStorageMode() === 'redis') {
     await redisCommand([
       'HSET',
@@ -336,12 +343,12 @@ export async function resetTeaserDay(ip) {
       'teaserToday',
       '0',
       'teaserDay',
-      today,
+      month,
     ]);
   } else {
     const p = memGet(cleanIp);
     p.teaserToday = 0;
-    p.teaserDay = today;
+    p.teaserDay = month;
   }
   await saveEvent({ type: 'admin_reset_teaser', at: Date.now(), ip: cleanIp });
   return loadProfile(cleanIp);
@@ -351,14 +358,14 @@ export async function resetTeaserDay(ip) {
 export async function resetIpCounters(ip) {
   const cleanIp = normalizeIp(ip);
   const current = await loadProfile(cleanIp);
-  const today = dayKey();
+  const month = monthKey();
   if (funnelStorageMode() === 'redis') {
     await redisCommand([
       'HSET',
       ipKey(cleanIp),
       'teaserTotal', '0',
       'teaserToday', '0',
-      'teaserDay', today,
+      'teaserDay', month,
       'purchaseTotal', '0',
       'spentCents', '0',
       'lastAmountCents', '0',
@@ -374,7 +381,7 @@ export async function resetIpCounters(ip) {
     const p = memGet(cleanIp);
     const email = p.lastEmail || '';
     const name = p.lastName || '';
-    Object.assign(p, emptyProfile(cleanIp), { lastEmail: email, lastName: name, teaserDay: today });
+    Object.assign(p, emptyProfile(cleanIp), { lastEmail: email, lastName: name, teaserDay: month });
   }
   await saveEvent({ type: 'admin_reset_counters', at: Date.now(), ip: cleanIp });
   return loadProfile(cleanIp);
@@ -424,7 +431,7 @@ export async function deleteIpData(ip) {
 /** Azzera i contatori di tutti gli IP tracciati. */
 export async function resetAllCounters() {
   const now = Date.now();
-  const today = dayKey(now);
+  const month = monthKey(now);
   if (funnelStorageMode() === 'redis') {
     const ips = (await redisCommand(['ZRANGE', IPS_INDEX_KEY, 0, -1])) || [];
     for (const ip of ips) {
@@ -435,7 +442,7 @@ export async function resetAllCounters() {
         ipKey(cleanIp),
         'teaserTotal', '0',
         'teaserToday', '0',
-        'teaserDay', today,
+        'teaserDay', month,
         'purchaseTotal', '0',
         'spentCents', '0',
         'lastAmountCents', '0',
@@ -452,7 +459,7 @@ export async function resetAllCounters() {
     for (const p of memIps.values()) {
       const email = p.lastEmail || '';
       const name = p.lastName || '';
-      Object.assign(p, emptyProfile(p.ip), { lastEmail: email, lastName: name, teaserDay: today });
+      Object.assign(p, emptyProfile(p.ip), { lastEmail: email, lastName: name, teaserDay: month });
     }
   }
   await saveEvent({ type: 'admin_reset_all_counters', at: now, ip: 'all' });
@@ -471,9 +478,9 @@ export async function listFunnelStats({ limit = 80 } = {}) {
   } else {
     profiles = Array.from(memIps.values())
       .map((p) => {
-        const today = dayKey();
-        if (p.teaserDay !== today) {
-          p.teaserDay = today;
+        const month = monthKey();
+        if (p.teaserDay !== month) {
+          p.teaserDay = month;
           p.teaserToday = 0;
         }
         return { ...p };
@@ -523,7 +530,8 @@ export async function listFunnelStats({ limit = 80 } = {}) {
       convertedIps,
       conversionRate:
         teaserIps > 0 ? Math.round((convertedIps / teaserIps) * 1000) / 10 : 0,
-      freePerDay: FREE_READINGS_PER_DAY,
+      freePerDay: FREE_READINGS_PER_MONTH,
+      freePerMonth: FREE_READINGS_PER_MONTH,
     },
     ips: profiles,
     events,

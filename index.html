@@ -812,7 +812,7 @@
             <thead>
               <tr>
                 <th>IP</th>
-                <th>Letture oggi</th>
+                <th>Letture mese</th>
                 <th>Letture tot.</th>
                 <th>Checkout</th>
                 <th>Acquisti</th>
@@ -1236,7 +1236,7 @@
     form:null, deck:shuffle(DECK), selected:[], lastCards:null, mode:'teaser',
     teaserText:null, fullText:null, turnstileToken:null, turnstileWidgetId:null,
     checkoutTurnstileToken:null, checkoutTurnstileWidgetId:null, turnstileSiteKey:null,
-    checkoutPass:null, pendingFollowUp:null
+    checkoutPass:null, pendingFollowUp:null, freeLimitReached:false
   };
 
   var POSITIONS = ['Passato','Presente','Futuro'];
@@ -1567,7 +1567,9 @@
       // Pack già coperto dal tasto "approfondisci ancora" in cta-full
       if(upsellPack) upsellPack.style.display = fullOpen ? 'none' : '';
       if(teaserText){
-        teaserText.textContent = 'Questa è solo un\'anteprima. Nella versione completa ricevi la lettura intera in stile premium e puoi scaricare il PDF quando vuoi. Sblocca ora.';
+        teaserText.textContent = state.freeLimitReached
+          ? 'Hai usato le 4 anteprime gratuite di questo mese. Sblocca la lettura completa (€4,90) oppure il pack da 5 letture (€9,90).'
+          : 'Questa è solo un\'anteprima. Nella versione completa ricevi la lettura intera in stile premium e puoi scaricare il PDF quando vuoi. Sblocca ora.';
       }
       if(teaserOpen && !state.checkoutPass) ensureCheckoutTurnstile();
       else if(checkoutWrap && state.checkoutPass) checkoutWrap.style.display = 'none';
@@ -1716,7 +1718,11 @@
     state.selected = [];
     state.deck = shuffle(DECK);
     state.form = null;
+    state.freeLimitReached = false;
+    state.checkoutPass = null;
     ctaEl.classList.remove('show');
+    var ctaTitleReset = ctaEl.querySelector('.cta-title');
+    if(ctaTitleReset) ctaTitleReset.textContent = 'APPROFONDISCI LA LETTURA';
     if(ctaFullEl) ctaFullEl.classList.remove('show');
     readingEl.innerHTML = '';
     threeCards.innerHTML = '';
@@ -2528,7 +2534,8 @@
         setTimeout(function(){
           loaderEl.style.display='none';
           hidePayBridge();
-          if(res.ok){
+            if(res.ok){
+            state.freeLimitReached = false;
             // Prima salva il testo in state, poi aggiorna crediti/storage:
             // così setUnlock può sincronizzare subito la lettura sul server.
             if(res.mode === 'full') state.fullText = res.reading;
@@ -2565,6 +2572,8 @@
               } else {
                 if(ctaFullEl) ctaFullEl.classList.remove('show');
                 ctaEl.classList.add('show');
+                var ctaTitleOk = ctaEl.querySelector('.cta-title');
+                if(ctaTitleOk) ctaTitleOk.textContent = 'APPROFONDISCI LA LETTURA';
                 // Con checkoutPass non serve un secondo widget; mostralo solo se manca
                 if(!state.checkoutPass) ensureCheckoutTurnstile();
                 else {
@@ -2575,8 +2584,25 @@
               refreshCreditsUI();
             });
           } else {
-            readingEl.innerHTML = '<p style="text-align:center;color:#ff8a8a">'+(res.error||'Le carte non rispondono ora.')+'</p>';
-            if(mode === 'full') ctaEl.classList.add('show');
+            var errMsg = res.error || 'Le carte non rispondono ora.';
+            var hitFreeLimit = res.code === 'free_limit' || /limite di .*letture gratuite/i.test(errMsg);
+            readingEl.innerHTML = '<p style="text-align:center;color:#ff8a8a">'+errMsg+'</p>';
+            if(mode === 'full'){
+              ctaEl.classList.add('show');
+              refreshCreditsUI();
+            } else if(hitFreeLimit){
+              state.freeLimitReached = true;
+              if(ctaFullEl) ctaFullEl.classList.remove('show');
+              ctaEl.classList.add('show');
+              var ctaTitle = ctaEl.querySelector('.cta-title');
+              if(ctaTitle) ctaTitle.textContent = 'LETTURE GRATUITE ESAURITE';
+              var limitText = document.getElementById('cta-teaser-text');
+              if(limitText) limitText.textContent = errMsg;
+              // Nessun checkoutPass (teaser non generato): serve Turnstile per l'acquisto
+              state.checkoutPass = null;
+              ensureCheckoutTurnstile();
+              refreshCreditsUI();
+            }
           }
           resolve(res);
         }, wait);
@@ -3490,7 +3516,7 @@
       var kpis = document.getElementById('admin-kpis');
       if(kpis){
         kpis.innerHTML =
-          '<div class="admin-kpi"><b>'+(s.teaserToday||0)+'</b><span>LETTURE OGGI</span></div>'+
+          '<div class="admin-kpi"><b>'+(s.teaserToday||0)+'</b><span>LETTURE MESE</span></div>'+
           '<div class="admin-kpi"><b>'+(s.teaserTotal||0)+'</b><span>LETTURE TOTALI</span></div>'+
           '<div class="admin-kpi"><b>'+(s.checkoutStarts||0)+'</b><span>CHECKOUT AVVIATI</span></div>'+
           '<div class="admin-kpi"><b>'+(s.purchases||0)+'</b><span>ACQUISTI</span></div>'+
@@ -3508,7 +3534,7 @@
         var rows = (data.ips || []).map(function(p){
           return '<tr>'+
             '<td>'+escapeHtml(p.ip||'')+'</td>'+
-            '<td>'+(p.teaserToday||0)+'/2</td>'+
+            '<td>'+(p.teaserToday||0)+'/4</td>'+
             '<td>'+(p.teaserTotal||0)+'</td>'+
             '<td>'+(p.checkoutStarts||0)+'</td>'+
             '<td>'+(p.purchaseTotal||0)+(p.lastProduct ? ' · '+escapeHtml(p.lastProduct) : '')+'</td>'+
@@ -3519,7 +3545,7 @@
             '<td>'+fmtWhen(p.lastTeaserAt)+'</td>'+
             '<td>'+fmtWhen(p.lastPurchaseAt)+'</td>'+
             '<td><div class="admin-row-actions">'+
-              '<button type="button" data-reset-day="'+escapeHtml(p.ip||'')+'">RESET OGGI</button>'+
+              '<button type="button" data-reset-day="'+escapeHtml(p.ip||'')+'">RESET MESE</button>'+
               '<button type="button" data-reset-counters="'+escapeHtml(p.ip||'')+'">AZZERA</button>'+
               '<button type="button" data-delete-ip="'+escapeHtml(p.ip||'')+'">CANCELLA</button>'+
             '</div></td>'+
@@ -3529,7 +3555,7 @@
         tbody.querySelectorAll('[data-reset-day]').forEach(function(btn){
           btn.addEventListener('click', function(){
             var ip = btn.getAttribute('data-reset-day');
-            if(!ip || !confirm('Azzero le letture gratuite di oggi per '+ip+'?')) return;
+            if(!ip || !confirm('Azzero le letture gratuite di questo mese per '+ip+'?')) return;
             adminFetch({ action: 'reset-teaser', ip: ip }).then(function(res){
               if(!res.ok){ showErr(res.error || 'Reset fallito'); return; }
               loadStats();
@@ -3565,7 +3591,7 @@
             escapeHtml(e.ip||'')+' · '+escapeHtml(e.email||'')+
             (e.product ? ' · '+escapeHtml(e.product) : '')+
             (e.amountCents != null ? ' · '+fmtEuro(e.amountCents) : '')+
-            (e.teaserToday != null ? ' · oggi '+e.teaserToday+'/2' : '')+
+            (e.teaserToday != null ? ' · mese '+e.teaserToday+'/4' : '')+
           '</div>';
         }).join('') || '<div>Nessun evento recente.</div>';
       }
