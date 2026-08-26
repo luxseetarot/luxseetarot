@@ -10,6 +10,11 @@
       "source": "/articolo.html",
       "destination": "/blog.html",
       "permanent": true
+    },
+    {
+      "source": "/og-image.png",
+      "destination": "/og-image.jpg",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -41,6 +46,15 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
+        }
+      ]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "X-Robots-Tag",
+          "value": "noindex, nofollow"
         }
       ]
     },
