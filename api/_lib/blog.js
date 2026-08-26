@@ -4,6 +4,7 @@ import { funnelStorageMode } from './funnel.js';
 import { getSeedArticles } from './blog-seed-articles.js';
 import { getSeedArticlesB } from './blog-seed-articles-b.js';
 import { getSeedArticlesC } from './blog-seed-articles-c.js';
+import { getSeedArticlesD } from './blog-seed-articles-d.js';
 import { facebookConfigured, shareBlogPostOnFacebook } from './facebook.js';
 
 const INDEX_KEY = 'lux:blog:index';
@@ -455,7 +456,7 @@ export function getDemoArticle() {
 function catalogArticles() {
   const map = new Map();
   map.set('come-fare-una-domanda-ai-tarocchi', getDemoArticle());
-  for (const post of [...getSeedArticles(), ...getSeedArticlesB(), ...getSeedArticlesC()]) {
+  for (const post of [...getSeedArticles(), ...getSeedArticlesB(), ...getSeedArticlesC(), ...getSeedArticlesD()]) {
     if (!map.has(post.slug)) map.set(post.slug, post);
   }
   return Array.from(map.values());
