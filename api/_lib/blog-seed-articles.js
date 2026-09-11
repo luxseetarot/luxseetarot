@@ -749,9 +749,9 @@ ${CTA}
 
     article({
       slug: 'tarocchi-gratis-online-come-funzionano',
-      title: 'Tarocchi gratis online: come funzionano davvero',
+      title: 'Tarocchi gratis online: come funzionano (anche quelli attendibili)',
       description:
-        'Cosa aspettarti da una lettura tarocchi gratis online: differenze tra anteprima e lettura completa, limiti e come usarla in modo utile.',
+        'Tarocchi gratis online e tarocchi online gratis attendibili: cosa aspettarti dall’anteprima, limiti onesti e come usarla in modo utile su Luxseetarot.',
       keyword: 'tarocchi gratis online',
       faq: [
         {
@@ -768,7 +768,7 @@ ${CTA}
         },
       ],
       bodyHtml: `
-<p>Cercare <strong>tarocchi gratis online</strong> è spesso il primo passo: vuoi capire se una lettura digitale ti parla, senza impegno. Ha senso, a patto di sapere cosa stai chiedendo al servizio e cosa invece non può darti. Su Luxseetarot la pagina dedicata <a href="/tarocchi-gratis.html">Tarocchi gratis</a> spiega l’anteprima a tre carte e ti porta subito a iniziare.</p>
+<p>Cercare <strong>tarocchi gratis online</strong> (o <strong>tarocchi online gratis attendibili</strong>) è spesso il primo passo: vuoi capire se una lettura digitale ti parla, senza impegno. Ha senso, a patto di sapere cosa stai chiedendo al servizio e cosa invece non può darti. Su Luxseetarot la pagina dedicata <a href="/tarocchi-gratis.html">Tarocchi gratis</a> spiega l’anteprima a tre carte e ti porta subito a iniziare.</p>
 <h2>Cosa significa “gratis” in una lettura online</h2>
 <p>Di solito indica un’anteprima o una consultazione breve. Su Luxseetarot, ad esempio, puoi estrarre tre carte e leggere un’anteprima: abbastanza per cogliere il tono della risposta. La lettura completa approfondisce dinamiche, sfumature e spunti pratici.</p>
 <p>Gratis non significa “oracolo infallibile”. Significa accesso leggero a un’esperienza simbolica generata digitalmente.</p>
@@ -790,10 +790,10 @@ ${CTA}
 
     article({
       slug: 'tarocchi-si-o-no',
-      title: 'Tarocchi sì o no: quando ha senso (e quando no)',
+      title: 'Tarocchi gratis sì o no: quando ha senso (e quando no)',
       description:
-        'Le domande sì/no ai tarocchi funzionano poco: ecco alternative migliori, esempi pratici e come ottenere risposte più utili.',
-      keyword: 'tarocchi sì o no',
+        'Tarocchi gratis sì o no e tarocchi gratis amore sì o no: perché le domande chiuse funzionano poco e come ottenere risposte più utili su Luxseetarot.',
+      keyword: 'tarocchi gratis sì o no',
       faq: [
         {
           q: 'Posso fare ugualmente una domanda chiusa?',
@@ -809,7 +809,7 @@ ${CTA}
         },
       ],
       bodyHtml: `
-<p>Le domande <strong>sì o no ai tarocchi</strong> sembrano pratiche, ma spesso deludono. Le carte raccontano processi, tensioni e inclinazioni; raramente si prestano a un interruttore binario.</p>
+<p>Chi cerca <strong>tarocchi gratis sì o no</strong> o <strong>tarocchi gratis amore sì o no</strong> vuole una risposta netta. Le domande <strong>sì o no ai tarocchi</strong> sembrano pratiche, ma spesso deludono: le carte raccontano processi, tensioni e inclinazioni; raramente si prestano a un interruttore binario.</p>
 <h2>Perché il sì/no restringe troppo</h2>
 <p>Una relazione, un lavoro o una scelta raramente sono solo bianchi o neri. Se forzi la risposta in due caselle, perdi proprio ciò che rende utile una lettura: sfumature, tempi, responsabilità personali.</p>
 <h2>Come trasformare una domanda chiusa</h2>

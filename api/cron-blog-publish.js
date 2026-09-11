@@ -1,5 +1,7 @@
 import { runScheduledBlogPublish } from './_lib/blog-schedule.js';
 import { runScheduledPinterestPublish } from './_lib/pinterest.js';
+import { getPost, seedDemoArticle, setPostStatus } from './_lib/blog.js';
+import { getSeedArticlesF } from './_lib/blog-seed-articles-f.js';
 
 function headerValue(req, name) {
   const v = req.headers[name] || req.headers[name.toLowerCase()];
@@ -62,6 +64,44 @@ function authorized(req) {
   return false;
 }
 
+/** Seed catalogo + pubblica lotto F (senza flood Facebook). */
+async function seedAndPublishLotF() {
+  const seed = await seedDemoArticle({ force: false, syncContent: true });
+  const slugs = getSeedArticlesF().map((p) => p.slug);
+  const published = [];
+  const already = [];
+  const missing = [];
+  const errors = [];
+
+  for (const slug of slugs) {
+    const post = await getPost(slug);
+    if (!post) {
+      missing.push(slug);
+      continue;
+    }
+    if (post.status === 'published') {
+      already.push(slug);
+      continue;
+    }
+    const result = await setPostStatus(slug, 'published', { skipFacebook: true });
+    if (!result.ok) {
+      errors.push({ slug, error: result.error || 'publish failed' });
+      continue;
+    }
+    published.push(slug);
+  }
+
+  return {
+    ok: errors.length === 0,
+    seed,
+    published,
+    already,
+    missing,
+    errors,
+    totalF: slugs.length,
+  };
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ ok: false, error: 'Method not allowed' });
@@ -82,6 +122,10 @@ export default async function handler(req, res) {
       const result = await runScheduledPinterestPublish({ force: false });
       return res.status(200).json({ ok: true, job: 'pinterest', ...result });
     }
+    if (job === 'seed-f' || job === 'seed-seo-f') {
+      const result = await seedAndPublishLotF();
+      return res.status(result.ok ? 200 : 500).json({ ok: result.ok, job: 'seed-f', ...result });
+    }
     const result = await runScheduledBlogPublish({ force: false });
     return res.status(200).json({ ok: true, job: 'blog', ...result });
   } catch (err) {
@@ -91,7 +135,9 @@ export default async function handler(req, res) {
       error:
         job === 'pinterest' || job === 'pin'
           ? 'Cron Pinterest fallito.'
-          : 'Cron blog publish fallito.',
+          : job === 'seed-f' || job === 'seed-seo-f'
+            ? 'Seed/publish lotto F fallito.'
+            : 'Cron blog publish fallito.',
     });
   }
 }

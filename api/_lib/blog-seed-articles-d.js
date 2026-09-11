@@ -525,10 +525,10 @@ ${CTA}
 
     article({
       slug: 'tarocchi-carta-del-giorno',
-      title: 'Tarocchi carta del giorno: come usarla (senza ossessionarti)',
+      title: 'Tarocchi carta del giorno gratis: come usarla (senza ossessionarti)',
       description:
-        'Carta del giorno nei tarocchi: metodo semplice, diario, errori da evitare e come integrare il simbolo nella giornata reale.',
-      keyword: 'tarocchi carta del giorno',
+        'Tarocchi carta del giorno gratis: metodo semplice, diario, errori da evitare e come integrare il simbolo nella giornata reale su Luxseetarot.',
+      keyword: 'tarocchi carta del giorno gratis',
       coverAlt: 'Una carta dei tarocchi estratta come carta del giorno',
       faq: [
         {
@@ -545,7 +545,7 @@ ${CTA}
         },
       ],
       bodyHtml: `
-<p>La <strong>carta del giorno nei tarocchi</strong> è uno degli esercizi più utili per principianti: un simbolo, un giorno, un confronto con i fatti. Funziona se la tratti come bussola, non come oracolo ansioso.</p>
+<p>Cerchi <strong>tarocchi carta del giorno gratis</strong>? La <strong>carta del giorno nei tarocchi</strong> è uno degli esercizi più utili per principianti: un simbolo, un giorno, un confronto con i fatti. Funziona se la tratti come bussola, non come oracolo ansioso. Puoi praticarla anche online con i <a href="/tarocchi-gratis.html">tarocchi gratis</a>.</p>
 <h2>Metodo in 4 passi</h2>
 <ol>
   <li>Domanda: «Quale energia posso osservare oggi?» o «Quale atteggiamento mi aiuta?».</li>

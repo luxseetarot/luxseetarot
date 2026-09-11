@@ -6,6 +6,7 @@ import { getSeedArticlesB } from './blog-seed-articles-b.js';
 import { getSeedArticlesC } from './blog-seed-articles-c.js';
 import { getSeedArticlesD } from './blog-seed-articles-d.js';
 import { getSeedArticlesE } from './blog-seed-articles-e.js';
+import { getSeedArticlesF } from './blog-seed-articles-f.js';
 import { facebookConfigured, shareBlogPostOnFacebook } from './facebook.js';
 
 const INDEX_KEY = 'lux:blog:index';
@@ -267,7 +268,7 @@ export async function savePost(input) {
   return { ok: true, post };
 }
 
-export async function setPostStatus(slug, status) {
+export async function setPostStatus(slug, status, { skipFacebook = false } = {}) {
   const post = await getPost(slug);
   if (!post) return { ok: false, error: 'Articolo non trovato.' };
   const prevStatus = post.status;
@@ -281,7 +282,12 @@ export async function setPostStatus(slug, status) {
   if (!saved.ok) return saved;
 
   // Al primo passaggio in pubblicato → post automatico su Facebook Page
-  if (next === 'published' && prevStatus !== 'published' && !saved.post.facebookPostId) {
+  if (
+    !skipFacebook &&
+    next === 'published' &&
+    prevStatus !== 'published' &&
+    !saved.post.facebookPostId
+  ) {
     const facebook = await shareBlogPostOnFacebook(saved.post);
     if (facebook.ok && facebook.id && !facebook.alreadyPosted) {
       saved.post.facebookPostId = facebook.id;
@@ -463,6 +469,7 @@ function catalogArticles() {
     ...getSeedArticlesC(),
     ...getSeedArticlesD(),
     ...getSeedArticlesE(),
+    ...getSeedArticlesF(),
   ]) {
     if (!map.has(post.slug)) map.set(post.slug, post);
   }
@@ -535,7 +542,15 @@ export async function seedDemoArticle({ force = false, syncContent = false } = {
     const has = existingSet.has(demo.slug);
 
     if (!has) {
-      const post = sanitizePost({ ...demo, status: 'draft' });
+      const initialStatus = demo.status === 'published' ? 'published' : 'draft';
+      const post = sanitizePost({
+        ...demo,
+        status: initialStatus,
+        publishedAt:
+          initialStatus === 'published'
+            ? demo.publishedAt || new Date().toISOString()
+            : demo.publishedAt || null,
+      });
       if (post) {
         toWrite.push(post);
         seeded += 1;
