@@ -3,18 +3,20 @@
  * Temi non sovrapposti ai cataloghi A/B. Tutti in draft.
  */
 
+import { withSeoKeywords } from './blog-seed-seo.js';
+
 function article(partial) {
   const slug = String(partial.slug || '');
   const coverImage =
     partial.coverImage ||
     (slug ? `/images/blog/${slug}.jpg?v=3` : '');
-  return {
+  return withSeoKeywords({
     status: 'draft',
     faq: partial.faq || [],
     ...partial,
     coverImage,
     coverAlt: partial.coverAlt || partial.title || '',
-  };
+  });
 }
 
 const CTA = `<p><a href="/tarocchi-gratis.html">Prova i tarocchi gratis su Luxseetarot →</a></p>`;

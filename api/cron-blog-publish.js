@@ -126,6 +126,14 @@ export default async function handler(req, res) {
       const result = await seedAndPublishLotF();
       return res.status(result.ok ? 200 : 500).json({ ok: result.ok, job: 'seed-f', ...result });
     }
+    if (job === 'seed-sync' || job === 'sync-seo') {
+      const seed = await seedDemoArticle({ force: false, syncContent: true });
+      return res.status(200).json({
+        ok: true,
+        job: 'seed-sync',
+        seed,
+      });
+    }
     const result = await runScheduledBlogPublish({ force: false });
     return res.status(200).json({ ok: true, job: 'blog', ...result });
   } catch (err) {

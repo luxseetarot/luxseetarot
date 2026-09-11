@@ -1,0 +1,67 @@
+name: Sync SEO keywords blog seeds
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "api/_lib/blog-seed-seo.js"
+      - "api/_lib/blog-seed-articles.js"
+      - "api/_lib/blog-seed-articles-b.js"
+      - "api/_lib/blog-seed-articles-c.js"
+      - "api/_lib/blog-seed-articles-d.js"
+      - "api/_lib/blog-seed-articles-e.js"
+      - "api/cron-blog-publish.js"
+
+jobs:
+  sync-seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Sync seed content (keyword SEO)
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: |
+          set -uo pipefail
+
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::Manca CRON_SECRET nei secrets GitHub."
+            exit 1
+          fi
+
+          RESOLVED_SITE_URL="${SITE_URL:-https://www.luxseetarot.com}"
+          RESOLVED_SITE_URL="${RESOLVED_SITE_URL%/}"
+          if [[ "${RESOLVED_SITE_URL}" == http://* ]]; then
+            RESOLVED_SITE_URL="https://${RESOLVED_SITE_URL#http://}"
+          fi
+          RESOLVED_SITE_URL="${RESOLVED_SITE_URL/https:\/\/luxseetarot.com/https:\/\/www.luxseetarot.com}"
+
+          SECRET_ENC=$(python3 -c 'import os,urllib.parse; print(urllib.parse.quote(os.environ["CRON_SECRET"], safe=""))')
+          ENDPOINT="${RESOLVED_SITE_URL}/api/cron-blog-publish?job=seed-sync&secret=${SECRET_ENC}"
+
+          echo "Chiamata ${RESOLVED_SITE_URL}/api/cron-blog-publish?job=seed-sync"
+
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            HTTP_CODE=$(curl -sS --location-trusted \
+              -o /tmp/seed-sync.json -w "%{http_code}" -X POST \
+              -H "Authorization: Bearer ${CRON_SECRET}" \
+              -H "x-cron-secret: ${CRON_SECRET}" \
+              -H "Content-Type: application/json" \
+              "${ENDPOINT}" || echo "000")
+
+            echo "Tentativo ${i} HTTP ${HTTP_CODE}"
+            cat /tmp/seed-sync.json || true
+            echo
+
+            if [ "${HTTP_CODE}" = "200" ]; then
+              if python3 -c 'import json,sys; d=json.load(open("/tmp/seed-sync.json")); print(d); sys.exit(0 if d.get("job")=="seed-sync" and d.get("ok") else 1)'; then
+                echo "Sync SEO OK"
+                exit 0
+              fi
+              echo "Deploy non ancora aggiornato, riprovo..."
+            fi
+            sleep 30
+          done
+
+          echo "::error::Sync SEO non riuscito."
+          exit 1

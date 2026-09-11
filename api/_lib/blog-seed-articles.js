@@ -3,6 +3,8 @@
  * Tutti partono in draft; seed non sovrascrive post già presenti.
  */
 
+import { withSeoKeywords } from './blog-seed-seo.js';
+
 const CTA = `<p><a href="/tarocchi-gratis.html">Prova i tarocchi gratis su Luxseetarot →</a></p>`;
 const GRATIS_RELATED = ['/tarocchi-gratis.html', 'Tarocchi gratis: anteprima a tre carte'];
 
@@ -635,14 +637,14 @@ function article(partial) {
       bodyHtml = `${bodyHtml}\n${block}\n${CTA}`;
     }
   }
-  return {
+  return withSeoKeywords({
     status: 'draft',
     faq: partial.faq || [],
     ...partial,
     bodyHtml,
     coverImage,
     coverAlt: partial.coverAlt || partial.title || '',
-  };
+  });
 }
 
 export function getSeedArticles() {

@@ -8,6 +8,7 @@ import { getSeedArticlesD } from './blog-seed-articles-d.js';
 import { getSeedArticlesE } from './blog-seed-articles-e.js';
 import { getSeedArticlesF } from './blog-seed-articles-f.js';
 import { facebookConfigured, shareBlogPostOnFacebook } from './facebook.js';
+import { withSeoKeywords } from './blog-seed-seo.js';
 
 const INDEX_KEY = 'lux:blog:index';
 const PUBLISHED_KEY = 'lux:blog:published';
@@ -336,7 +337,7 @@ export async function sharePublishedPostOnFacebook(slug, { force = false } = {})
 
 export function getDemoArticle() {
   const now = new Date().toISOString();
-  return {
+  return withSeoKeywords({
     slug: 'come-fare-una-domanda-ai-tarocchi',
     title: 'Come fare una domanda ai tarocchi: guida pratica con esempi',
     description:
@@ -457,7 +458,7 @@ export function getDemoArticle() {
 </ul>
 <p><a href="/tarocchi-gratis.html">Prova i tarocchi gratis su Luxseetarot →</a></p>
 `.trim(),
-  };
+  });
 }
 
 function catalogArticles() {
