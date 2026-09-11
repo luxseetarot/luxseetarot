@@ -4,12 +4,14 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'api/_lib/blog-seed-articles-f.js'
-      - 'api/cron-blog-publish.js'
+      - "api/_lib/blog-seed-articles-f.js"
+      - "api/cron-blog-publish.js"
+      - ".github/workflows/seed-publish-blog-lot-f.yml"
 
 jobs:
   seed-publish-f:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Seed + publish lotto F
         env:
@@ -17,44 +19,42 @@ jobs:
           SITE_URL: ${{ secrets.SITE_URL }}
         run: |
           set -euo pipefail
+
           if [ -z "${CRON_SECRET:-}" ]; then
             echo "::error::Manca CRON_SECRET nei secrets GitHub."
             exit 1
           fi
+
           RESOLVED_SITE_URL="${SITE_URL:-https://www.luxseetarot.com}"
           RESOLVED_SITE_URL="${RESOLVED_SITE_URL%/}"
-          case "$RESOLVED_SITE_URL" in
-            http://luxseetarot.com|https://luxseetarot.com)
-              RESOLVED_SITE_URL="https://www.luxseetarot.com"
-              ;;
-          esac
+          if [[ "${RESOLVED_SITE_URL}" == http://* ]]; then
+            RESOLVED_SITE_URL="https://${RESOLVED_SITE_URL#http://}"
+          fi
+          RESOLVED_SITE_URL="${RESOLVED_SITE_URL/https:\/\/luxseetarot.com/https:\/\/www.luxseetarot.com}"
+
           SECRET_ENC=$(python3 -c 'import os,urllib.parse; print(urllib.parse.quote(os.environ["CRON_SECRET"], safe=""))')
           ENDPOINT="${RESOLVED_SITE_URL}/api/cron-blog-publish?job=seed-f&secret=${SECRET_ENC}"
+
           echo "Chiamata ${RESOLVED_SITE_URL}/api/cron-blog-publish?job=seed-f"
-          # Attende deploy Vercel dopo push (max ~3 min)
-          for i in 1 2 3 4 5 6; do
-            CODE=$(curl -sS -o /tmp/seed-f.json -w "%{http_code}" \
+
+          for i in 1 2 3 4 5 6 7 8; do
+            HTTP_CODE=$(curl -sS --location-trusted \
+              -o /tmp/seed-f.json -w "%{http_code}" -X POST \
               -H "Authorization: Bearer ${CRON_SECRET}" \
               -H "x-cron-secret: ${CRON_SECRET}" \
-              "$ENDPOINT" || true)
-            echo "Tentativo $i → HTTP $CODE"
+              -H "Content-Type: application/json" \
+              "${ENDPOINT}" || echo "000")
+
+            echo "Tentativo ${i} → HTTP ${HTTP_CODE}"
             cat /tmp/seed-f.json || true
             echo
-            if [ "$CODE" = "200" ]; then
-              python3 - <<'PY'
-import json
-data=json.load(open('/tmp/seed-f.json'))
-print('published', data.get('published'))
-print('already', data.get('already'))
-print('missing', data.get('missing'))
-print('errors', data.get('errors'))
-print('seeded', (data.get('seed') or {}).get('seeded'))
-if data.get('errors'):
-  raise SystemExit(1)
-PY
+
+            if [ "${HTTP_CODE}" = "200" ]; then
+              python3 -c 'import json,sys; d=json.load(open("/tmp/seed-f.json")); print("published", d.get("published")); print("already", d.get("already")); print("missing", d.get("missing")); print("errors", d.get("errors")); print("seeded", (d.get("seed") or {}).get("seeded")); sys.exit(1 if d.get("errors") else 0)'
               exit 0
             fi
             sleep 30
           done
-          echo "::error::Seed/publish lotto F non riuscito dopo i tentativi."
+
+          echo "::error::Seed/publish lotto F non riuscito dopo i tentativi (deploy Vercel forse non pronto)."
           exit 1
