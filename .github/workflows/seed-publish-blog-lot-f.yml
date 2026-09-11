@@ -50,8 +50,11 @@ jobs:
             echo
 
             if [ "${HTTP_CODE}" = "200" ]; then
-              python3 -c 'import json,sys; d=json.load(open("/tmp/seed-f.json")); print("published", d.get("published")); print("already", d.get("already")); print("missing", d.get("missing")); print("errors", d.get("errors")); print("seeded", (d.get("seed") or {}).get("seeded")); sys.exit(1 if d.get("errors") else 0)'
-              exit 0
+              python3 -c 'import json,sys; d=json.load(open("/tmp/seed-f.json"));
+print("job", d.get("job")); print("published", d.get("published")); print("already", d.get("already")); print("missing", d.get("missing")); print("errors", d.get("errors")); print("seeded", (d.get("seed") or {}).get("seeded"));
+sys.exit(0 if d.get("job")=="seed-f" and not d.get("errors") else 1)'
+              if [ $? -eq 0 ]; then exit 0; fi
+              echo "Deploy non ancora aggiornato (manca job=seed-f), riprovo..."
             fi
             sleep 30
           done
