@@ -11,14 +11,14 @@ on:
 jobs:
   seed-publish-f:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - name: Seed + publish lotto F
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           SITE_URL: ${{ secrets.SITE_URL }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
 
           if [ -z "${CRON_SECRET:-}" ]; then
             echo "::error::Manca CRON_SECRET nei secrets GitHub."
@@ -37,7 +37,7 @@ jobs:
 
           echo "Chiamata ${RESOLVED_SITE_URL}/api/cron-blog-publish?job=seed-f"
 
-          for i in 1 2 3 4 5 6 7 8; do
+          for i in 1 2 3 4 5 6 7 8 9 10; do
             HTTP_CODE=$(curl -sS --location-trusted \
               -o /tmp/seed-f.json -w "%{http_code}" -X POST \
               -H "Authorization: Bearer ${CRON_SECRET}" \
@@ -45,19 +45,19 @@ jobs:
               -H "Content-Type: application/json" \
               "${ENDPOINT}" || echo "000")
 
-            echo "Tentativo ${i} → HTTP ${HTTP_CODE}"
+            echo "Tentativo ${i} HTTP ${HTTP_CODE}"
             cat /tmp/seed-f.json || true
             echo
 
             if [ "${HTTP_CODE}" = "200" ]; then
-              python3 -c 'import json,sys; d=json.load(open("/tmp/seed-f.json"));
-print("job", d.get("job")); print("published", d.get("published")); print("already", d.get("already")); print("missing", d.get("missing")); print("errors", d.get("errors")); print("seeded", (d.get("seed") or {}).get("seeded"));
-sys.exit(0 if d.get("job")=="seed-f" and not d.get("errors") else 1)'
-              if [ $? -eq 0 ]; then exit 0; fi
-              echo "Deploy non ancora aggiornato (manca job=seed-f), riprovo..."
+              if python3 -c 'import json,sys; d=json.load(open("/tmp/seed-f.json")); print("job", d.get("job")); print("published", d.get("published")); print("already", d.get("already")); print("missing", d.get("missing")); print("errors", d.get("errors")); print("seeded", (d.get("seed") or {}).get("seeded")); sys.exit(0 if d.get("job")=="seed-f" and not d.get("errors") else 1)'; then
+                echo "Seed lotto F OK"
+                exit 0
+              fi
+              echo "Deploy non ancora aggiornato (manca job seed-f), riprovo..."
             fi
             sleep 30
           done
 
-          echo "::error::Seed/publish lotto F non riuscito dopo i tentativi (deploy Vercel forse non pronto)."
+          echo "::error::Seed/publish lotto F non riuscito dopo i tentativi."
           exit 1
