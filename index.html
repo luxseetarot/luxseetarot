@@ -189,6 +189,27 @@
   h1.title{font-family:'Cinzel',serif;font-weight:600;font-size:clamp(30px,5vw,48px);margin:18px 0 10px;color:var(--gold);letter-spacing:.06em}
 
   .subtitle{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:clamp(16px,2.2vw,19px);max-width:520px;margin:0 auto}
+  .hero-note{font-family:'Cormorant Garamond',serif;font-style:italic;color:rgba(154,145,168,.85);font-size:clamp(15px,2vw,17px);max-width:480px;margin:10px auto 0;line-height:1.45}
+  .hero-benefits{
+    display:grid;grid-template-columns:1fr;gap:10px;max-width:440px;margin:8px auto 8px;padding:0 4px;
+  }
+  @media(min-width:520px){.hero-benefits{grid-template-columns:repeat(3,1fr);gap:12px;max-width:520px}}
+  .hero-benefit{
+    text-align:center;padding:12px 10px;border:1px solid rgba(212,175,106,.16);border-radius:12px;
+    background:rgba(20,16,40,.35);
+  }
+  .hero-benefit strong{
+    display:block;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.16em;color:var(--gold);
+    font-weight:500;margin:0 0 6px;text-transform:uppercase;
+  }
+  .hero-benefit span{
+    display:block;font-family:'Cormorant Garamond',serif;font-size:15px;line-height:1.35;
+    color:rgba(154,145,168,.95);
+  }
+  .cta-pack-hint{
+    margin:10px 0 0;font-family:'Cormorant Garamond',serif;font-style:italic;
+    font-size:15px;line-height:1.4;color:rgba(154,145,168,.9);
+  }
 
 
 
@@ -576,7 +597,8 @@
 
     <h1 class="title">Tarocchi Gratis Online</h1>
 
-    <p class="subtitle">Estrai tre carte gratis, fai una domanda e leggi subito l’anteprima.</p>
+    <p class="subtitle">Estrai tre carte, fai una domanda e leggi subito l’anteprima — in privato, senza chiamata e senza appuntamento.</p>
+    <p class="hero-note">Testo chiaro da rileggere quando vuoi. Niente pressione al telefono.</p>
 
   </header>
 
@@ -585,6 +607,12 @@
   <!-- PHASE 1 -->
 
   <section class="phase active" id="phase-input">
+
+    <div class="hero-benefits" aria-label="Perché scegliere Luxseetarot">
+      <div class="hero-benefit"><strong>Subito</strong><span>Risposta in pochi minuti, 24/7</span></div>
+      <div class="hero-benefit"><strong>Privato</strong><span>Solo tu e le carte, nessuna voce al telefono</span></div>
+      <div class="hero-benefit"><strong>Scritto</strong><span>Approfondisci e scarica il PDF</span></div>
+    </div>
 
     <form class="card-form" id="form">
 
@@ -704,9 +732,9 @@
 
       <div class="cta-box" id="cta">
 
-        <div class="cta-title">APPROFONDISCI LA LETTURA</div>
+        <div class="cta-title">VUOI LA LETTURA INTERA?</div>
 
-        <p class="cta-text" id="cta-teaser-text">Questa è solo un'anteprima. Nella versione completa ricevi la lettura intera in stile premium e puoi scaricare il PDF quando vuoi. Sblocca ora.</p>
+        <p class="cta-text" id="cta-teaser-text">L’anteprima ti ha dato il filo. Nella versione completa trovi la lettura intera sulla tua domanda, in un testo che puoi rileggere e salvare in PDF — senza fissare una chiamata.</p>
 
         <div id="turnstile-checkout-wrap" class="turnstile-wrap" aria-label="Verifica anti-bot per l'acquisto" style="display:none"></div>
 
@@ -717,6 +745,7 @@
           <button type="button" class="gold-btn" id="btn-unlock-full">SBLOCCA LETTURA COMPLETA — €4,90</button>
           <button type="button" class="ghost-btn" id="btn-unlock-pack">PACK 5 LETTURE — €9,90</button>
         </div>
+        <p class="cta-pack-hint" id="cta-pack-hint">Il pack conviene se vuoi approfondire più volte sulla stessa o su nuove domande.</p>
 
       </div>
 
@@ -1065,6 +1094,10 @@
       <p>No. Bastano nome, data di nascita, email e la domanda che vuoi porre alle carte.</p>
     </details>
     <details>
+      <summary>Meglio online o al telefono?</summary>
+      <p>Dipende da cosa cerchi. Al telefono hai una voce in tempo reale. Qui hai immediatezza, privacy e un testo scritto da consultare con calma, senza appuntamento.</p>
+    </details>
+    <details>
       <summary>Le risposte sono generate da un consulente in tempo reale?</summary>
       <p>No. I testi sono generati digitalmente a partire dalle carte estratte e dalla tua domanda. Il servizio è di intrattenimento e riflessione.</p>
     </details>
@@ -1106,6 +1139,14 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "No. Bastano nome, data di nascita, email e la domanda che vuoi porre alle carte."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Meglio online o al telefono?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Dipende da cosa cerchi. Al telefono hai una voce in tempo reale. Qui hai immediatezza, privacy e un testo scritto da consultare con calma, senza appuntamento."
       }
     },
     {
@@ -1619,6 +1660,8 @@
       if(teaserText){
         teaserText.textContent = 'Hai ancora crediti. Usa 1 credito per la versione completa di questa domanda, oppure inizia una nuova lettura.';
       }
+      var packHintHide = document.getElementById('cta-pack-hint');
+      if(packHintHide) packHintHide.style.display = 'none';
     } else {
       if(pill){ pill.classList.remove('show'); pill.style.display = 'none'; }
       if(pillFull){ pillFull.classList.remove('show'); pillFull.style.display = 'none'; }
@@ -1633,7 +1676,13 @@
         var pr = getPricing();
         teaserText.textContent = state.freeLimitReached
           ? 'Hai usato le 4 anteprime gratuite di questo mese. Sblocca la lettura completa (' + formatPriceEuro(pr.fullPriceCents) + ') oppure il pack da ' + pr.packCredits + ' letture (' + formatPriceEuro(pr.packPriceCents) + ').'
-          : 'Questa è solo un\'anteprima. Nella versione completa ricevi la lettura intera in stile premium e puoi scaricare il PDF quando vuoi. Sblocca ora.';
+          : 'L’anteprima ti ha dato il filo. Nella versione completa trovi la lettura intera sulla tua domanda, in un testo che puoi rileggere e salvare in PDF — senza fissare una chiamata.';
+      }
+      var packHint = document.getElementById('cta-pack-hint');
+      if(packHint){
+        var packPr = getPricing();
+        packHint.textContent = 'Il pack da ' + packPr.packCredits + ' letture conviene se vuoi approfondire più volte sulla stessa o su nuove domande.';
+        packHint.style.display = '';
       }
       if(teaserOpen && !state.checkoutPass) ensureCheckoutTurnstile();
       else if(checkoutWrap && state.checkoutPass) checkoutWrap.style.display = 'none';
