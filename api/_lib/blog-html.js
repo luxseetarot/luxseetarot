@@ -177,6 +177,7 @@ ${faqLd ? `<script type="application/ld+json">${JSON.stringify(faqLd)}</script>`
     </nav>
   </main>
   <footer>Luxseetarot © 2026</footer>
+  <script src="/js/tab-title.js" defer></script>
 </body>
 </html>`;
 }
@@ -202,6 +203,7 @@ export function renderBlogNotFoundHtml() {
     <a class="cta" href="/blog.html">← Torna al blog</a>
   </main>
   <footer>Luxseetarot © 2026</footer>
+  <script src="/js/tab-title.js" defer></script>
 </body>
 </html>`;
 }
