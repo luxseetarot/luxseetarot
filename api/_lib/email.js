@@ -15,7 +15,8 @@
   const recoverUrl = `${site}/?recover=${encodeURIComponent(sessionId)}`;
   const left = Math.max(0, Number(remaining) || 0);
   const total = Math.max(1, Number(max) || 0);
-  // Pack con crediti residui = wallet. Lettura singola (o 0 residui) = solo recupero lettura.
+  // Pack con crediti residui = wallet.
+  // Lettura singola: conferma acquisto + link di recupero (anche se il credito è ancora 1).
   const walletMode = product === 'pack' && left > 0;
 
   let title;
@@ -38,7 +39,7 @@
       <p style="color:#9a91a8;font-size:12px;word-break:break-all">${recoverUrl}</p>
     `;
   } else {
-    title = 'Lettura Luxseetarot sbloccata';
+    title = 'Conferma acquisto Luxseetarot';
     subject = title;
     htmlBody = `
       <p>Ciao ${name || ''},</p>

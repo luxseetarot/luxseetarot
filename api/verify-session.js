@@ -29,18 +29,15 @@ export default async function handler(req, res) {
     const customerName = info.session.metadata?.name || '';
     let emailSent = false;
     const alreadyEmailed = info.session.metadata?.credits_email_sent === '1';
-    // Pack: email subito con i crediti wallet.
-    // Lettura singola (full): email dopo il consumo del credito sulla prima generazione,
-    // così non promettiamo un secondo uso e il saldo in mail è quello reale.
-    const deferEmail = (info.product || 'full') === 'full';
-    if (sendEmail && info.email && !alreadyEmailed && !deferEmail) {
+    // Conferma acquisto subito (singola e pack): link di recupero + ricevuta operativa.
+    if (sendEmail && info.email && !alreadyEmailed) {
       const mail = await sendCreditsEmail({
         to: info.email,
         name: customerName,
         remaining: info.remaining,
         max: info.max,
         sessionId,
-        product: info.product || 'pack',
+        product: info.product || 'full',
       });
       emailSent = !!mail.ok;
       if (mail.ok) {
@@ -55,7 +52,11 @@ export default async function handler(req, res) {
         } catch (e) {
           console.error('Mark credits_email_sent failed:', e);
         }
+      } else {
+        console.error('Purchase confirmation email failed:', mail.error || mail);
       }
+    } else if (sendEmail && !info.email) {
+      console.error('Purchase email skipped: missing customer email on session', sessionId);
     }
 
     if (info.session.metadata?.marketing === '1' && info.email) {

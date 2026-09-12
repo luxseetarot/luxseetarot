@@ -2810,7 +2810,9 @@
       if(res.emailSent){
         showToast(res.product === 'pack'
           ? 'Ti abbiamo inviato un\'email con il link ai crediti.'
-          : 'Ti abbiamo inviato un\'email con il link alla lettura.');
+          : 'Ti abbiamo inviato un\'email di conferma acquisto con il link alla lettura.');
+      } else if(res.email){
+        showToast('Pagamento ok. Se non trovi l\'email di conferma, controlla spam o scrivici.');
       }
       showPayBridge(res.product || 'full');
 
