@@ -3,6 +3,7 @@ import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStrip
 import { verifyTurnstileToken } from './_lib/turnstile.js';
 import { recordTeaser } from './_lib/funnel.js';
 import { sendCreditsEmail } from './_lib/email.js';
+import { getGptModel } from './_lib/site-settings.js';
 
 function buildSystemPrompt(mode, { deepen = false } = {}) {
   const isFull = mode === 'full';
@@ -154,6 +155,7 @@ export default async function handler(req, res) {
       userContent += '\n\nScrivi l\'approfondimento rispondendo alle nuove domande sulle stesse carte.';
     }
 
+    const model = await getGptModel();
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -161,7 +163,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4.1-nano',
+        model,
         messages: [
           { role: 'system', content: systemPrompt },
           {

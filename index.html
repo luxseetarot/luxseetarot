@@ -790,6 +790,7 @@
         <button type="button" class="active" id="admin-tab-funnel" data-admin-tab="funnel">Funnel</button>
         <button type="button" id="admin-tab-blog" data-admin-tab="blog">Blog</button>
         <button type="button" id="admin-tab-pinterest" data-admin-tab="pinterest">Pinterest</button>
+        <button type="button" id="admin-tab-settings" data-admin-tab="settings">Prezzi / AI</button>
       </div>
       <div class="admin-actions">
         <button type="button" class="gold-btn" id="admin-refresh">AGGIORNA</button>
@@ -970,6 +971,27 @@
             </thead>
             <tbody id="admin-pin-tbody"></tbody>
           </table>
+        </div>
+      </div>
+
+      <div id="admin-settings-pane" style="display:none">
+        <div class="admin-blog-editor show">
+          <div class="phase-tag" style="margin-bottom:10px">PREZZI E PACK</div>
+          <p style="margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.5">I prezzi si aggiornano subito su Stripe Checkout e sui pulsanti del sito. Importi in euro (es. 4,90).</p>
+          <label for="admin-set-full-price">Prezzo lettura singola (€)</label>
+          <input type="number" id="admin-set-full-price" min="0.50" max="500" step="0.10" inputmode="decimal" />
+          <label for="admin-set-pack-price">Prezzo pack (€)</label>
+          <input type="number" id="admin-set-pack-price" min="0.50" max="1000" step="0.10" inputmode="decimal" />
+          <label for="admin-set-pack-credits">Numero letture nel pack</label>
+          <input type="number" id="admin-set-pack-credits" min="2" max="50" step="1" />
+          <div class="phase-tag" style="margin:18px 0 10px">MODELLO GPT</div>
+          <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Usato per anteprima e lettura completa. Cambia solo modelli disponibili sul tuo account OpenAI.</p>
+          <label for="admin-set-gpt-model">Modello</label>
+          <select id="admin-set-gpt-model" aria-label="Modello GPT"></select>
+          <p id="admin-settings-hint" style="margin:12px 0 0;font-size:12px;color:rgba(212,175,106,.8);line-height:1.45"></p>
+          <div class="admin-blog-editor-actions" style="margin-top:14px">
+            <button type="button" class="gold-btn" id="admin-settings-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA IMPOSTAZIONI</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1248,6 +1270,7 @@
     form:null, deck:shuffle(DECK), selected:[], lastCards:null, mode:'teaser',
     teaserText:null, fullText:null, turnstileToken:null, turnstileWidgetId:null,
     checkoutTurnstileToken:null, checkoutTurnstileWidgetId:null, turnstileSiteKey:null,
+    pricing:{ fullPriceCents:490, packPriceCents:990, packCredits:5 },
     checkoutPass:null, pendingFollowUp:null, freeLimitReached:false
   };
 
@@ -1374,10 +1397,38 @@
       }, 200);
     });
   }
+  function formatPriceEuro(cents){
+    var n = Number(cents) || 0;
+    return (n / 100).toLocaleString('it-IT', { style: 'currency', currency: 'EUR' });
+  }
+  function getPricing(){
+    return state.pricing || { fullPriceCents:490, packPriceCents:990, packCredits:5 };
+  }
+  function applyPricingUI(){
+    var p = getPricing();
+    var fullLabel = formatPriceEuro(p.fullPriceCents);
+    var packLabel = formatPriceEuro(p.packPriceCents);
+    var packCredits = p.packCredits || 5;
+    var unlockFull = document.getElementById('btn-unlock-full');
+    var unlockPack = document.getElementById('btn-unlock-pack');
+    var upsellPack = document.getElementById('btn-upsell-pack');
+    if(unlockFull) unlockFull.textContent = 'SBLOCCA LETTURA COMPLETA — ' + fullLabel;
+    if(unlockPack) unlockPack.textContent = 'PACK ' + packCredits + ' LETTURE — ' + packLabel;
+    if(upsellPack) upsellPack.textContent = 'PACK ' + packCredits + ' LETTURE — ' + packLabel;
+    refreshCreditsUI();
+  }
   fetch('/api/config').then(function(r){ return r.json(); }).then(function(cfg){
     if(cfg && cfg.turnstileSiteKey){
       state.turnstileSiteKey = cfg.turnstileSiteKey;
       initTurnstile(cfg.turnstileSiteKey);
+    }
+    if(cfg && cfg.pricing){
+      state.pricing = {
+        fullPriceCents: Number(cfg.pricing.fullPriceCents) || 490,
+        packPriceCents: Number(cfg.pricing.packPriceCents) || 990,
+        packCredits: Number(cfg.pricing.packCredits) || 5
+      };
+      applyPricingUI();
     }
   }).catch(function(){});
 
@@ -1538,7 +1589,7 @@
       deepenBtn.style.display = 'inline-flex';
       deepenBtn.textContent = hasCredits
         ? 'APPROFONDISCI ANCORA LA LETTURA'
-        : 'APPROFONDISCI ANCORA — PACK €9,90';
+        : 'APPROFONDISCI ANCORA — PACK ' + formatPriceEuro(getPricing().packPriceCents);
     }
     if(fullTextEl){
       fullTextEl.textContent = hasCredits
@@ -1579,8 +1630,9 @@
       // Pack già coperto dal tasto "approfondisci ancora" in cta-full
       if(upsellPack) upsellPack.style.display = fullOpen ? 'none' : '';
       if(teaserText){
+        var pr = getPricing();
         teaserText.textContent = state.freeLimitReached
-          ? 'Hai usato le 4 anteprime gratuite di questo mese. Sblocca la lettura completa (€4,90) oppure il pack da 5 letture (€9,90).'
+          ? 'Hai usato le 4 anteprime gratuite di questo mese. Sblocca la lettura completa (' + formatPriceEuro(pr.fullPriceCents) + ') oppure il pack da ' + pr.packCredits + ' letture (' + formatPriceEuro(pr.packPriceCents) + ').'
           : 'Questa è solo un\'anteprima. Nella versione completa ricevi la lettura intera in stile premium e puoi scaricare il PDF quando vuoi. Sblocca ora.';
       }
       if(teaserOpen && !state.checkoutPass) ensureCheckoutTurnstile();
@@ -1769,7 +1821,7 @@
     if(txt){
       txt.textContent = product === 'pack'
         ? 'Pagamento ricevuto. Sto aprendo la lettura completa inclusa nel tuo pack.'
-        : 'Pagamento ricevuto. Sto aprendo la lettura completa da €4,90 che hai appena acquistato.';
+        : 'Pagamento ricevuto. Sto aprendo la lettura completa da ' + formatPriceEuro(getPricing().fullPriceCents) + ' che hai appena acquistato.';
     }
     if(bridge) bridge.classList.add('show');
   }
@@ -3388,6 +3440,7 @@
     var funnelPane = document.getElementById('admin-funnel-pane');
     var blogPane = document.getElementById('admin-blog-pane');
     var pinPane = document.getElementById('admin-pinterest-pane');
+    var settingsPane = document.getElementById('admin-settings-pane');
     var resetAllBtn = document.getElementById('admin-reset-all');
     var taps = 0;
     var tapTimer = null;
@@ -3395,6 +3448,16 @@
     var activeTab = 'funnel';
     var blogPosts = [];
     var editingSlug = '';
+
+    function centsToEuroInput(cents){
+      var n = Number(cents) || 0;
+      return (n / 100).toFixed(2);
+    }
+    function euroInputToCents(val){
+      var n = parseFloat(String(val || '').replace(',', '.'));
+      if(!Number.isFinite(n)) return null;
+      return Math.round(n * 100);
+    }
 
     function getSecret(){
       try { return localStorage.getItem(ADMIN_KEY) || sessionStorage.getItem(ADMIN_KEY) || ''; } catch(e){ return ''; }
@@ -3416,24 +3479,31 @@
       errEl.style.display = msg ? 'block' : 'none';
     }
     function setTab(tab){
-      activeTab = tab === 'blog' ? 'blog' : (tab === 'pinterest' ? 'pinterest' : 'funnel');
+      activeTab = tab === 'blog' ? 'blog'
+        : (tab === 'pinterest' ? 'pinterest'
+        : (tab === 'settings' ? 'settings' : 'funnel'));
       var tabFunnel = document.getElementById('admin-tab-funnel');
       var tabBlog = document.getElementById('admin-tab-blog');
       var tabPin = document.getElementById('admin-tab-pinterest');
+      var tabSettings = document.getElementById('admin-tab-settings');
       if(tabFunnel) tabFunnel.classList.toggle('active', activeTab === 'funnel');
       if(tabBlog) tabBlog.classList.toggle('active', activeTab === 'blog');
       if(tabPin) tabPin.classList.toggle('active', activeTab === 'pinterest');
+      if(tabSettings) tabSettings.classList.toggle('active', activeTab === 'settings');
       if(funnelPane) funnelPane.style.display = activeTab === 'funnel' ? 'block' : 'none';
       if(blogPane) blogPane.style.display = activeTab === 'blog' ? 'block' : 'none';
       if(pinPane) pinPane.style.display = activeTab === 'pinterest' ? 'block' : 'none';
+      if(settingsPane) settingsPane.style.display = activeTab === 'settings' ? 'block' : 'none';
       if(resetAllBtn) resetAllBtn.style.display = activeTab === 'funnel' ? '' : 'none';
       if(titleEl){
         titleEl.textContent = activeTab === 'blog' ? 'Blog articoli'
-          : (activeTab === 'pinterest' ? 'Pinterest pin' : 'Funnel letture');
+          : (activeTab === 'pinterest' ? 'Pinterest pin'
+          : (activeTab === 'settings' ? 'Prezzi e AI' : 'Funnel letture'));
       }
       if(getSecret()){
         if(activeTab === 'blog') loadBlog();
         else if(activeTab === 'pinterest') loadPinterest();
+        else if(activeTab === 'settings') loadSettings();
         else loadStats();
       }
     }
@@ -3934,7 +4004,55 @@
     function refreshActive(){
       if(activeTab === 'blog') loadBlog();
       else if(activeTab === 'pinterest') loadPinterest();
+      else if(activeTab === 'settings') loadSettings();
       else loadStats();
+    }
+
+    function renderSettings(data){
+      var s = (data && data.settings) || {};
+      var models = (data && data.gptModels) || [];
+      var fullEl = document.getElementById('admin-set-full-price');
+      var packEl = document.getElementById('admin-set-pack-price');
+      var creditsEl = document.getElementById('admin-set-pack-credits');
+      var modelEl = document.getElementById('admin-set-gpt-model');
+      var hintEl = document.getElementById('admin-settings-hint');
+      if(fullEl) fullEl.value = centsToEuroInput(s.fullPriceCents != null ? s.fullPriceCents : 490);
+      if(packEl) packEl.value = centsToEuroInput(s.packPriceCents != null ? s.packPriceCents : 990);
+      if(creditsEl) creditsEl.value = String(s.packCredits != null ? s.packCredits : 5);
+      if(modelEl){
+        var current = s.gptModel || 'gpt-4.1-nano';
+        var opts = models.slice();
+        if(current && opts.indexOf(current) === -1) opts.unshift(current);
+        modelEl.innerHTML = opts.map(function(m){
+          return '<option value="'+escapeHtml(m)+'">'+escapeHtml(m)+'</option>';
+        }).join('');
+        modelEl.value = current;
+      }
+      if(metaEl){
+        metaEl.textContent = 'Storage: ' + ((data && data.storage) || '?') +
+          ((data && data.storage) === 'memory'
+            ? ' (temporaneo finché non configuri Upstash Redis)'
+            : ' (persistente)');
+      }
+      if(hintEl){
+        hintEl.textContent = s.updatedAt
+          ? 'Ultimo salvataggio: ' + fmtIso(s.updatedAt)
+          : 'Valori predefiniti (non ancora salvati).';
+      }
+    }
+
+    function loadSettings(){
+      showErr('');
+      return adminFetch({ action: 'settings-get' }).then(function(res){
+        if(!res.ok){
+          showErr(res.error || 'Caricamento impostazioni fallito');
+          return res;
+        }
+        loginView.style.display = 'none';
+        dashView.style.display = 'block';
+        renderSettings(res);
+        return res;
+      }).catch(function(){ showErr('Caricamento impostazioni fallito'); });
     }
 
     if(hotspot){
@@ -3987,6 +4105,50 @@
     }
     var refreshBtn = document.getElementById('admin-refresh');
     if(refreshBtn) refreshBtn.addEventListener('click', refreshActive);
+    var settingsSaveBtn = document.getElementById('admin-settings-save');
+    if(settingsSaveBtn){
+      settingsSaveBtn.addEventListener('click', function(){
+        var fullCents = euroInputToCents(document.getElementById('admin-set-full-price') && document.getElementById('admin-set-full-price').value);
+        var packCents = euroInputToCents(document.getElementById('admin-set-pack-price') && document.getElementById('admin-set-pack-price').value);
+        var creditsEl = document.getElementById('admin-set-pack-credits');
+        var modelEl = document.getElementById('admin-set-gpt-model');
+        var packCredits = creditsEl ? parseInt(creditsEl.value, 10) : 5;
+        if(fullCents == null || fullCents < 50){
+          showErr('Prezzo lettura singola non valido (minimo €0,50).');
+          return;
+        }
+        if(packCents == null || packCents < 50){
+          showErr('Prezzo pack non valido (minimo €0,50).');
+          return;
+        }
+        if(!Number.isFinite(packCredits) || packCredits < 2 || packCredits > 50){
+          showErr('Il pack deve includere da 2 a 50 letture.');
+          return;
+        }
+        showErr('');
+        adminFetch({
+          action: 'settings-save',
+          settings: {
+            fullPriceCents: fullCents,
+            packPriceCents: packCents,
+            packCredits: packCredits,
+            gptModel: modelEl ? modelEl.value : 'gpt-4.1-nano'
+          }
+        }).then(function(res){
+          if(!res.ok){ showErr(res.error || 'Salvataggio fallito'); return; }
+          renderSettings(res);
+          if(res.settings){
+            state.pricing = {
+              fullPriceCents: res.settings.fullPriceCents,
+              packPriceCents: res.settings.packPriceCents,
+              packCredits: res.settings.packCredits
+            };
+            applyPricingUI();
+          }
+          if(metaEl) metaEl.textContent = 'Impostazioni salvate.';
+        }).catch(function(){ showErr('Salvataggio fallito'); });
+      });
+    }
     if(resetAllBtn){
       resetAllBtn.addEventListener('click', function(){
         showAdminConfirm('reset-all-counters', '');

@@ -36,6 +36,11 @@ import {
   seedPinterestQueue,
 } from './_lib/pinterest.js';
 import { PINTEREST_SEED_CATALOG } from './_lib/pinterest-seed.js';
+import {
+  allowedGptModels,
+  getSiteSettings,
+  saveSiteSettings,
+} from './_lib/site-settings.js';
 
 function getAdminSecret() {
   return (process.env.ADMIN_SECRET || '').trim();
@@ -270,6 +275,32 @@ export default async function handler(req, res) {
       await clearPinterestAuth();
       const status = await pinterestStatus();
       return res.status(200).json(status);
+    }
+
+    if (action === 'settings-get') {
+      const settings = await getSiteSettings();
+      return res.status(200).json({
+        ok: true,
+        settings,
+        gptModels: allowedGptModels(),
+        storage: funnelStorageMode(),
+      });
+    }
+
+    if (action === 'settings-save') {
+      const payload = (req.body && req.body.settings) || req.body || {};
+      const result = await saveSiteSettings({
+        fullPriceCents: payload.fullPriceCents,
+        packPriceCents: payload.packPriceCents,
+        packCredits: payload.packCredits,
+        gptModel: payload.gptModel,
+      });
+      return res.status(200).json({
+        ok: true,
+        settings: result.settings,
+        gptModels: allowedGptModels(),
+        storage: funnelStorageMode(),
+      });
     }
 
     return res.status(400).json({ ok: false, error: 'Azione non valida.' });

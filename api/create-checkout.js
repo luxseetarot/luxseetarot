@@ -2,21 +2,7 @@
 import { cors, verifyCheckoutPass } from './_lib/unlock.js';
 import { verifyTurnstileToken } from './_lib/turnstile.js';
 import { recordCheckoutStart } from './_lib/funnel.js';
-
-const PRODUCTS = {
-  full: {
-    name: 'Lettura completa Luxseetarot',
-    description: 'Sblocco di una lettura simbolica completa (digitale).',
-    unit_amount: 490,
-    credits: 1,
-  },
-  pack: {
-    name: 'Pack 5 letture Luxseetarot',
-    description: 'Cinque letture complete digitali.',
-    unit_amount: 990,
-    credits: 5,
-  },
-};
+import { getCheckoutProducts } from './_lib/site-settings.js';
 
 export default async function handler(req, res) {
   cors(res);
@@ -38,7 +24,8 @@ export default async function handler(req, res) {
       checkoutPass,
     } = req.body || {};
 
-    const item = PRODUCTS[product];
+    const products = await getCheckoutProducts();
+    const item = products[product];
     if (!item) return res.status(400).json({ ok: false, error: 'Prodotto non valido.' });
 
     const base = (origin || req.headers.origin || '').replace(/\/$/, '');
