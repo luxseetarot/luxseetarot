@@ -198,9 +198,7 @@ export default async function handler(req, res) {
     // Dopo il teaser il token Turnstile è già stato consumato: emetti un pass per l'acquisto.
     let checkoutPass = null;
     if (!isFull) {
-      const email = String((req.body || {}).email || '').trim().toLowerCase();
       checkoutPass = signCheckoutPass({
-        email,
         exp: Date.now() + 6 * 60 * 60 * 1000,
       });
     }

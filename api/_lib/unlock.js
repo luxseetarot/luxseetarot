@@ -34,18 +34,17 @@ export function verifyUnlockToken(token) {
 }
 
 /** Pass breve post-teaser: consente il checkout senza riusare il token Turnstile (già consumato). */
-export function signCheckoutPass({ email, exp }) {
+export function signCheckoutPass({ exp } = {}) {
   const secret = getUnlockSecret();
   const payload = Buffer.from(JSON.stringify({
     t: 'checkout',
-    email: String(email || '').trim().toLowerCase(),
-    exp,
+    exp: exp || (Date.now() + 6 * 60 * 60 * 1000),
   })).toString('base64url');
   const sig = crypto.createHmac('sha256', secret).update(payload).digest('base64url');
   return `${payload}.${sig}`;
 }
 
-export function verifyCheckoutPass(token, email) {
+export function verifyCheckoutPass(token) {
   if (!token || typeof token !== 'string' || !token.includes('.')) return null;
   const secret = getUnlockSecret();
   if (!secret) return null;
@@ -54,10 +53,8 @@ export function verifyCheckoutPass(token, email) {
   if (sig !== expected) return null;
   try {
     const data = JSON.parse(Buffer.from(payload, 'base64url').toString());
-    if (data.t !== 'checkout' || !data.email || !data.exp) return null;
+    if (data.t !== 'checkout' || !data.exp) return null;
     if (Date.now() > data.exp) return null;
-    const want = String(email || '').trim().toLowerCase();
-    if (want && data.email !== want) return null;
     return data;
   } catch {
     return null;

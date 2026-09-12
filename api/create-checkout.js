@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     }
 
     // Accetta pass post-teaser (consigliato) oppure un Turnstile fresco.
-    const passOk = !!verifyCheckoutPass(checkoutPass, cleanEmail);
+    const passOk = !!verifyCheckoutPass(checkoutPass);
     if (!passOk) {
       const bot = await verifyTurnstileToken(turnstileToken, ip);
       if (!bot.ok) {

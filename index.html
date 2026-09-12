@@ -418,8 +418,9 @@
   .deepen-panel-inner .phase-tag{text-align:center}
   .deepen-orig{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:15px;line-height:1.45;margin:0 0 16px;padding:12px 14px;border:1px solid var(--gold-faint);border-radius:12px;background:rgba(20,16,40,.55)}
   .deepen-panel-inner label{display:block;font-family:'Cinzel',serif;color:var(--gold);letter-spacing:.08em;font-size:12px;margin:0 0 8px}
-  .deepen-panel-inner textarea{width:100%;min-height:120px;resize:vertical;box-sizing:border-box;background:rgba(11,10,20,.85);border:1px solid var(--gold-soft);border-radius:12px;color:var(--fg);padding:12px 14px;font-family:'Cormorant Garamond',serif;font-size:16px;line-height:1.45;margin:0 0 8px}
-  .deepen-panel-inner textarea:focus{outline:none;border-color:var(--gold)}
+  .deepen-panel-inner textarea,.deepen-panel-inner input[type="email"]{width:100%;box-sizing:border-box;background:rgba(11,10,20,.85);border:1px solid var(--gold-soft);border-radius:12px;color:var(--fg);padding:12px 14px;font-family:'Cormorant Garamond',serif;font-size:16px;line-height:1.45;margin:0 0 8px}
+  .deepen-panel-inner textarea{min-height:120px;resize:vertical}
+  .deepen-panel-inner textarea:focus,.deepen-panel-inner input[type="email"]:focus{outline:none;border-color:var(--gold)}
   .deepen-hint{font-family:'Cormorant Garamond',serif;font-style:italic;color:var(--muted);font-size:14px;margin:0 0 18px;line-height:1.4}
   .deepen-err{display:none;color:#ff8a8a;font-size:13px;margin:0 0 12px;font-family:'Inter',sans-serif}
   .admin-hotspot{
@@ -630,22 +631,6 @@
 
       <div class="field">
 
-        <label for="birth">Data di nascita</label>
-
-        <input id="birth" name="birth" type="date" min="1920-01-01" max="2015-12-31" required />
-
-      </div>
-
-      <div class="field">
-
-        <label for="email">Email</label>
-
-        <input id="email" name="email" type="email" maxlength="120" placeholder="Email" required />
-
-      </div>
-
-      <div class="field">
-
         <label for="q">La tua domanda</label>
 
         <textarea id="q" name="q" maxlength="600" rows="4" placeholder="Scrivi qui le tue domande" required></textarea>
@@ -793,6 +778,21 @@
     <div class="credit-choice-actions">
       <button type="button" class="gold-btn" id="btn-deepen-confirm">APPROFONDISCI CON 1 CREDITO</button>
       <button type="button" class="ghost-btn" id="btn-deepen-cancel">ANNULLA</button>
+    </div>
+  </div>
+</div>
+
+<div id="checkout-email-panel" class="pay-bridge" aria-live="polite">
+  <div class="pay-bridge-inner deepen-panel-inner">
+    <div class="phase-tag">PAGAMENTO</div>
+    <h2>La tua email</h2>
+    <p class="deepen-hint" style="margin-top:0">Ti serve solo per ricevere la ricevuta e il link per riaprire la lettura. Non creiamo un account.</p>
+    <label for="checkout-email">Email</label>
+    <input id="checkout-email" type="email" maxlength="120" placeholder="La tua email" autocomplete="email" />
+    <p class="deepen-err" id="checkout-email-err"></p>
+    <div class="credit-choice-actions">
+      <button type="button" class="gold-btn" id="btn-checkout-email-confirm">CONTINUA AL PAGAMENTO</button>
+      <button type="button" class="ghost-btn" id="btn-checkout-email-cancel">ANNULLA</button>
     </div>
   </div>
 </div>
@@ -1034,7 +1034,7 @@
 
   <h2>Come funziona</h2>
   <ul>
-    <li>Inserisci nome, data di nascita, email e la tua domanda.</li>
+    <li>Inserisci nome e la tua domanda.</li>
     <li>Estrai tre carte dal mazzo (passato, presente, futuro).</li>
     <li>Ricevi subito un’anteprima gratuita della lettura.</li>
     <li>Se vuoi, sblocca la lettura completa o approfondisci con nuove domande.</li>
@@ -1091,7 +1091,7 @@
     </details>
     <details>
       <summary>Serve un account?</summary>
-      <p>No. Bastano nome, data di nascita, email e la domanda che vuoi porre alle carte.</p>
+      <p>No. Bastano nome e la domanda che vuoi porre alle carte. L’email viene chiesta solo al pagamento.</p>
     </details>
     <details>
       <summary>Meglio online o al telefono?</summary>
@@ -1138,7 +1138,7 @@
       "name": "Serve un account?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No. Bastano nome, data di nascita, email e la domanda che vuoi porre alle carte."
+        "text": "No. Bastano nome e la domanda che vuoi porre alle carte. L’email viene chiesta solo al pagamento."
       }
     },
     {
@@ -1835,18 +1835,14 @@
     state.checkoutPass = null;
     ctaEl.classList.remove('show');
     var ctaTitleReset = ctaEl.querySelector('.cta-title');
-    if(ctaTitleReset) ctaTitleReset.textContent = 'APPROFONDISCI LA LETTURA';
+    if(ctaTitleReset) ctaTitleReset.textContent = 'VUOI LA LETTURA INTERA?';
     if(ctaFullEl) ctaFullEl.classList.remove('show');
     readingEl.innerHTML = '';
     threeCards.innerHTML = '';
 
     var nameEl = document.getElementById('name');
-    var birthEl = document.getElementById('birth');
-    var emailEl = document.getElementById('email');
     var qEl = document.getElementById('q');
     if(nameEl) nameEl.value = from.name || '';
-    if(birthEl) birthEl.value = from.birthDate || '';
-    if(emailEl) emailEl.value = from.email || (u && u.email) || '';
     if(qEl) qEl.value = '';
 
     showPhase('phase-input');
@@ -2542,12 +2538,55 @@
     startCheckout('pack');
   }
   function startCheckout(product){
-    var email = (state.form && state.form.email) ? state.form.email : '';
+    var pendingProduct = product || 'full';
+    var email = (state.form && state.form.email) ? String(state.form.email).trim().toLowerCase() : '';
+    var unlock = getUnlock();
+    if((!email || email.indexOf('@') < 0) && unlock && unlock.email){
+      email = String(unlock.email).trim().toLowerCase();
+    }
     if(!email || email.indexOf('@') < 0){
-      showToast('Email non disponibile. Compila il form nella Fase I prima di procedere al pagamento.');
-      console.error('Email not available in state.form:', state.form);
+      showCheckoutEmailPanel(pendingProduct);
       return;
     }
+    proceedCheckout(pendingProduct, email);
+  }
+  function showCheckoutEmailPanel(product){
+    var panel = document.getElementById('checkout-email-panel');
+    var input = document.getElementById('checkout-email');
+    var err = document.getElementById('checkout-email-err');
+    if(!panel) return;
+    panel.setAttribute('data-product', product || 'full');
+    if(err){ err.style.display = 'none'; err.textContent = ''; }
+    if(input){
+      var unlock = getUnlock();
+      input.value = (state.form && state.form.email) || (unlock && unlock.email) || '';
+      setTimeout(function(){ try { input.focus(); } catch(e){} }, 80);
+    }
+    panel.classList.add('show');
+  }
+  function hideCheckoutEmailPanel(){
+    var panel = document.getElementById('checkout-email-panel');
+    if(panel) panel.classList.remove('show');
+  }
+  function confirmCheckoutEmail(){
+    var panel = document.getElementById('checkout-email-panel');
+    var input = document.getElementById('checkout-email');
+    var err = document.getElementById('checkout-email-err');
+    var email = input ? String(input.value || '').trim().toLowerCase() : '';
+    var product = panel ? (panel.getAttribute('data-product') || 'full') : 'full';
+    if(!email || email.indexOf('@') < 0){
+      if(err){
+        err.textContent = 'Inserisci un’email valida per continuare al pagamento.';
+        err.style.display = 'block';
+      }
+      return;
+    }
+    if(!state.form) state.form = { name:'', question:'', marketing:false };
+    state.form.email = email;
+    hideCheckoutEmailPanel();
+    proceedCheckout(product, email);
+  }
+  function proceedCheckout(product, email){
     if(state.form && state.lastCards){
       saveReadingDraft();
       sessionStorage.setItem('luxsee_pending', JSON.stringify({
@@ -2569,8 +2608,8 @@
           product: product,
           origin: window.location.origin,
           email: email,
-          name: state.form.name || '',
-          marketing: !!state.form.marketing,
+          name: (state.form && state.form.name) || '',
+          marketing: !!(state.form && state.form.marketing),
           turnstileToken: turnstileToken || '',
           checkoutPass: state.checkoutPass || ''
         })
@@ -2630,7 +2669,7 @@
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         name: state.form.name,
-        birthDate: state.form.birthDate,
+        birthDate: state.form.birthDate || '',
         email: state.form.email || '',
         question: state.form.question,
         cards: state.lastCards,
@@ -2895,29 +2934,6 @@
 
   setTimeout(function(){ document.getElementById('phase-input').classList.add('visible'); }, 50);
 
-  (function setupBirthInput(){
-    var birthEl = document.getElementById('birth');
-    if(!birthEl) return;
-    var maxY = new Date().getFullYear() - 12;
-    birthEl.setAttribute('min', '1920-01-01');
-    birthEl.setAttribute('max', maxY + '-12-31');
-    birthEl.addEventListener('change', function(){
-      var v = birthEl.value || '';
-      if(!/^\d{4}-\d{2}-\d{2}$/.test(v)){
-        birthEl.setCustomValidity('Inserisci una data valida (anno a 4 cifre).');
-        return;
-      }
-      var y = parseInt(v.slice(0, 4), 10);
-      if(y < 1920 || y > maxY || String(y).length !== 4){
-        birthEl.setCustomValidity('Anno non valido: usa 4 cifre (es. 1990).');
-      } else {
-        birthEl.setCustomValidity('');
-      }
-    });
-  })();
-
-
-
   // Phase 1
 
   var form = document.getElementById('form');
@@ -2930,18 +2946,11 @@
 
     var name = document.getElementById('name').value.trim();
 
-    var birth = document.getElementById('birth').value.trim();
-
-    var email = document.getElementById('email').value.trim().toLowerCase();
-
     var q = document.getElementById('q').value.trim();
 
-    var yearOk = /^\d{4}-\d{2}-\d{2}$/.test(birth) && birth.slice(0,4).length === 4;
-    var yearNum = yearOk ? parseInt(birth.slice(0,4), 10) : 0;
-    var maxYear = new Date().getFullYear() - 12;
-    if(!name || !birth || !yearOk || yearNum < 1920 || yearNum > maxYear || !email || email.indexOf('@') < 0 || q.length<3){
+    if(!name || q.length<3){
 
-      formErr.textContent='Completa tutti i campi. Anno di nascita: 4 cifre (es. 1990).';
+      formErr.textContent='Inserisci il tuo nome e una domanda (almeno 3 caratteri).';
 
       formErr.style.display='block';
 
@@ -2958,7 +2967,7 @@
 
     formErr.style.display='none';
 
-    state.form = { name:name, birthDate:birth, email:email, question:q, marketing: false };
+    state.form = { name:name, birthDate:'', email:'', question:q, marketing: false };
     state.turnstileToken = ts;
 
     state.deck = shuffle(DECK);
@@ -3361,6 +3370,17 @@
   });
   document.getElementById('btn-deepen-full').addEventListener('click', deepenFullReading);
   document.getElementById('btn-deepen-confirm').addEventListener('click', confirmDeepenReading);
+  document.getElementById('btn-checkout-email-confirm').addEventListener('click', confirmCheckoutEmail);
+  document.getElementById('btn-checkout-email-cancel').addEventListener('click', hideCheckoutEmailPanel);
+  var checkoutEmailInput = document.getElementById('checkout-email');
+  if(checkoutEmailInput){
+    checkoutEmailInput.addEventListener('keydown', function(e){
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        confirmCheckoutEmail();
+      }
+    });
+  }
   document.getElementById('btn-deepen-cancel').addEventListener('click', hideDeepenPanel);
   document.getElementById('btn-use-credit').addEventListener('click', function(){
     var u = getUnlock();
@@ -3400,8 +3420,8 @@
 
     state.form = {
       name: 'Giulia',
-      birthDate: '1992-04-18',
-      email: 'test@luxseetarot.com',
+      birthDate: '',
+      email: '',
       question: 'Riuscirò a trovare chiarezza sul mio prossimo passo lavorativo?'
     };
     state.lastCards = ['La Luna', 'Il Sole', 'La Stella'];
