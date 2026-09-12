@@ -178,6 +178,7 @@ ${faqLd ? `<script type="application/ld+json">${JSON.stringify(faqLd)}</script>`
   </main>
   <footer>Luxseetarot © 2026</footer>
   <script src="/js/tab-title.js" defer></script>
+  <script src="/js/exit-intent.js" defer></script>
 </body>
 </html>`;
 }
