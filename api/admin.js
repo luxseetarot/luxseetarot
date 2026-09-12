@@ -43,7 +43,6 @@ import {
   getSiteSettings,
   saveSiteSettings,
 } from './_lib/site-settings.js';
-import Stripe from 'stripe';
 
 function getAdminSecret() {
   return (process.env.ADMIN_SECRET || '').trim();
@@ -348,6 +347,7 @@ export default async function handler(req, res) {
       }
       const secret = process.env.STRIPE_SECRET_KEY;
       if (!secret) return res.status(500).json({ ok: false, error: 'Stripe non configurato.' });
+      const { default: Stripe } = await import('stripe');
       const stripe = new Stripe(secret);
       const mail = await sendPurchaseConfirmation(stripe, sessionId, { force: true });
       if (!mail.ok) {

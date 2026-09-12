@@ -821,6 +821,7 @@
         <button type="button" id="admin-tab-blog" data-admin-tab="blog">Blog</button>
         <button type="button" id="admin-tab-pinterest" data-admin-tab="pinterest">Pinterest</button>
         <button type="button" id="admin-tab-settings" data-admin-tab="settings">Prezzi / AI</button>
+        <button type="button" id="admin-tab-email" data-admin-tab="email">Email</button>
       </div>
       <div class="admin-actions">
         <button type="button" class="gold-btn" id="admin-refresh">AGGIORNA</button>
@@ -1018,19 +1019,25 @@
           <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Usato per anteprima e lettura completa. Cambia solo modelli disponibili sul tuo account OpenAI.</p>
           <label for="admin-set-gpt-model">Modello</label>
           <select id="admin-set-gpt-model" aria-label="Modello GPT"></select>
-          <div class="phase-tag" style="margin:18px 0 10px">EMAIL / BREVO</div>
-          <p id="admin-email-status" style="margin:0 0 12px;font-size:12px;color:var(--muted);line-height:1.45">Caricamento stato email…</p>
+          <p id="admin-settings-hint" style="margin:12px 0 0;font-size:12px;color:rgba(212,175,106,.8);line-height:1.45"></p>
+          <div class="admin-blog-editor-actions" style="margin-top:14px">
+            <button type="button" class="gold-btn" id="admin-settings-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA IMPOSTAZIONI</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="admin-email-pane" style="display:none">
+        <div class="admin-blog-editor show">
+          <div class="phase-tag" style="margin-bottom:10px">EMAIL / BREVO</div>
+          <p style="margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.5">Stato invio email di conferma acquisto. Se Brevo non è configurato, nessuna mail parte dopo il pagamento.</p>
+          <p id="admin-email-status" style="margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.45">Caricamento stato email…</p>
           <label for="admin-email-test-to">Invia email di test a</label>
           <input type="email" id="admin-email-test-to" maxlength="120" placeholder="tua@email.com" />
           <label for="admin-email-resend-session">Oppure reinvia conferma (sessionId Stripe)</label>
           <input type="text" id="admin-email-resend-session" maxlength="200" placeholder="cs_..." />
-          <div class="admin-blog-editor-actions" style="margin-top:10px">
-            <button type="button" class="ghost-btn" id="admin-email-test" style="width:auto;padding:10px 14px;font-size:11px">INVIA TEST</button>
-            <button type="button" class="ghost-btn" id="admin-email-resend" style="width:auto;padding:10px 14px;font-size:11px">REINVIA CONFERMA</button>
-          </div>
-          <p id="admin-settings-hint" style="margin:12px 0 0;font-size:12px;color:rgba(212,175,106,.8);line-height:1.45"></p>
           <div class="admin-blog-editor-actions" style="margin-top:14px">
-            <button type="button" class="gold-btn" id="admin-settings-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA IMPOSTAZIONI</button>
+            <button type="button" class="gold-btn" id="admin-email-test" style="width:auto;padding:10px 14px;font-size:11px">INVIA TEST</button>
+            <button type="button" class="ghost-btn" id="admin-email-resend" style="width:auto;padding:10px 14px;font-size:11px">REINVIA CONFERMA</button>
           </div>
         </div>
       </div>
@@ -3569,6 +3576,7 @@
     var blogPane = document.getElementById('admin-blog-pane');
     var pinPane = document.getElementById('admin-pinterest-pane');
     var settingsPane = document.getElementById('admin-settings-pane');
+    var emailPane = document.getElementById('admin-email-pane');
     var resetAllBtn = document.getElementById('admin-reset-all');
     var taps = 0;
     var tapTimer = null;
@@ -3609,29 +3617,35 @@
     function setTab(tab){
       activeTab = tab === 'blog' ? 'blog'
         : (tab === 'pinterest' ? 'pinterest'
-        : (tab === 'settings' ? 'settings' : 'funnel'));
+        : (tab === 'settings' ? 'settings'
+        : (tab === 'email' ? 'email' : 'funnel')));
       var tabFunnel = document.getElementById('admin-tab-funnel');
       var tabBlog = document.getElementById('admin-tab-blog');
       var tabPin = document.getElementById('admin-tab-pinterest');
       var tabSettings = document.getElementById('admin-tab-settings');
+      var tabEmail = document.getElementById('admin-tab-email');
       if(tabFunnel) tabFunnel.classList.toggle('active', activeTab === 'funnel');
       if(tabBlog) tabBlog.classList.toggle('active', activeTab === 'blog');
       if(tabPin) tabPin.classList.toggle('active', activeTab === 'pinterest');
       if(tabSettings) tabSettings.classList.toggle('active', activeTab === 'settings');
+      if(tabEmail) tabEmail.classList.toggle('active', activeTab === 'email');
       if(funnelPane) funnelPane.style.display = activeTab === 'funnel' ? 'block' : 'none';
       if(blogPane) blogPane.style.display = activeTab === 'blog' ? 'block' : 'none';
       if(pinPane) pinPane.style.display = activeTab === 'pinterest' ? 'block' : 'none';
       if(settingsPane) settingsPane.style.display = activeTab === 'settings' ? 'block' : 'none';
+      if(emailPane) emailPane.style.display = activeTab === 'email' ? 'block' : 'none';
       if(resetAllBtn) resetAllBtn.style.display = activeTab === 'funnel' ? '' : 'none';
       if(titleEl){
         titleEl.textContent = activeTab === 'blog' ? 'Blog articoli'
           : (activeTab === 'pinterest' ? 'Pinterest pin'
-          : (activeTab === 'settings' ? 'Prezzi e AI' : 'Funnel letture'));
+          : (activeTab === 'settings' ? 'Prezzi e AI'
+          : (activeTab === 'email' ? 'Email Brevo' : 'Funnel letture')));
       }
       if(getSecret()){
         if(activeTab === 'blog') loadBlog();
         else if(activeTab === 'pinterest') loadPinterest();
         else if(activeTab === 'settings') loadSettings();
+        else if(activeTab === 'email') loadEmailStatus();
         else loadStats();
       }
     }
@@ -4133,6 +4147,7 @@
       if(activeTab === 'blog') loadBlog();
       else if(activeTab === 'pinterest') loadPinterest();
       else if(activeTab === 'settings') loadSettings();
+      else if(activeTab === 'email') loadEmailStatus();
       else loadStats();
     }
 
@@ -4167,17 +4182,18 @@
           ? 'Ultimo salvataggio: ' + fmtIso(s.updatedAt)
           : 'Valori predefiniti (non ancora salvati).';
       }
-      loadEmailStatus();
     }
 
     function loadEmailStatus(){
       var statusEl = document.getElementById('admin-email-status');
-      if(!statusEl) return;
-      adminFetch({ action: 'email-status' }).then(function(res){
+      if(!statusEl) return Promise.resolve();
+      statusEl.textContent = 'Caricamento stato email…';
+      statusEl.style.color = 'var(--muted)';
+      return adminFetch({ action: 'email-status' }).then(function(res){
         if(!res.ok){
           statusEl.textContent = res.error || 'Stato email non disponibile.';
           statusEl.style.color = '#ff8a8a';
-          return;
+          return res;
         }
         if(res.configured){
           statusEl.textContent = 'Brevo OK · mittente: ' + (res.sender || '?');
@@ -4186,6 +4202,12 @@
           statusEl.textContent = 'BREVO_API_KEY mancante su Vercel: le email di conferma non partono.';
           statusEl.style.color = '#ff8a8a';
         }
+        if(metaEl && activeTab === 'email'){
+          metaEl.textContent = res.configured
+            ? 'Email configurata (Brevo).'
+            : 'Configura BREVO_API_KEY su Vercel → Project → Settings → Environment Variables.';
+        }
+        return res;
       }).catch(function(){
         statusEl.textContent = 'Impossibile verificare Brevo.';
         statusEl.style.color = '#ff8a8a';
