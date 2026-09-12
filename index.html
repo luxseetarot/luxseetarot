@@ -709,6 +709,7 @@
           <button type="button" class="gold-btn" id="btn-pdf-full">SCARICA PDF</button>
           <button type="button" class="ghost-btn" id="btn-deepen-full">APPROFONDISCI ANCORA LA LETTURA</button>
           <button type="button" class="ghost-btn" id="btn-new-question-full">FAI UNA NUOVA DOMANDA</button>
+          <button type="button" class="ghost-btn" id="btn-resend-email" style="display:none">REINVIA EMAIL DI RECUPERO</button>
           <button type="button" class="ghost-btn" id="btn-upsell-pack">PACK 5 LETTURE — €9,90</button>
         </div>
         <button type="button" class="credits-pill credits-pill--footer" id="credits-pill-full" title="Clicca per gestire i crediti" style="display:none"></button>
@@ -1017,6 +1018,16 @@
           <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Usato per anteprima e lettura completa. Cambia solo modelli disponibili sul tuo account OpenAI.</p>
           <label for="admin-set-gpt-model">Modello</label>
           <select id="admin-set-gpt-model" aria-label="Modello GPT"></select>
+          <div class="phase-tag" style="margin:18px 0 10px">EMAIL / BREVO</div>
+          <p id="admin-email-status" style="margin:0 0 12px;font-size:12px;color:var(--muted);line-height:1.45">Caricamento stato email…</p>
+          <label for="admin-email-test-to">Invia email di test a</label>
+          <input type="email" id="admin-email-test-to" maxlength="120" placeholder="tua@email.com" />
+          <label for="admin-email-resend-session">Oppure reinvia conferma (sessionId Stripe)</label>
+          <input type="text" id="admin-email-resend-session" maxlength="200" placeholder="cs_..." />
+          <div class="admin-blog-editor-actions" style="margin-top:10px">
+            <button type="button" class="ghost-btn" id="admin-email-test" style="width:auto;padding:10px 14px;font-size:11px">INVIA TEST</button>
+            <button type="button" class="ghost-btn" id="admin-email-resend" style="width:auto;padding:10px 14px;font-size:11px">REINVIA CONFERMA</button>
+          </div>
           <p id="admin-settings-hint" style="margin:12px 0 0;font-size:12px;color:rgba(212,175,106,.8);line-height:1.45"></p>
           <div class="admin-blog-editor-actions" style="margin-top:14px">
             <button type="button" class="gold-btn" id="admin-settings-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA IMPOSTAZIONI</button>
@@ -1318,6 +1329,7 @@
   var POSITIONS = ['Passato','Presente','Futuro'];
   var STORAGE_KEY = 'luxsee_unlock';
   var READING_KEY = 'luxsee_reading';
+  var LAST_SESSION_KEY = 'luxsee_last_session';
   var ctaFullEl = null;
 
   function getTurnstileToken(){
@@ -1478,7 +1490,12 @@
   }
   function setUnlock(data){
     if(!data) localStorage.removeItem(STORAGE_KEY);
-    else localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    else {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      if(data.sessionId){
+        try { localStorage.setItem(LAST_SESSION_KEY, String(data.sessionId)); } catch(e){}
+      }
+    }
     refreshCreditsUI();
     // Appena i crediti sono attivi, sincronizza l'ultima lettura sul server
     // così il link email può ripristinare "approfondisci ultima domanda".
@@ -1490,6 +1507,35 @@
         saveReadingDraft();
       }
     }
+  }
+  function getLastPurchaseSessionId(){
+    var u = getUnlock();
+    var fromUnlock = getUnlockSessionId(u);
+    if(fromUnlock) return fromUnlock;
+    try { return localStorage.getItem(LAST_SESSION_KEY) || ''; } catch(e){ return ''; }
+  }
+  function resendPurchaseEmail(){
+    var sessionId = getLastPurchaseSessionId();
+    var u = getUnlock();
+    if(!sessionId && !(u && u.unlockToken)){
+      showToast('Nessun acquisto recente da questo browser. Controlla spam o scrivici.');
+      return;
+    }
+    showToast('Reinvio email in corso...');
+    fetch('/api/resend-purchase-email', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        sessionId: sessionId || '',
+        unlockToken: (u && u.unlockToken) || ''
+      })
+    }).then(function(r){ return r.json(); }).then(function(res){
+      if(res.ok){
+        showToast('Email reinviata' + (res.email ? (' a ' + res.email) : '') + '. Controlla anche spam.');
+        return;
+      }
+      showToast(res.error || 'Reinvio email non riuscito.');
+    }).catch(function(){ showToast('Reinvio email non riuscito.'); });
   }
   function getSavedReading(){
     try { return JSON.parse(localStorage.getItem(READING_KEY) || 'null'); } catch(e){ return null; }
@@ -1631,6 +1677,11 @@
       deepenBtn.textContent = hasCredits
         ? 'APPROFONDISCI ANCORA LA LETTURA'
         : 'APPROFONDISCI ANCORA — PACK ' + formatPriceEuro(getPricing().packPriceCents);
+    }
+    var resendBtn = document.getElementById('btn-resend-email');
+    if(resendBtn){
+      var canResend = !!getLastPurchaseSessionId();
+      resendBtn.style.display = (fullOpen && canResend) ? 'inline-flex' : 'none';
     }
     if(fullTextEl){
       fullTextEl.textContent = hasCredits
@@ -2718,6 +2769,8 @@
                 if(ctaFullEl) ctaFullEl.classList.add('show');
                 if(res.emailSent){
                   showToast('Lettura completa pronta. Ti abbiamo inviato un\'email per riaprirla quando vuoi.');
+                } else if(res.emailError){
+                  showToast('Lettura pronta. Email non inviata: ' + String(res.emailError).slice(0, 120));
                 } else {
                   showToast('Ecco la lettura completa. Usa il pulsante per scaricare il PDF.');
                 }
@@ -2725,7 +2778,7 @@
                 if(ctaFullEl) ctaFullEl.classList.remove('show');
                 ctaEl.classList.add('show');
                 var ctaTitleOk = ctaEl.querySelector('.cta-title');
-                if(ctaTitleOk) ctaTitleOk.textContent = 'APPROFONDISCI LA LETTURA';
+                if(ctaTitleOk) ctaTitleOk.textContent = 'VUOI LA LETTURA INTERA?';
                 // Con checkoutPass non serve un secondo widget; mostralo solo se manca
                 if(!state.checkoutPass) ensureCheckoutTurnstile();
                 else {
@@ -2811,8 +2864,10 @@
         showToast(res.product === 'pack'
           ? 'Ti abbiamo inviato un\'email con il link ai crediti.'
           : 'Ti abbiamo inviato un\'email di conferma acquisto con il link alla lettura.');
+      } else if(res.emailError){
+        showToast('Pagamento ok, ma email non inviata: ' + String(res.emailError).slice(0, 140));
       } else if(res.email){
-        showToast('Pagamento ok. Se non trovi l\'email di conferma, controlla spam o scrivici.');
+        showToast('Pagamento ok. Se non trovi l\'email di conferma, controlla spam o usa Reinvia email.');
       }
       showPayBridge(res.product || 'full');
 
@@ -3371,6 +3426,8 @@
     downloadReadingPdf('full').catch(function(err){ console.error(err); });
   });
   document.getElementById('btn-deepen-full').addEventListener('click', deepenFullReading);
+  var resendEmailBtn = document.getElementById('btn-resend-email');
+  if(resendEmailBtn) resendEmailBtn.addEventListener('click', resendPurchaseEmail);
   document.getElementById('btn-deepen-confirm').addEventListener('click', confirmDeepenReading);
   document.getElementById('btn-checkout-email-confirm').addEventListener('click', confirmCheckoutEmail);
   document.getElementById('btn-checkout-email-cancel').addEventListener('click', hideCheckoutEmailPanel);
@@ -4110,6 +4167,29 @@
           ? 'Ultimo salvataggio: ' + fmtIso(s.updatedAt)
           : 'Valori predefiniti (non ancora salvati).';
       }
+      loadEmailStatus();
+    }
+
+    function loadEmailStatus(){
+      var statusEl = document.getElementById('admin-email-status');
+      if(!statusEl) return;
+      adminFetch({ action: 'email-status' }).then(function(res){
+        if(!res.ok){
+          statusEl.textContent = res.error || 'Stato email non disponibile.';
+          statusEl.style.color = '#ff8a8a';
+          return;
+        }
+        if(res.configured){
+          statusEl.textContent = 'Brevo OK · mittente: ' + (res.sender || '?');
+          statusEl.style.color = 'rgba(143,212,162,.95)';
+        } else {
+          statusEl.textContent = 'BREVO_API_KEY mancante su Vercel: le email di conferma non partono.';
+          statusEl.style.color = '#ff8a8a';
+        }
+      }).catch(function(){
+        statusEl.textContent = 'Impossibile verificare Brevo.';
+        statusEl.style.color = '#ff8a8a';
+      });
     }
 
     function loadSettings(){
@@ -4218,6 +4298,42 @@
           }
           if(metaEl) metaEl.textContent = 'Impostazioni salvate.';
         }).catch(function(){ showErr('Salvataggio fallito'); });
+      });
+    }
+    var emailTestBtn = document.getElementById('admin-email-test');
+    if(emailTestBtn){
+      emailTestBtn.addEventListener('click', function(){
+        var toEl = document.getElementById('admin-email-test-to');
+        var to = toEl ? String(toEl.value || '').trim().toLowerCase() : '';
+        showErr('');
+        adminFetch({ action: 'email-test', email: to }).then(function(res){
+          var statusEl = document.getElementById('admin-email-status');
+          if(!res.ok){
+            showErr(res.error || 'Test email fallito');
+            if(statusEl){
+              statusEl.textContent = res.error || 'Test email fallito';
+              statusEl.style.color = '#ff8a8a';
+            }
+            return;
+          }
+          if(metaEl) metaEl.textContent = 'Email di test inviata a ' + (res.sentTo || to);
+          if(statusEl){
+            statusEl.textContent = 'Test OK · inviata a ' + (res.sentTo || to);
+            statusEl.style.color = 'rgba(143,212,162,.95)';
+          }
+        }).catch(function(){ showErr('Test email fallito'); });
+      });
+    }
+    var emailResendBtn = document.getElementById('admin-email-resend');
+    if(emailResendBtn){
+      emailResendBtn.addEventListener('click', function(){
+        var sidEl = document.getElementById('admin-email-resend-session');
+        var sessionId = sidEl ? String(sidEl.value || '').trim() : '';
+        showErr('');
+        adminFetch({ action: 'email-resend', sessionId: sessionId }).then(function(res){
+          if(!res.ok){ showErr(res.error || 'Reinvio fallito'); return; }
+          if(metaEl) metaEl.textContent = 'Conferma reinviata a ' + (res.email || 'cliente');
+        }).catch(function(){ showErr('Reinvio fallito'); });
       });
     }
     if(resetAllBtn){

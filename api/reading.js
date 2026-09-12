@@ -1,9 +1,9 @@
 ﻿import Stripe from 'stripe';
-import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe, signCheckoutPass, getSessionCredits } from './_lib/unlock.js';
+import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe, signCheckoutPass } from './_lib/unlock.js';
 import { verifyTurnstileToken } from './_lib/turnstile.js';
 import { recordTeaser } from './_lib/funnel.js';
-import { sendCreditsEmail } from './_lib/email.js';
 import { getGptModel } from './_lib/site-settings.js';
+import { sendPurchaseConfirmation } from './_lib/purchase-email.js';
 
 function buildSystemPrompt(mode, { deepen = false } = {}) {
   const isFull = mode === 'full';
@@ -115,7 +115,8 @@ export default async function handler(req, res) {
 
     let remainingCredits = null;
     let nextToken = null;
-    let consumedSession = null;
+    let emailSent = false;
+    let emailError = null;
 
     if (isFull) {
       const unlocked = verifyUnlockToken(unlockToken);
@@ -133,14 +134,22 @@ export default async function handler(req, res) {
       nextToken = remainingCredits > 0
         ? signUnlock({ sessionId: unlocked.sessionId, credits: unlocked.credits, exp: unlocked.exp })
         : null;
-      consumedSession = {
-        stripe,
-        sessionId: unlocked.sessionId,
-        remaining: consumed.remaining,
-        max: consumed.max,
-        product: consumed.product || 'full',
-        email: consumed.email || '',
-      };
+
+      // Conferma email subito dopo il consumo, prima della generazione AI (evita timeout).
+      try {
+        const mail = await sendPurchaseConfirmation(stripe, unlocked.sessionId, {
+          force: false,
+          nameFallback: String(name || ''),
+        });
+        emailSent = !!(mail.ok && mail.emailSent);
+        if (!mail.ok && !mail.alreadySent) {
+          emailError = mail.error || 'Invio email fallito.';
+          console.error('Full-reading purchase email failed:', emailError);
+        }
+      } catch (e) {
+        emailError = 'Invio email fallito.';
+        console.error('Full-reading purchase email exception:', e);
+      }
     }
 
     const systemPrompt = buildSystemPrompt(isFull ? 'full' : 'teaser', { deepen: isDeepen });
@@ -203,38 +212,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // Email post-consumo per lettura singola (e pack se non ancora inviata).
-    let emailSent = false;
-    if (consumedSession) {
-      try {
-        const info = await getSessionCredits(consumedSession.stripe, consumedSession.sessionId);
-        if (info.ok && info.email && info.session.metadata?.credits_email_sent !== '1') {
-          const mail = await sendCreditsEmail({
-            to: info.email,
-            name: info.session.metadata?.name || String(name || ''),
-            remaining: remainingCredits,
-            max: info.max,
-            sessionId: consumedSession.sessionId,
-            product: info.product || consumedSession.product || 'full',
-          });
-          emailSent = !!mail.ok;
-          if (mail.ok) {
-            const fresh = await consumedSession.stripe.checkout.sessions.retrieve(consumedSession.sessionId);
-            const usedFresh = parseInt(fresh.metadata?.credits_used || '0', 10) || 0;
-            await consumedSession.stripe.checkout.sessions.update(consumedSession.sessionId, {
-              metadata: {
-                ...(fresh.metadata || {}),
-                credits_email_sent: '1',
-                credits_used: String(Math.max(usedFresh, info.used)),
-              },
-            });
-          }
-        }
-      } catch (e) {
-        console.error('Post-reading credits email failed:', e);
-      }
-    }
-
     return res.status(200).json({
       ok: true,
       reading,
@@ -243,6 +220,7 @@ export default async function handler(req, res) {
       unlockToken: nextToken,
       checkoutPass,
       emailSent,
+      emailError,
     });
   } catch (err) {
     console.error('Handler error:', err);

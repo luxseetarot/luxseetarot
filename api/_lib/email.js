@@ -7,8 +7,11 @@
     (process.env.BREVO_SENDER_NAME || '').trim() || 'Luxseetarot';
 
   if (!apiKey || !to) {
-    console.warn('Email skipped: missing BREVO_API_KEY or recipient');
-    return { ok: false, skipped: true };
+    console.warn('Email skipped: missing BREVO_API_KEY or recipient', {
+      hasKey: !!apiKey,
+      hasTo: !!to,
+    });
+    return { ok: false, skipped: true, error: !apiKey ? 'BREVO_API_KEY mancante' : 'Destinatario mancante' };
   }
 
   const site = (process.env.SITE_URL || 'https://www.luxseetarot.com').replace(/\/$/, '');

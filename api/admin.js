@@ -35,12 +35,15 @@ import {
   savePinterestSchedule,
   seedPinterestQueue,
 } from './_lib/pinterest.js';
+import { sendCreditsEmail } from './_lib/email.js';
+import { emailConfigStatus, sendPurchaseConfirmation } from './_lib/purchase-email.js';
 import { PINTEREST_SEED_CATALOG } from './_lib/pinterest-seed.js';
 import {
   allowedGptModels,
   getSiteSettings,
   saveSiteSettings,
 } from './_lib/site-settings.js';
+import Stripe from 'stripe';
 
 function getAdminSecret() {
   return (process.env.ADMIN_SECRET || '').trim();
@@ -301,6 +304,56 @@ export default async function handler(req, res) {
         gptModels: allowedGptModels(),
         storage: funnelStorageMode(),
       });
+    }
+
+    if (action === 'email-status') {
+      return res.status(200).json({ ok: true, ...emailConfigStatus() });
+    }
+
+    if (action === 'email-test') {
+      const to = String((req.body && req.body.email) || '').trim().toLowerCase();
+      if (!to || !to.includes('@')) {
+        return res.status(400).json({ ok: false, error: 'Email di test non valida.' });
+      }
+      const cfg = emailConfigStatus();
+      if (!cfg.configured) {
+        return res.status(503).json({
+          ok: false,
+          error: 'BREVO_API_KEY non configurata su Vercel.',
+          ...cfg,
+        });
+      }
+      const mail = await sendCreditsEmail({
+        to,
+        name: 'Test',
+        remaining: 1,
+        max: 1,
+        sessionId: 'test-session',
+        product: 'full',
+      });
+      if (!mail.ok) {
+        return res.status(502).json({
+          ok: false,
+          error: mail.error || 'Invio Brevo fallito.',
+          ...cfg,
+        });
+      }
+      return res.status(200).json({ ok: true, sentTo: to, ...cfg });
+    }
+
+    if (action === 'email-resend') {
+      const sessionId = String((req.body && req.body.sessionId) || '').trim();
+      if (!sessionId) {
+        return res.status(400).json({ ok: false, error: 'sessionId Stripe obbligatorio.' });
+      }
+      const secret = process.env.STRIPE_SECRET_KEY;
+      if (!secret) return res.status(500).json({ ok: false, error: 'Stripe non configurato.' });
+      const stripe = new Stripe(secret);
+      const mail = await sendPurchaseConfirmation(stripe, sessionId, { force: true });
+      if (!mail.ok) {
+        return res.status(502).json({ ok: false, error: mail.error || 'Reinvio fallito.', email: mail.email || '' });
+      }
+      return res.status(200).json({ ok: true, email: mail.email || '', emailSent: true });
     }
 
     return res.status(400).json({ ok: false, error: 'Azione non valida.' });

@@ -1,7 +1,8 @@
 ﻿import Stripe from 'stripe';
 import { cors, signUnlock, getSessionCredits, decodeReadingMeta } from './_lib/unlock.js';
-import { sendCreditsEmail, upsertMarketingContact } from './_lib/email.js';
+import { upsertMarketingContact } from './_lib/email.js';
 import { recordPurchase } from './_lib/funnel.js';
+import { sendPurchaseConfirmation } from './_lib/purchase-email.js';
 
 export default async function handler(req, res) {
   cors(res);
@@ -28,35 +29,15 @@ export default async function handler(req, res) {
 
     const customerName = info.session.metadata?.name || '';
     let emailSent = false;
-    const alreadyEmailed = info.session.metadata?.credits_email_sent === '1';
-    // Conferma acquisto subito (singola e pack): link di recupero + ricevuta operativa.
-    if (sendEmail && info.email && !alreadyEmailed) {
-      const mail = await sendCreditsEmail({
-        to: info.email,
-        name: customerName,
-        remaining: info.remaining,
-        max: info.max,
-        sessionId,
-        product: info.product || 'full',
+    let emailError = null;
+    if (sendEmail) {
+      const mail = await sendPurchaseConfirmation(stripe, sessionId, {
+        force: false,
+        nameFallback: customerName,
       });
-      emailSent = !!mail.ok;
-      if (mail.ok) {
-        try {
-          const fresh = await stripe.checkout.sessions.retrieve(sessionId);
-          await stripe.checkout.sessions.update(sessionId, {
-            metadata: {
-              ...(fresh.metadata || {}),
-              credits_email_sent: '1',
-            },
-          });
-        } catch (e) {
-          console.error('Mark credits_email_sent failed:', e);
-        }
-      } else {
-        console.error('Purchase confirmation email failed:', mail.error || mail);
-      }
-    } else if (sendEmail && !info.email) {
-      console.error('Purchase email skipped: missing customer email on session', sessionId);
+      emailSent = !!(mail.ok && mail.emailSent);
+      if (!mail.ok) emailError = mail.error || 'Invio email fallito.';
+      if (mail.alreadySent) emailSent = false;
     }
 
     if (info.session.metadata?.marketing === '1' && info.email) {
@@ -107,6 +88,7 @@ export default async function handler(req, res) {
       sessionId,
       email: info.email,
       emailSent,
+      emailError,
       exp,
       savedReading: savedReading || null,
     });
