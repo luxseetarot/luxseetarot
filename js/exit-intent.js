@@ -1,7 +1,7 @@
 (function () {
   var STORAGE_KEY = 'lux_exit_intent';
   var FORM_KEY = 'lux_exit_form';
-  var MIN_MS = 6000;
+  var MIN_MS = 2000;
   var shown = false;
   var armed = false;
   var start = Date.now();
@@ -22,7 +22,6 @@
     '#lux-exit-moon{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;margin:0 auto 10px;border-radius:50%;border:1px solid rgba(212,175,106,.4);color:#e8c98c;font-size:18px;line-height:1;box-shadow:0 0 24px rgba(212,175,106,.2)}',
     '#lux-exit-close{position:absolute;top:10px;right:10px;width:34px;height:34px;border:0;border-radius:999px;background:transparent;color:rgba(180,170,196,.8);font-size:22px;line-height:1;cursor:pointer;z-index:2}',
     '#lux-exit-close:hover{color:#fff;background:rgba(255,255,255,.06)}',
-    '#lux-exit-badge{display:inline-block;margin:0 0 8px;padding:5px 10px;border-radius:999px;font-family:Inter,system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:#1a1208;background:linear-gradient(135deg,#f0d7a0,#c9a05a)}',
     '#lux-exit-title{font-family:Cinzel,Georgia,serif;font-weight:600;font-size:clamp(18px,4.2vw,22px);letter-spacing:.03em;color:#f0d7a0;margin:0 0 8px;line-height:1.25}',
     '#lux-exit-text{font-family:Inter,system-ui,sans-serif;font-size:13px;line-height:1.45;color:rgba(210,200,220,.88);margin:0;font-weight:400}',
     '#lux-exit-body{padding:16px 22px 18px}',
@@ -114,9 +113,8 @@
         '<button type="button" id="lux-exit-close" aria-label="Chiudi" data-lux-close="1">×</button>' +
         '<div id="lux-exit-top">' +
           '<div id="lux-exit-moon" aria-hidden="true">☽</div>' +
-          '<div id="lux-exit-badge">Offerta di uscita · Gratis</div>' +
           '<h2 id="lux-exit-title">Non uscire senza la tua risposta</h2>' +
-          '<p id="lux-exit-text">Compila qui e ricevi subito la lettura a 3 carte — gratis, senza account.</p>' +
+          '<p id="lux-exit-text">Compila qui e ricevi subito la lettura di 3 carte — gratis, senza account.</p>' +
         '</div>' +
         '<div id="lux-exit-body">' +
           '<form id="lux-exit-form" novalidate>' +
