@@ -786,9 +786,9 @@
   <div class="pay-bridge-inner deepen-panel-inner">
     <div class="phase-tag">PAGAMENTO</div>
     <h2>La tua email</h2>
-    <p class="deepen-hint" style="margin-top:0">Ti serve solo per ricevere la ricevuta e il link per riaprire la lettura. Non creiamo un account.</p>
+    <p class="deepen-hint" style="margin-top:0">Obbligatoria: qui ricevi la conferma d’acquisto e il link per riaprire la lettura (e i crediti, se hai preso un pack). Non creiamo un account.</p>
     <label for="checkout-email">Email</label>
-    <input id="checkout-email" type="email" maxlength="120" placeholder="La tua email" autocomplete="email" />
+    <input id="checkout-email" type="email" maxlength="120" placeholder="email@esempio.com" autocomplete="email" required />
     <p class="deepen-err" id="checkout-email-err"></p>
     <div class="credit-choice-actions">
       <button type="button" class="gold-btn" id="btn-checkout-email-confirm">CONTINUA AL PAGAMENTO</button>
@@ -2576,7 +2576,7 @@
     var product = panel ? (panel.getAttribute('data-product') || 'full') : 'full';
     if(!email || email.indexOf('@') < 0){
       if(err){
-        err.textContent = 'Inserisci un’email valida per continuare al pagamento.';
+        err.textContent = 'Inserisci un’email valida: serve per la conferma d’acquisto e per riaprire la lettura.';
         err.style.display = 'block';
       }
       return;
