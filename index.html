@@ -1529,12 +1529,14 @@
       return;
     }
     showToast('Reinvio email in corso...');
-    fetch('/api/resend-purchase-email', {
+    fetch('/api/verify-session', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({
         sessionId: sessionId || '',
-        unlockToken: (u && u.unlockToken) || ''
+        unlockToken: (u && u.unlockToken) || '',
+        resendEmail: true,
+        sendEmail: false
       })
     }).then(function(r){ return r.json(); }).then(function(res){
       if(res.ok){
