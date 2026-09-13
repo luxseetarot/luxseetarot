@@ -430,7 +430,7 @@ export function getDemoArticle() {
 <h2>Come usarla su Luxseetarot</h2>
 <p>Quando hai la domanda pronta:</p>
 <ol>
-  <li>Vai su <a href="/tarocchi-gratis.html">tarocchi gratis</a>, inserisci nome, data di nascita, email e la domanda.</li>
+  <li>Vai su <a href="/tarocchi-gratis.html">tarocchi gratis</a>, inserisci nome e la domanda.</li>
   <li>Estrai tre carte gratis dal mazzo.</li>
   <li>Leggi l’anteprima gratuita.</li>
   <li>Se vuoi, sblocca la lettura completa o approfondisci con nuove domande sulle stesse carte.</li>

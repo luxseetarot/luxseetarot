@@ -393,7 +393,7 @@ ${CTA}
         },
         {
           q: 'Serve il decano per i tarocchi gratis?',
-          a: 'No. Su Luxseetarot usi data di nascita come contesto personale; le carte rispondono alla domanda e all’estrazione.',
+          a: 'No. Su Luxseetarot bastano nome e domanda; le carte rispondono alla domanda e all’estrazione.',
         },
         {
           q: 'Posso chiedere “il mio decano” alle carte?',
@@ -401,7 +401,7 @@ ${CTA}
         },
       ],
       bodyHtml: `
-<p>La ricerca <strong>tarocchi gratis decani</strong> unisce carte e astrologia. I decani sono fette di segno (~10 giorni). Possono arricchire il contesto, ma non sostituiscono una domanda chiara. Su Luxseetarot inserisci già la <strong>data di nascita</strong> e fai una lettura gratis a tre carte.</p>
+<p>La ricerca <strong>tarocchi gratis decani</strong> unisce carte e astrologia. I decani sono fette di segno (~10 giorni). Possono arricchire il contesto, ma non sostituiscono una domanda chiara. Su Luxseetarot fai una lettura gratis a tre carte con nome e domanda.</p>
 <h2>Come usarli senza confondersi</h2>
 <ul>
   <li>Decano = sfondo, non verdetto.</li>
@@ -412,7 +412,7 @@ ${expand({
   method: 'Se conosci il tuo decano, annota una qualità tipica. Poi fai la domanda ai tarocchi su un tema concreto e confronta — non forzare la conferma.',
   example: 'Decano “comunicativo” + 3 Spade in lettura amore: dolore/parola non detta. Azione: una conversazione onesta, non “è il mio destino astrale”.',
   limits: 'Non mescolare 5 sistemi (oroscopo, decani, numerologia, carte) nella stessa ansia. Scegline uno per sessione.',
-  lux: 'Fai i tarocchi gratis con data di nascita e una domanda; lascia i decani come optional di studio.',
+  lux: 'Fai i tarocchi gratis con nome e una domanda; lascia i decani come optional di studio.',
   exercise: 'Scrivi segno/decano (se lo sai) in 1 riga. Sotto, la domanda reale. Estrai tre carte solo sulla domanda.',
 })}
 ${related([
@@ -529,28 +529,28 @@ ${CTA}
         },
         {
           q: 'Posso fare tarocchi amore gratis con la mia data?',
-          a: 'Sì: su Luxseetarot inserisci nome, data di nascita, email e la domanda d’amore, poi estrai tre carte.',
+          a: 'Sì: su Luxseetarot inserisci nome e la domanda d’amore, poi estrai tre carte. L’email viene chiesta solo al pagamento.',
         },
         {
           q: 'La data rende la lettura più “vera”?',
-          a: 'Aiuta a personalizzare il contesto. La qualità resta legata alla domanda e all’uso responsabile.',
+          a: 'Su alcune piattaforme personalizza il contesto. Su Luxseetarot la qualità resta legata alla domanda e all’uso responsabile.',
         },
       ],
       bodyHtml: `
-<p>Molti cercano <strong>tarocchi amore con data di nascita gratis</strong>: vogliono una lettura sentimentale legata al loro profilo. Su Luxseetarot è già così: nella lettura gratis online chiediamo la data di nascita insieme alla domanda, poi estrai tre carte.</p>
+<p>Molti cercano <strong>tarocchi amore con data di nascita gratis</strong>: vogliono una lettura sentimentale legata al loro profilo. Su Luxseetarot l’anteprima è ancora più snella: bastano <strong>nome e domanda</strong>, poi estrai tre carte gratis. L’email serve solo se scegli di approfondire a pagamento.</p>
 <h2>Cosa fa (e non fa) la data</h2>
 <ul>
-  <li>Personalizza il contesto della consultazione.</li>
+  <li>In molte ricerche online viene usata come contesto personale.</li>
   <li>Non legge il destino fisso del tema natale.</li>
   <li>Non sostituisce un dialogo di coppia.</li>
 </ul>
 <p>Vai su <a href="/tarocchi-amore.html">tarocchi amore</a> o <a href="/tarocchi-gratis.html">tarocchi gratis</a> e inizia.</p>
 ${expand({
-  method: 'Prepara domanda d’amore + data. Evita sì/no assoluti. Dopo l’anteprima, scegli un solo insight.',
-  example: 'Domanda: «Quale energia porto io in questa relazione?». Data inserita. Carte: Luna + 2 Coppe + Eremita — bisogno di chiarezza, legame vivo, tempo per te.',
-  limits: 'La data non autorizza “predizioni certe”. Resta un servizio di riflessione.',
-  lux: 'Il form Luxseetarot include già data di nascita per i tarocchi amore gratis.',
-  exercise: 'Scrivi data + 1 domanda d’amore. Estrai tre carte. Niente seconda estrazione lo stesso giorno.',
+  method: 'Prepara una domanda d’amore chiara. Evita sì/no assoluti. Dopo l’anteprima, scegli un solo insight.',
+  example: 'Domanda: «Quale energia porto io in questa relazione?». Carte: Luna + 2 Coppe + Eremita — bisogno di chiarezza, legame vivo, tempo per te.',
+  limits: 'Né data né carte autorizzano “predizioni certe”. Resta un servizio di riflessione.',
+  lux: 'Su Luxseetarot per i tarocchi amore gratis bastano nome e domanda; email solo al pagamento.',
+  exercise: 'Scrivi 1 domanda d’amore. Estrai tre carte. Niente seconda estrazione lo stesso giorno.',
 })}
 ${related([
   ['/tarocchi-amore.html', 'Tarocchi amore'],
