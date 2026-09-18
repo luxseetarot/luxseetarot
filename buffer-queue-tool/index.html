@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Buffer Pin Queue — Luxseetarot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --ink: #1a1f2e;
+      --paper: #f7f3eb;
+      --paper-2: #efe8dc;
+      --gold: #b8893a;
+      --gold-deep: #8f6a2c;
+      --navy: #243047;
+      --ok: #2f6b4f;
+      --warn: #9a6b1f;
+      --muted: #6b7280;
+      --line: rgba(36, 48, 71, 0.12);
+      --shadow: 0 12px 40px rgba(26, 31, 46, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Source Sans 3", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(184, 137, 58, 0.14), transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, rgba(36, 48, 71, 0.08), transparent 50%),
+        var(--paper);
+      min-height: 100vh;
+    }
+    header {
+      padding: 2rem 1.5rem 1rem;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 700;
+      font-size: clamp(1.8rem, 3vw, 2.4rem);
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+      color: var(--navy);
+    }
+    .sub { color: var(--muted); margin: 0; max-width: 46rem; line-height: 1.45; }
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+    }
+    .stat {
+      background: rgba(255,255,255,0.7);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 0.35rem 0.85rem;
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+    .stat b { color: var(--gold-deep); }
+    .toolbar {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem 1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      align-items: center;
+    }
+    select, button, input[type="search"] {
+      font: inherit;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 0.55rem 0.85rem;
+    }
+    input[type="search"] { min-width: 200px; flex: 1; }
+    button {
+      cursor: pointer;
+      background: var(--navy);
+      color: #fff;
+      border-color: transparent;
+      font-weight: 600;
+    }
+    button.secondary {
+      background: #fff;
+      color: var(--navy);
+      border-color: var(--line);
+    }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 1.25rem;
+    }
+    @media (max-width: 920px) {
+      main { grid-template-columns: 1fr; }
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 0.9rem;
+    }
+    .card {
+      background: rgba(255,255,255,0.82);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.15s ease, outline 0.15s ease;
+    }
+    .card.selected { outline: 2px solid var(--gold); transform: translateY(-2px); }
+    .card img {
+      width: 100%;
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      background: var(--paper-2);
+      display: block;
+    }
+    .card .body { padding: 0.75rem 0.85rem 0.95rem; display: flex; flex-direction: column; gap: 0.35rem; flex: 1; }
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.45rem;
+      border-radius: 6px;
+      width: fit-content;
+    }
+    .badge.ready { background: #e5f3eb; color: var(--ok); }
+    .badge.scheduled { background: #eef2ff; color: #3b4f9a; }
+    .badge.sent { background: #eceff3; color: var(--muted); }
+    .badge.missing_url { background: #f8ecd8; color: var(--warn); }
+    .id { font-weight: 700; color: var(--navy); }
+    .title { font-family: Fraunces, Georgia, serif; font-size: 1.02rem; line-height: 1.25; margin: 0; }
+    .meta { font-size: 0.82rem; color: var(--muted); }
+    .side {
+      position: sticky;
+      top: 1rem;
+      align-self: start;
+      background: rgba(255,255,255,0.9);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1rem 1.1rem 1.2rem;
+      box-shadow: var(--shadow);
+    }
+    .side h2 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.2rem;
+      margin: 0 0 0.5rem;
+    }
+    .side p { margin: 0 0 0.75rem; color: var(--muted); font-size: 0.92rem; line-height: 1.4; }
+    .side ol { margin: 0 0 1rem; padding-left: 1.15rem; color: var(--ink); font-size: 0.9rem; }
+    .side li { margin: 0.25rem 0; }
+    pre {
+      background: var(--paper-2);
+      border-radius: 10px;
+      padding: 0.75rem;
+      font-size: 0.72rem;
+      overflow: auto;
+      max-height: 280px;
+      margin: 0 0 0.75rem;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .empty { color: var(--muted); padding: 2rem 0; text-align: center; }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem; }
+    .api-banner {
+      max-width: 1200px;
+      margin: 0 auto 0.75rem;
+      padding: 0.65rem 1rem;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.75);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+    .api-banner.warn { border-color: rgba(154,107,31,0.35); background: #fff8ec; color: #6a4a12; }
+    .api-banner.ok { border-color: rgba(47,107,79,0.25); background: #eef7f1; color: #1f4a35; }
+    .api-banner code { font-size: 0.85em; }
+    button.danger {
+      background: var(--gold-deep);
+    }
+    button.busy { opacity: 0.7; pointer-events: none; }
+    .side .actions { display: flex; flex-direction: column; gap: 0.5rem; }
+    #scheduleLog {
+      font-size: 0.8rem;
+      color: var(--muted);
+      white-space: pre-wrap;
+      margin-top: 0.5rem;
+      min-height: 1.2em;
+    }
+    .header-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem 1rem;
+    }
+    .header-row .titles { flex: 1; min-width: 220px; }
+    button.guide-btn {
+      background: #fff;
+      color: var(--navy);
+      border: 1px solid var(--line);
+      flex-shrink: 0;
+    }
+    .guide-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 31, 46, 0.45);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+    }
+    .guide-backdrop.open { display: flex; }
+    .guide-panel {
+      width: min(640px, 100%);
+      max-height: min(88vh, 820px);
+      overflow: auto;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 24px 60px rgba(26, 31, 46, 0.22);
+      padding: 1.35rem 1.4rem 1.5rem;
+    }
+    .guide-panel h2 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.55rem;
+      margin: 0 0 0.35rem;
+      color: var(--navy);
+    }
+    .guide-panel .guide-lead {
+      margin: 0 0 1.1rem;
+      color: var(--muted);
+      font-size: 0.95rem;
+      line-height: 1.45;
+    }
+    .guide-panel h3 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.08rem;
+      margin: 1.15rem 0 0.4rem;
+      color: var(--gold-deep);
+    }
+    .guide-panel ol, .guide-panel ul {
+      margin: 0 0 0.35rem;
+      padding-left: 1.2rem;
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+    .guide-panel li { margin: 0.3rem 0; }
+    .guide-panel code {
+      font-size: 0.86em;
+      background: var(--paper-2);
+      padding: 0.08em 0.35em;
+      border-radius: 5px;
+    }
+    .guide-panel a { color: var(--gold-deep); font-weight: 600; }
+    .guide-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .guide-top button.close-guide {
+      background: transparent;
+      color: var(--navy);
+      border: 1px solid var(--line);
+      padding: 0.35rem 0.7rem;
+      font-size: 0.9rem;
+    }
+    .guide-note {
+      margin-top: 1.1rem;
+      padding: 0.75rem 0.9rem;
+      border-radius: 12px;
+      background: #fff8ec;
+      border: 1px solid rgba(154, 107, 31, 0.3);
+      color: #6a4a12;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-row">
+      <div class="titles">
+        <h1>Buffer Pin Queue</h1>
+        <p class="sub">Catalogo esterno a Luxseetarot: tutti i pin, URL Catbox e schedulazione diretta su Buffer (max 10 Free).</p>
+      </div>
+      <button type="button" class="guide-btn" id="openGuide" aria-haspopup="dialog">Guida</button>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="guide-backdrop" id="guideBackdrop" role="dialog" aria-modal="true" aria-labelledby="guideTitle" hidden>
+    <div class="guide-panel">
+      <div class="guide-top">
+        <div>
+          <h2 id="guideTitle">Come usare l’app</h2>
+          <p class="guide-lead">Schedula i pin Luxseetarot su Buffer/Pinterest senza uscire da questo tool.</p>
+        </div>
+        <button type="button" class="close-guide" id="closeGuide" aria-label="Chiudi guida">Chiudi</button>
+      </div>
+
+      <h3>1. Setup (una sola volta)</h3>
+      <ol>
+        <li>Vai su <a href="https://publish.buffer.com/settings/api" target="_blank" rel="noopener">publish.buffer.com/settings/api</a> e crea una <b>Personal Access Key</b>.</li>
+        <li>Nella cartella <code>buffer-queue-tool</code> copia <code>.env.example</code> e rinominalo in <code>.env</code>.</li>
+        <li>Apri <code>.env</code> e inserisci:<br /><code>BUFFER_API_KEY=la_tua_chiave</code></li>
+        <li>Avvia con doppio clic su <code>avvia.bat</code> (o l’icona Desktop).</li>
+      </ol>
+
+      <h3>2. Uso quotidiano</h3>
+      <ol>
+        <li>Lancia <code>avvia.bat</code> → si apre Chrome su questa pagina.</li>
+        <li>Filtra su <b>Pronti (con URL)</b> se non è già selezionato.</li>
+        <li>Clic <b>Seleziona prossimi 10 ready</b> (prende i prossimi pin in coda, già mischiati).</li>
+        <li>Clic <b>Schedula su Buffer</b> → i pin vanno in coda Pinterest.</li>
+        <li>Lo stato passa da <b>ready</b> a <b>scheduled</b> da solo.</li>
+      </ol>
+
+      <h3>3. Limite Buffer Free (10/10)</h3>
+      <ul>
+        <li>Con il piano Free puoi avere <b>max 10 post</b> in coda Buffer.</li>
+        <li>Se gli slot sono pieni, il pulsante <b>Schedula</b> resta disabilitato.</li>
+        <li>Aspetta che Buffer pubblichi qualcuno dei pin già in coda: ogni pubblicazione libera uno slot.</li>
+        <li>Poi puoi schedulare di nuovo (anche meno di 10, se gli slot liberi sono meno).</li>
+      </ul>
+
+      <h3>4. Stati dei pin</h3>
+      <ul>
+        <li><b>Ready</b> — ha URL Catbox, pronto da schedulare.</li>
+        <li><b>In coda</b> — già inviato a Buffer, in attesa di pubblicazione.</li>
+        <li><b>Pubblicato</b> — già uscito / segnato come inviato.</li>
+        <li><b>No URL</b> — manca l’immagine online (non schedulabile).</li>
+      </ul>
+
+      <h3>5. Chiudere e riaprire</h3>
+      <ul>
+        <li>Chiudere la <b>scheda Chrome</b> non spegne l’app: il server resta acceso.</li>
+        <li>Per spegnere davvero: chiudi la <b>finestra nera</b> del terminale.</li>
+        <li>Per riaprire: rilancia <code>avvia.bat</code> (riavvia il server e riapre Chrome).</li>
+      </ul>
+
+      <div class="guide-note">
+        Il banner in alto mostra se Buffer è collegato e quanti <b>slot liberi</b> hai.
+        Se vedi un errore sulla chiave, controlla il file <code>.env</code> e rilancia <code>avvia.bat</code>.
+      </div>
+    </div>
+  </div>
+
+  <div class="api-banner warn" id="apiBanner">Controllo API Buffer…</div>
+
+  <div class="toolbar">
+    <input type="search" id="q" placeholder="Cerca titolo, bacheca, id…" />
+    <select id="status">
+      <option value="all">Tutti</option>
+      <option value="ready" selected>Pronti (con URL)</option>
+      <option value="scheduled">In coda Buffer</option>
+      <option value="sent">Già pubblicati</option>
+      <option value="missing_url">Senza URL Catbox</option>
+    </select>
+    <button type="button" id="pickNext" class="secondary">Seleziona prossimi ready</button>
+    <button type="button" id="clearSel" class="secondary">Pulisci selezione</button>
+    <button type="button" id="exportBatch" class="secondary">Esporta JSON</button>
+    <button type="button" id="scheduleBtn" class="danger" disabled>Schedula su Buffer</button>
+  </div>
+
+  <main>
+    <div>
+      <div class="grid" id="grid"></div>
+      <p class="empty" id="empty" hidden>Nessun pin con questi filtri.</p>
+    </div>
+    <aside class="side">
+      <h2>Coda Buffer (live)</h2>
+      <p id="queueLive" class="hint" style="margin-top:0">Caricamento…</p>
+      <ol id="queueList" style="margin:0.4rem 0 1rem;padding-left:1.15rem;font-size:0.88rem;line-height:1.45;color:var(--muted)"></ol>
+      <button type="button" id="refreshQueue" class="secondary" style="width:100%;margin-bottom:1.1rem">Aggiorna coda Buffer</button>
+      <h2>Batch selezionato</h2>
+      <p id="selCount">0 pin selezionati</p>
+      <ol id="selList"></ol>
+      <pre id="exportPreview">Seleziona pin (o “prossimi N ready”) e schedula.</pre>
+      <div class="actions">
+        <button type="button" id="scheduleBtnSide" class="danger" disabled>Schedula su Buffer</button>
+        <button type="button" id="copyBtn" disabled>Copia JSON</button>
+      </div>
+      <div id="scheduleLog"></div>
+      <p class="hint">Serve <code>BUFFER_API_KEY</code> in <code>buffer-queue-tool/.env</code>. Free = max 10 in coda. Lo stato “live” viene da Buffer, non solo dai file locali.</p>
+    </aside>
+  </main>
+
+  <script>
+    const BOARD_FALLBACK = {};
+    let data = null;
+    let apiStatus = null;
+    const selected = new Set();
+
+    const el = (id) => document.getElementById(id);
+
+    function statusLabel(s) {
+      return ({ ready: 'Ready', scheduled: 'In coda', sent: 'Pubblicato', missing_url: 'No URL' })[s] || s;
+    }
+
+    function freeSlots() {
+      const limit = apiStatus?.freeQueueLimit || data?.freeQueueLimit || 10;
+      if (typeof apiStatus?.freeSlots === 'number') return Math.max(0, apiStatus.freeSlots);
+      if (typeof apiStatus?.liveScheduled === 'number') {
+        return Math.max(0, limit - apiStatus.liveScheduled);
+      }
+      const used = data?.summary?.scheduled ?? 0;
+      return Math.max(0, limit - used);
+    }
+
+    function formatDue(iso) {
+      if (!iso) return '—';
+      try {
+        const d = new Date(iso);
+        return d.toLocaleString('it-IT', {
+          timeZone: apiStatus?.buffer?.timezone || 'Europe/Rome',
+          day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit',
+        });
+      } catch {
+        return String(iso);
+      }
+    }
+
+    function renderQueueLive() {
+      const box = el('queueLive');
+      const list = el('queueList');
+      if (!box || !list) return;
+      if (!apiStatus?.hasApiKey) {
+        box.textContent = 'Collega BUFFER_API_KEY per vedere la coda live.';
+        list.innerHTML = '';
+        return;
+      }
+      if (apiStatus.queueError) {
+        box.textContent = 'Errore lettura coda: ' + apiStatus.queueError;
+        list.innerHTML = '';
+        return;
+      }
+      const limit = apiStatus.freeQueueLimit || 10;
+      const used = typeof apiStatus.liveScheduled === 'number'
+        ? apiStatus.liveScheduled
+        : (apiStatus.queue || []).length;
+      const free = freeSlots();
+      box.innerHTML = `<b style="color:var(--navy)">${used}/${limit}</b> in coda Buffer · <b style="color:var(--ok)">${free}</b> slot liberi`
+        + (free === 0 ? ' — aspetta che esca un pin, poi ne puoi aggiungere 1+' : free === 1 ? ' — puoi aggiungerne <b>1</b>' : ` — puoi aggiungerne fino a <b>${free}</b>`);
+      const q = apiStatus.queue || [];
+      if (!q.length) {
+        list.innerHTML = '<li>Coda vuota.</li>';
+        return;
+      }
+      list.innerHTML = q.map((p) => {
+        const preview = String(p.text || '').replace(/\s+/g, ' ').slice(0, 70);
+        return `<li><b>${escapeHtml(formatDue(p.dueAt))}</b> — ${escapeHtml(preview)}${preview.length >= 70 ? '…' : ''}</li>`;
+      }).join('');
+    }
+
+    function updatePickLabel() {
+      const btn = el('pickNext');
+      if (!btn) return;
+      const n = freeSlots();
+      btn.textContent = n > 0
+        ? `Seleziona prossimi ${n} ready`
+        : 'Nessuno slot libero';
+      btn.disabled = n <= 0;
+    }
+
+    function renderApiBanner() {
+      const banner = el('apiBanner');
+      if (!apiStatus) {
+        banner.className = 'api-banner warn';
+        banner.textContent = 'Controllo API Buffer…';
+        return;
+      }
+      if (!apiStatus.hasApiKey) {
+        banner.className = 'api-banner warn';
+        banner.innerHTML = 'Manca la chiave Buffer. Crea <code>buffer-queue-tool/.env</code> con <code>BUFFER_API_KEY=…</code> da <a href="https://publish.buffer.com/settings/api" target="_blank" rel="noopener">publish.buffer.com/settings/api</a>, poi rilancia <code>avvia.bat</code>. Apri la <button type="button" id="bannerGuide" style="all:unset;cursor:pointer;text-decoration:underline;font-weight:700;color:inherit">Guida</button> per i passaggi.';
+        el('bannerGuide')?.addEventListener('click', openGuide);
+        return;
+      }
+      if (apiStatus.error) {
+        banner.className = 'api-banner warn';
+        banner.innerHTML = 'Chiave presente ma Buffer non risponde: ' + escapeHtml(apiStatus.error)
+          + ' — vedi la <button type="button" id="bannerGuide" style="all:unset;cursor:pointer;text-decoration:underline;font-weight:700;color:inherit">Guida</button>.';
+        el('bannerGuide')?.addEventListener('click', openGuide);
+        return;
+      }
+      const limit = apiStatus.freeQueueLimit || 10;
+      const used = typeof apiStatus.liveScheduled === 'number' ? apiStatus.liveScheduled : 0;
+      const slots = freeSlots();
+      banner.className = slots > 0 ? 'api-banner ok' : 'api-banner warn';
+      banner.textContent = `Buffer ok · coda live ${used}/${limit} · slot liberi: ${slots}`
+        + (apiStatus.buffer?.currentTime ? ` · ora account ${apiStatus.buffer.currentTime}` : '');
+      renderQueueLive();
+      updatePickLabel();
+    }
+
+    function openGuide() {
+      const bd = el('guideBackdrop');
+      bd.hidden = false;
+      bd.classList.add('open');
+      el('closeGuide')?.focus();
+    }
+
+    function closeGuide() {
+      const bd = el('guideBackdrop');
+      bd.classList.remove('open');
+      bd.hidden = true;
+    }
+
+    function renderStats() {
+      const s = data.summary;
+      const limit = apiStatus?.freeQueueLimit || data?.freeQueueLimit || 10;
+      const live = typeof apiStatus?.liveScheduled === 'number' ? apiStatus.liveScheduled : '—';
+      el('stats').innerHTML = [
+        ['Totale', s.total],
+        ['Ready', s.ready],
+        ['Coda Buffer', `${live}/${limit}`],
+        ['Slot liberi', freeSlots()],
+        ['Pubblicati (locale)', s.sent],
+        ['No URL', s.missing_url],
+      ].map(([k, v]) => `<span class="stat">${k}: <b>${v}</b></span>`).join('');
+      updatePickLabel();
+    }
+
+    function filtered() {
+      const st = el('status').value;
+      const q = el('q').value.trim().toLowerCase();
+      return data.pins.filter((p) => {
+        if (st !== 'all' && p.status !== st) return false;
+        if (!q) return true;
+        return String(p.id).includes(q)
+          || (p.title || '').toLowerCase().includes(q)
+          || (p.board || '').toLowerCase().includes(q)
+          || (p.image || '').toLowerCase().includes(q);
+      });
+    }
+
+    function thumb(p) {
+      // Locale solo se il PNG esiste ancora; altrimenti Catbox / Blob (mediaUrl)
+      const base = p.mediaUrl || p.localImage;
+      if (!base) return '';
+      const v = encodeURIComponent((data && data.generatedAt) || Date.now());
+      return `${base}${base.includes('?') ? '&' : '?'}v=${v}`;
+    }
+
+    function renderGrid() {
+      const list = filtered();
+      el('empty').hidden = list.length > 0;
+      el('grid').innerHTML = list.map((p) => `
+        <article class="card ${selected.has(p.id) ? 'selected' : ''}" data-id="${p.id}">
+          <img src="${thumb(p)}" alt="" loading="lazy" onerror="this.style.opacity=.3" />
+          <div class="body">
+            <span class="badge ${p.status}">${statusLabel(p.status)}</span>
+            <div class="id">#${String(p.id).padStart(2, '0')}</div>
+            <h3 class="title">${escapeHtml(p.title)}</h3>
+            <div class="meta">${escapeHtml(p.board)}</div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[c]);
+    }
+
+    function buildBatch() {
+      const pins = data.pins.filter((p) => selected.has(p.id)).sort((a, b) => a.id - b.id);
+      const hours = [9, 11];
+      const start = new Date();
+      // next slot: if before 11 Rome today and we want custom — agent will set dates; here propose from tomorrow 09:00 if after 11
+      let dayOffset = 0;
+      const now = new Date();
+      // Use local browser time as Rome approximation for preview
+      if (now.getHours() >= 11) dayOffset = 1;
+      let slot = 0;
+      if (dayOffset === 0 && now.getHours() < 9) slot = 0;
+      else if (dayOffset === 0 && now.getHours() < 11) slot = 1;
+      else { dayOffset = Math.max(dayOffset, 1); slot = 0; }
+
+      const items = pins.map((p, i) => {
+        const idx = slot + i;
+        const dOff = dayOffset + Math.floor(idx / 2);
+        const h = hours[idx % 2];
+        const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + dOff, h, 0, 0);
+        const pad = (n) => String(n).padStart(2, '0');
+        const when = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(h)}:00:00+02:00`;
+        return {
+          id: p.id,
+          image: p.image,
+          board: p.board,
+          boardServiceId: p.boardServiceId,
+          title: p.title,
+          description: p.description,
+          link: p.link,
+          mediaUrl: p.mediaUrl,
+          when,
+        };
+      });
+
+      return {
+        createdAt: new Date().toISOString(),
+        channelId: data.channel.bufferChannelId,
+        note: 'Importa in Buffer via Cursor MCP (create_post). Max 10 Free.',
+        items,
+      };
+    }
+
+    function canSchedule() {
+      if (!apiStatus?.hasApiKey) return false;
+      if (!window.__batch?.items?.length) return false;
+      if (window.__batch.items.length > 10) return false;
+      if (window.__batch.items.some((x) => !x.mediaUrl || !x.boardServiceId)) return false;
+      return true;
+    }
+
+    function renderSide() {
+      const pins = data.pins.filter((p) => selected.has(p.id)).sort((a, b) => a.id - b.id);
+      const slots = freeSlots();
+      el('selCount').textContent = `${pins.length} pin selezionati`
+        + (pins.length > 10 ? ' (max 10!)' : '')
+        + (pins.length > slots ? ` — solo ${slots} slot liberi in coda` : '');
+      el('selList').innerHTML = pins.map((p) => `<li>#${p.id} — ${escapeHtml(p.title)}</li>`).join('');
+      if (!pins.length) {
+        el('exportPreview').textContent = 'Seleziona pin (o “prossimi 10 ready”) e schedula.';
+        el('copyBtn').disabled = true;
+        el('scheduleBtn').disabled = true;
+        el('scheduleBtnSide').disabled = true;
+        window.__batch = null;
+        return;
+      }
+      const batch = buildBatch();
+      el('exportPreview').textContent = JSON.stringify(batch, null, 2);
+      el('copyBtn').disabled = false;
+      window.__batch = batch;
+      const ok = canSchedule() && batch.items.length <= slots;
+      el('scheduleBtn').disabled = !ok;
+      el('scheduleBtnSide').disabled = !ok;
+    }
+
+    async function scheduleSelected() {
+      if (!window.__batch?.items?.length) {
+        alert('Seleziona almeno un pin.');
+        return;
+      }
+      if (window.__batch.items.length > 10) {
+        alert('Buffer Free: max 10 in coda. Riduci la selezione.');
+        return;
+      }
+      const slots = freeSlots();
+      if (window.__batch.items.length > slots) {
+        alert(`Solo ${slots} slot liberi in coda Buffer. Riduci la selezione o aspetta che escano pin già schedulati.`);
+        return;
+      }
+      const missing = window.__batch.items.filter((x) => !x.mediaUrl || !x.boardServiceId);
+      if (missing.length) {
+        alert('Pin senza URL/bacheca: ' + missing.map((x) => x.id).join(', '));
+        return;
+      }
+      if (!confirm(`Schedulare ${window.__batch.items.length} pin su Buffer Pinterest?`)) return;
+
+      const btns = [el('scheduleBtn'), el('scheduleBtnSide')];
+      btns.forEach((b) => { b.classList.add('busy'); b.disabled = true; b.textContent = 'Invio…'; });
+      el('scheduleLog').textContent = 'Invio a Buffer in corso…';
+
+      try {
+        const res = await fetch('/api/schedule', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(window.__batch),
+        });
+        const json = await res.json();
+        if (json.pinsData) {
+          data = json.pinsData;
+          Object.assign(BOARD_FALLBACK, data.boards || {});
+        }
+        const lines = (json.results || []).map((r) =>
+          r.ok ? `✓ #${r.id} → ${r.postId}` : `✗ #${r.id}: ${r.error}`
+        );
+        el('scheduleLog').textContent = `Schedulati ${json.scheduled || 0}, errori ${json.failed || 0}\n` + lines.join('\n');
+        if (json.ok) {
+          selected.clear();
+          await refreshApiStatus();
+          renderStats();
+          renderGrid();
+          renderSide();
+          el('status').value = 'scheduled';
+          renderGrid();
+        } else if (!json.hasApiKey && json.error) {
+          alert(json.error);
+        } else if (json.error) {
+          alert(json.error);
+        }
+      } catch (e) {
+        el('scheduleLog').textContent = String(e.message || e);
+        alert('Errore di rete: ' + (e.message || e));
+      } finally {
+        btns.forEach((b) => { b.classList.remove('busy'); b.textContent = 'Schedula su Buffer'; });
+        renderSide();
+      }
+    }
+
+    async function refreshApiStatus() {
+      try {
+        apiStatus = await fetch(`/api/status?v=${Date.now()}`).then((r) => r.json());
+      } catch (e) {
+        apiStatus = { hasApiKey: false, error: String(e.message || e) };
+      }
+      renderApiBanner();
+      renderStats();
+      renderSide();
+    }
+
+    function toggle(id) {
+      if (selected.has(id)) selected.delete(id);
+      else selected.add(id);
+      renderGrid();
+      renderSide();
+    }
+
+    el('grid').addEventListener('click', (e) => {
+      const card = e.target.closest('.card');
+      if (!card) return;
+      toggle(Number(card.dataset.id));
+    });
+
+    el('status').addEventListener('change', renderGrid);
+    el('q').addEventListener('input', renderGrid);
+
+    el('pickNext').addEventListener('click', () => {
+      selected.clear();
+      const slots = freeSlots();
+      if (slots <= 0) {
+        alert('Nessuno slot libero in coda Buffer. Aspetta che esca un pin, poi riprova (anche solo 1).');
+        return;
+      }
+      const ready = data.pins
+        .filter((p) => p.status === 'ready')
+        .sort((a, b) => (a.queueOrder ?? a.id) - (b.queueOrder ?? b.id))
+        .slice(0, slots);
+      ready.forEach((p) => selected.add(p.id));
+      el('status').value = 'ready';
+      renderGrid();
+      renderSide();
+    });
+
+    el('refreshQueue')?.addEventListener('click', async () => {
+      el('queueLive').textContent = 'Aggiorno coda Buffer…';
+      await refreshApiStatus();
+    });
+
+    el('clearSel').addEventListener('click', () => {
+      selected.clear();
+      renderGrid();
+      renderSide();
+    });
+
+    el('exportBatch').addEventListener('click', () => {
+      if (!window.__batch || !window.__batch.items?.length) {
+        alert('Seleziona almeno un pin.');
+        return;
+      }
+      if (window.__batch.items.length > 10) {
+        alert('Buffer Free: max 10 in coda. Riduci la selezione.');
+        return;
+      }
+      const missing = window.__batch.items.filter((x) => !x.mediaUrl);
+      if (missing.length) {
+        alert('Alcuni pin non hanno URL Catbox: ' + missing.map((x) => x.id).join(', '));
+        return;
+      }
+      const blob = new Blob([JSON.stringify(window.__batch, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'next-batch.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    el('scheduleBtn').addEventListener('click', scheduleSelected);
+    el('scheduleBtnSide').addEventListener('click', scheduleSelected);
+
+    el('openGuide').addEventListener('click', openGuide);
+    el('closeGuide').addEventListener('click', closeGuide);
+    el('guideBackdrop').addEventListener('click', (e) => {
+      if (e.target === el('guideBackdrop')) closeGuide();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && el('guideBackdrop').classList.contains('open')) closeGuide();
+    });
+
+    el('copyBtn').addEventListener('click', async () => {
+      if (!window.__batch) return;
+      await navigator.clipboard.writeText(JSON.stringify(window.__batch, null, 2));
+      el('copyBtn').textContent = 'Copiato ✓';
+      setTimeout(() => { el('copyBtn').textContent = 'Copia JSON'; }, 1500);
+    });
+
+    fetch(`./pins-data.json?v=${Date.now()}`)
+      .then((r) => {
+        if (!r.ok) throw new Error('pins-data.json mancante — lancia generate-data.mjs');
+        return r.json();
+      })
+      .then(async (json) => {
+        data = json;
+        Object.assign(BOARD_FALLBACK, json.boards || {});
+        renderStats();
+        renderGrid();
+        renderSide();
+        await refreshApiStatus();
+      })
+      .catch((err) => {
+        el('empty').hidden = false;
+        el('empty').textContent = String(err.message || err);
+      });
+  </script>
+</body>
+</html>

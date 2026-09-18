@@ -1,0 +1,32 @@
+BUFFER PIN QUEUE — tool esterno
+================================
+Cartella: buffer-queue-tool/
+Non fa parte del sito Luxseetarot (non va in deploy pubblico).
+
+Usalo per schedulare pin su Buffer → Pinterest (piano Free max 10 in coda).
+L’API Pinterest del sito resta in attesa di Standard access.
+
+Setup chiave Buffer (una volta)
+--------------------------------
+1) Vai su https://publish.buffer.com/settings/api
+2) Crea una Personal Access Key
+3) Copia buffer-queue-tool/.env.example → buffer-queue-tool/.env
+4) Incolla: BUFFER_API_KEY=la_tua_chiave
+
+Avvio
+-----
+Doppio clic su avvia.bat (o icona Desktop)
+→ http://127.0.0.1:8787/
+
+In UI
+-----
+- Banner + pannello destro: coda Buffer LIVE (es. 9/10, 1 slot libero)
+- “Seleziona prossimi N ready” prende esattamente gli slot liberi (anche 1)
+- “Aggiorna coda Buffer” rilegge lo stato da Buffer
+- Poi “Schedula su Buffer”
+
+Note
+----
+- Slot liberi = limite Free − post scheduled/sending su Buffer (non lo state.json locale)
+- Le immagini usano URL Catbox già in pins-data.json
+- .env non va in git
