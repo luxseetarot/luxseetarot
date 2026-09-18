@@ -958,7 +958,7 @@
         <div class="admin-blog-editor show" id="admin-pin-schedule" style="margin-bottom:14px">
           <div class="phase-tag" style="margin-bottom:10px">PUBBLICAZIONE AUTOMATICA PIN</div>
           <p id="admin-pin-schedule-hint" style="margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.5">Caricamento…</p>
-          <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.75);line-height:1.45">GitHub Actions: <strong style="font-weight:500;color:rgba(236,230,216,.8)">2 volte al giorno</strong> (mattina). Pubblica 1 pin dalla coda se il programma (giorni + ora Italia) è dovuto. Secret <code style="color:rgba(212,175,106,.9)">CRON_SECRET</code> uguale su Vercel e GitHub.</p>
+          <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.75);line-height:1.45">GitHub Actions: <strong style="font-weight:500;color:rgba(236,230,216,.8)">2 volte al giorno</strong> (mattina). Pubblica i pin dovuti dalla coda (fino a N/giorno) se il programma è attivo. Secret <code style="color:rgba(212,175,106,.9)">CRON_SECRET</code> uguale su Vercel e GitHub.</p>
           <div class="admin-blog-filters" style="margin-bottom:10px">
             <label style="display:flex;align-items:center;gap:8px;margin:0;color:var(--fg);font-size:12px;letter-spacing:.04em">
               <input type="checkbox" id="admin-pin-sched-enabled" />
@@ -980,6 +980,14 @@
               <select id="admin-pin-sched-hour" aria-label="Ora Italia pin"></select>
               <span>(ora Italia)</span>
             </label>
+            <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:var(--muted)">
+              Pin/giorno
+              <select id="admin-pin-sched-perday" aria-label="Pin per giorno">
+                <option value="1">1</option>
+                <option value="2" selected>2</option>
+                <option value="3">3</option>
+              </select>
+            </label>
           </div>
           <p id="admin-pin-schedule-next" style="margin:0 0 12px;font-size:12px;color:rgba(212,175,106,.8)"></p>
           <div class="admin-blog-editor-actions">
@@ -988,7 +996,7 @@
           </div>
         </div>
         <div class="admin-blog-filters" style="margin-bottom:12px">
-          <button type="button" class="ghost-btn" id="admin-pin-seed" style="width:auto;padding:10px 12px;font-size:11px">CARICA LOTTO ATTUALE (10 PIN)</button>
+          <button type="button" class="ghost-btn" id="admin-pin-seed" style="width:auto;padding:10px 12px;font-size:11px">CARICA CATALOGO COMPLETO (~1590 PIN)</button>
         </div>
         <div class="admin-table-wrap">
           <table class="admin-table">
@@ -4101,11 +4109,13 @@
       var enabledEl = document.getElementById('admin-pin-sched-enabled');
       var intervalEl = document.getElementById('admin-pin-sched-interval');
       var hourEl = document.getElementById('admin-pin-sched-hour');
+      var perDayEl = document.getElementById('admin-pin-sched-perday');
       var hintEl = document.getElementById('admin-pin-schedule-hint');
       var nextEl = document.getElementById('admin-pin-schedule-next');
       if(enabledEl) enabledEl.checked = !!s.enabled;
       if(intervalEl) intervalEl.value = String(s.intervalDays || 1);
       if(hourEl) hourEl.value = String(s.hour != null ? s.hour : 9);
+      if(perDayEl) perDayEl.value = String(s.pinsPerDay != null ? s.pinsPerDay : 2);
       if(hintEl) hintEl.textContent = data.scheduleHint || 'Programma la pubblicazione automatica dei pin in coda.';
       if(nextEl){
         var bits = [];
@@ -4121,7 +4131,7 @@
         var rows = (data.queue || []).map(function(q){
           return '<tr><td style="font-size:11px">'+(q.image||'')+'</td><td>'+(q.boardName||'—')+'</td><td>'+(q.status||'')+'</td><td>'+(q.title||'')+'</td></tr>';
         }).join('');
-        tbody.innerHTML = rows || '<tr><td colspan="4" style="color:var(--muted)">Coda vuota. Usa Carica lotto attuale.</td></tr>';
+        tbody.innerHTML = rows || '<tr><td colspan="4" style="color:var(--muted)">Coda vuota. Usa Carica catalogo completo.</td></tr>';
       }
       if(metaEl && activeTab === 'pinterest'){
         metaEl.textContent = (data.connected ? 'Pinterest ok' : 'Pinterest non collegato') +
@@ -4478,6 +4488,7 @@
         var enabledEl = document.getElementById('admin-pin-sched-enabled');
         var intervalEl = document.getElementById('admin-pin-sched-interval');
         var hourEl = document.getElementById('admin-pin-sched-hour');
+        var perDayEl = document.getElementById('admin-pin-sched-perday');
         showErr('');
         adminFetch({
           action: 'pinterest-schedule-save',
@@ -4485,6 +4496,7 @@
             enabled: !!(enabledEl && enabledEl.checked),
             intervalDays: intervalEl ? parseInt(intervalEl.value, 10) : 1,
             hour: hourEl ? parseInt(hourEl.value, 10) : 9,
+            pinsPerDay: perDayEl ? parseInt(perDayEl.value, 10) : 2,
             minute: 0
           }
         }).then(function(res){
@@ -4513,8 +4525,9 @@
     var pinSeed = document.getElementById('admin-pin-seed');
     if(pinSeed){
       pinSeed.addEventListener('click', function(){
+        if(!confirm('Caricare ~1590 pin in coda API (sostituisce i pending attuali)? I pin già pubblicati via Buffer restano esclusi.')) return;
         showErr('');
-        adminFetch({ action: 'pinterest-queue-seed' }).then(function(res){
+        adminFetch({ action: 'pinterest-queue-seed', replacePending: true }).then(function(res){
           if(!res.ok){ showErr(res.error || 'Seed coda fallito'); return; }
           var msg = 'Coda: +'+(res.added||0)+' pin (pending '+(res.pending||0)+').';
           if(res.boardsMissing && res.boardsMissing.length){

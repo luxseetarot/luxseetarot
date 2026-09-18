@@ -31,6 +31,7 @@ import {
   getPinterestQueue,
   getPinterestSchedule,
   pinterestStatus,
+  queuePreview,
   runScheduledPinterestPublish,
   savePinterestSchedule,
   seedPinterestQueue,
@@ -228,7 +229,7 @@ export default async function handler(req, res) {
     if (action === 'pinterest-status') {
       const status = await pinterestStatus();
       const queue = await getPinterestQueue();
-      return res.status(200).json({ ...status, queue });
+      return res.status(200).json({ ...status, queue: queuePreview(queue) });
     }
 
     if (action === 'pinterest-schedule-save') {
@@ -238,6 +239,7 @@ export default async function handler(req, res) {
         intervalDays: payload.intervalDays,
         hour: payload.hour,
         minute: 0,
+        pinsPerDay: payload.pinsPerDay,
       });
       return res.status(200).json({
         ok: true,
@@ -251,7 +253,7 @@ export default async function handler(req, res) {
       const schedule = await getPinterestSchedule();
       return res.status(200).json({
         ok: true,
-        queue,
+        queue: queuePreview(queue),
         schedule,
         scheduleHint: describePinterestSchedule(schedule),
       });
@@ -263,14 +265,14 @@ export default async function handler(req, res) {
       if (!result.ok) return res.status(400).json(result);
       const status = await pinterestStatus();
       const queue = await getPinterestQueue();
-      return res.status(200).json({ ...status, ...result, queue });
+      return res.status(200).json({ ...status, ...result, queue: queuePreview(queue) });
     }
 
     if (action === 'pinterest-run-now') {
       const result = await runScheduledPinterestPublish({ force: true });
       if (!result.ok) return res.status(400).json(result);
       const queue = await getPinterestQueue();
-      return res.status(200).json({ ...result, queue });
+      return res.status(200).json({ ...result, queue: queuePreview(queue) });
     }
 
     if (action === 'pinterest-disconnect') {

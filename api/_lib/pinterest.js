@@ -75,6 +75,7 @@ export function defaultPinterestSchedule() {
     intervalDays: 1,
     hour: 9,
     minute: 0,
+    pinsPerDay: 2,
     timezone: 'Europe/Rome',
     lastPublishedAt: null,
     lastPublishedId: null,
@@ -96,6 +97,7 @@ export function sanitizePinterestSchedule(raw = {}) {
       ? parseInt(raw.hour, 10)
       : base.hour,
     minute: 0,
+    pinsPerDay: clampInt(raw.pinsPerDay, 1, 5, base.pinsPerDay),
     timezone: 'Europe/Rome',
     lastPublishedAt: raw.lastPublishedAt ? String(raw.lastPublishedAt) : null,
     lastPublishedId: raw.lastPublishedId ? String(raw.lastPublishedId).slice(0, 80) : null,
@@ -363,9 +365,11 @@ export async function createPinterestPin({
 
 function sanitizeQueueItem(raw) {
   if (!raw || !raw.image) return null;
+  const mediaUrl = String(raw.mediaUrl || '').trim().slice(0, 2048);
   return {
     id: String(raw.id || `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`),
     image: String(raw.image || '').trim().slice(0, 200),
+    mediaUrl: mediaUrl || null,
     boardName: String(raw.boardName || '').trim().slice(0, 120),
     boardId: String(raw.boardId || '').trim().slice(0, 80),
     title: String(raw.title || '').trim().slice(0, 100),
@@ -377,6 +381,22 @@ function sanitizeQueueItem(raw) {
     createdAt: raw.createdAt || new Date().toISOString(),
     publishedAt: raw.publishedAt || null,
   };
+}
+
+export function resolvePinImageUrl(item) {
+  const direct = String((item && item.mediaUrl) || '').trim();
+  if (/^https?:\/\//i.test(direct)) return direct;
+  return publicPinImageUrl(item && item.image);
+}
+
+export function queuePreview(queue, { pendingLimit = 25, otherLimit = 10 } = {}) {
+  const list = queue || [];
+  const pending = list.filter((q) => q.status === 'pending').slice(0, pendingLimit);
+  const others = list
+    .filter((q) => q.status !== 'pending')
+    .slice(-otherLimit)
+    .reverse();
+  return [...pending, ...others];
 }
 
 export async function getPinterestQueue() {
@@ -429,6 +449,7 @@ export async function seedPinterestQueue(catalog, { replacePending = false } = {
     next.push(
       sanitizeQueueItem({
         image,
+        mediaUrl: item.mediaUrl || '',
         boardName,
         boardId,
         title: item.title,
@@ -490,27 +511,44 @@ function daysBetweenRomeKeys(fromKey, toKey) {
   return Math.floor((b - a) / 86400000);
 }
 
-export function isPinterestPublishDue(schedule, now = new Date()) {
+export function countPublishedToday(queue, now = new Date()) {
+  const todayKey = romeDateKey(now);
+  return (queue || []).filter(
+    (q) =>
+      q &&
+      q.status === 'published' &&
+      q.publishedAt &&
+      romeDateKey(new Date(q.publishedAt)) === todayKey
+  ).length;
+}
+
+export function isPinterestPublishDue(schedule, now = new Date(), { publishedToday = 0 } = {}) {
   if (!schedule || !schedule.enabled) return { due: false, reason: 'disabled' };
   const rome = getRomeParts(now);
   if (rome.hour < schedule.hour) return { due: false, reason: 'before_hour', rome };
+  const pinsPerDay = clampInt(schedule.pinsPerDay, 1, 5, 2);
+  if (publishedToday >= pinsPerDay) return { due: false, reason: 'already_today', rome, publishedToday };
+  if (publishedToday > 0) return { due: true, reason: 'ok_more_today', rome, publishedToday };
+
   const todayKey = romeDateKey(now);
   if (schedule.lastPublishedAt) {
     const lastKey = romeDateKey(new Date(schedule.lastPublishedAt));
-    if (lastKey === todayKey) return { due: false, reason: 'already_today', rome };
+    if (lastKey === todayKey) return { due: false, reason: 'already_today', rome, publishedToday };
     const gap = daysBetweenRomeKeys(lastKey, todayKey);
     if (gap < schedule.intervalDays) {
       return { due: false, reason: 'interval', gap, need: schedule.intervalDays, rome };
     }
   }
-  return { due: true, reason: 'ok', rome };
+  return { due: true, reason: 'ok', rome, publishedToday };
 }
 
 export function describePinterestSchedule(schedule) {
   if (!schedule || !schedule.enabled) return 'Programmazione Pinterest disattivata.';
   const every = schedule.intervalDays === 1 ? 'ogni giorno' : `ogni ${schedule.intervalDays} giorni`;
+  const n = clampInt(schedule.pinsPerDay, 1, 5, 2);
+  const pins = n === 1 ? '1 pin' : `${n} pin`;
   const time = `${String(schedule.hour).padStart(2, '0')}:00 (ora Italia)`;
-  return `Attiva: ${every} alle ${time}. Pubblica il prossimo pin in coda.`;
+  return `Attiva: ${every} alle ${time}, ${pins}/giorno dalla coda.`;
 }
 
 async function acquireLock() {
@@ -528,6 +566,53 @@ export async function pickNextPendingPin(queue) {
   return (queue || []).find((q) => q.status === 'pending') || null;
 }
 
+async function publishOneQueueItem(queue, item, nowIso) {
+  let next = { ...item };
+  let boardId = next.boardId;
+  if (!boardId && next.boardName) {
+    const boardsRes = await listPinterestBoards();
+    if (boardsRes.ok) {
+      const match = boardsRes.boards.find(
+        (b) => b.name.toLowerCase() === next.boardName.toLowerCase()
+      );
+      if (match) boardId = match.id;
+    }
+  }
+  if (!boardId) {
+    next.status = 'error';
+    next.error = `Bacheca non trovata: ${next.boardName || '?'}`;
+    const updated = queue.map((q) => (q.id === next.id ? next : q));
+    await savePinterestQueue(updated);
+    return { ok: false, error: next.error, queue: updated, item: next };
+  }
+
+  const created = await createPinterestPin({
+    boardId,
+    imageUrl: resolvePinImageUrl(next),
+    title: next.title,
+    description: next.description,
+    link: next.link,
+    altText: next.title,
+  });
+
+  if (!created.ok) {
+    next.status = 'error';
+    next.error = created.error || 'Create pin fallito';
+    const updated = queue.map((q) => (q.id === next.id ? next : q));
+    await savePinterestQueue(updated);
+    return { ok: false, error: next.error, queue: updated, item: next };
+  }
+
+  next.status = 'published';
+  next.boardId = boardId;
+  next.pinterestPinId = created.pin.id;
+  next.publishedAt = nowIso;
+  next.error = null;
+  const updated = queue.map((q) => (q.id === next.id ? next : q));
+  await savePinterestQueue(updated);
+  return { ok: true, queue: updated, item: next, pin: created.pin };
+}
+
 export async function runScheduledPinterestPublish({ force = false } = {}) {
   const locked = await acquireLock();
   if (!locked) return { ok: true, skipped: true, reason: 'locked' };
@@ -536,9 +621,12 @@ export async function runScheduledPinterestPublish({ force = false } = {}) {
     let schedule = await getPinterestSchedule();
     const now = new Date();
     const nowIso = now.toISOString();
+    let queue = await getPinterestQueue();
 
     if (!force) {
-      const check = isPinterestPublishDue(schedule, now);
+      const check = isPinterestPublishDue(schedule, now, {
+        publishedToday: countPublishedToday(queue, now),
+      });
       if (!check.due) {
         schedule = (
           await savePinterestSchedule({
@@ -563,91 +651,76 @@ export async function runScheduledPinterestPublish({ force = false } = {}) {
       return { ok: false, error: 'Pinterest non collegato.', schedule };
     }
 
-    let queue = await getPinterestQueue();
-    let next = await pickNextPendingPin(queue);
-    if (!next) {
+    const published = [];
+    const maxPerRun = force ? 1 : clampInt(schedule.pinsPerDay, 1, 5, 2);
+
+    while (published.length < maxPerRun) {
+      if (!force) {
+        const check = isPinterestPublishDue(schedule, now, {
+          publishedToday: countPublishedToday(queue, now),
+        });
+        if (!check.due) break;
+      }
+
+      const next = await pickNextPendingPin(queue);
+      if (!next) {
+        if (!published.length) {
+          schedule = (
+            await savePinterestSchedule({
+              lastRunAt: nowIso,
+              lastError: null,
+              lastResult: 'skip:no_pending',
+            })
+          ).schedule;
+          return { ok: true, skipped: true, reason: 'no_pending', schedule };
+        }
+        break;
+      }
+
+      const result = await publishOneQueueItem(queue, next, nowIso);
+      queue = result.queue;
+      if (!result.ok) {
+        schedule = (
+          await savePinterestSchedule({
+            lastRunAt: nowIso,
+            lastError: result.error,
+            lastResult: result.error && result.error.includes('Bacheca')
+              ? 'error:board'
+              : 'error:create',
+          })
+        ).schedule;
+        if (!published.length) {
+          return { ok: false, error: result.error, schedule };
+        }
+        break;
+      }
+
+      published.push(result);
       schedule = (
         await savePinterestSchedule({
+          lastPublishedAt: nowIso,
+          lastPublishedId: result.item.id,
           lastRunAt: nowIso,
           lastError: null,
-          lastResult: 'skip:no_pending',
+          lastResult: `published:${result.item.id}:${result.pin.id}`,
         })
       ).schedule;
-      return { ok: true, skipped: true, reason: 'no_pending', schedule };
+
+      if (force) break;
     }
 
-    let boardId = next.boardId;
-    if (!boardId && next.boardName) {
-      const boardsRes = await listPinterestBoards();
-      if (boardsRes.ok) {
-        const match = boardsRes.boards.find(
-          (b) => b.name.toLowerCase() === next.boardName.toLowerCase()
-        );
-        if (match) boardId = match.id;
-      }
-    }
-    if (!boardId) {
-      next.status = 'error';
-      next.error = `Bacheca non trovata: ${next.boardName || '?'}`;
-      queue = queue.map((q) => (q.id === next.id ? next : q));
-      await savePinterestQueue(queue);
-      schedule = (
-        await savePinterestSchedule({
-          lastRunAt: nowIso,
-          lastError: next.error,
-          lastResult: 'error:board',
-        })
-      ).schedule;
-      return { ok: false, error: next.error, schedule };
+    if (!published.length) {
+      return { ok: true, skipped: true, reason: 'nothing_published', schedule };
     }
 
-    const created = await createPinterestPin({
-      boardId,
-      imageUrl: publicPinImageUrl(next.image),
-      title: next.title,
-      description: next.description,
-      link: next.link,
-      altText: next.title,
-    });
-
-    if (!created.ok) {
-      next.status = 'error';
-      next.error = created.error || 'Create pin fallito';
-      queue = queue.map((q) => (q.id === next.id ? next : q));
-      await savePinterestQueue(queue);
-      schedule = (
-        await savePinterestSchedule({
-          lastRunAt: nowIso,
-          lastError: next.error,
-          lastResult: 'error:create',
-        })
-      ).schedule;
-      return { ok: false, error: next.error, schedule };
-    }
-
-    next.status = 'published';
-    next.boardId = boardId;
-    next.pinterestPinId = created.pin.id;
-    next.publishedAt = nowIso;
-    next.error = null;
-    queue = queue.map((q) => (q.id === next.id ? next : q));
-    await savePinterestQueue(queue);
-
-    schedule = (
-      await savePinterestSchedule({
-        lastPublishedAt: nowIso,
-        lastPublishedId: next.id,
-        lastRunAt: nowIso,
-        lastError: null,
-        lastResult: `published:${next.id}:${created.pin.id}`,
-      })
-    ).schedule;
-
+    const last = published[published.length - 1];
     return {
       ok: true,
       published: true,
-      item: next,
-      pin: created.pin,
+      count: published.length,
+      item: last.item,
+      pin: last.pin,
+      items: published.map((p) => p.item),
       schedule,
     };
   } finally {
