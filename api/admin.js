@@ -32,6 +32,7 @@ import {
   getPinterestSchedule,
   pinterestStatus,
   queuePreview,
+  retryPinterestErrors,
   runScheduledPinterestPublish,
   savePinterestSchedule,
   seedPinterestQueue,
@@ -273,6 +274,13 @@ export default async function handler(req, res) {
       if (!result.ok) return res.status(400).json(result);
       const queue = await getPinterestQueue();
       return res.status(200).json({ ...result, queue: queuePreview(queue) });
+    }
+
+    if (action === 'pinterest-retry-errors') {
+      const result = await retryPinterestErrors();
+      const status = await pinterestStatus();
+      const queue = await getPinterestQueue();
+      return res.status(200).json({ ...status, ...result, queue: queuePreview(queue) });
     }
 
     if (action === 'pinterest-disconnect') {

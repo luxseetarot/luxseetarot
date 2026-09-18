@@ -100,7 +100,7 @@ export function sanitizePinterestSchedule(raw = {}) {
       ? parseInt(raw.hour, 10)
       : base.hour,
     minute: 0,
-    pinsPerDay: clampInt(raw.pinsPerDay, 1, 5, base.pinsPerDay),
+    pinsPerDay: clampInt(raw.pinsPerDay, 1, 10, base.pinsPerDay),
     timezone: 'Europe/Rome',
     lastPublishedAt: raw.lastPublishedAt ? String(raw.lastPublishedAt) : null,
     lastPublishedId: raw.lastPublishedId ? String(raw.lastPublishedId).slice(0, 80) : null,
@@ -438,6 +438,28 @@ async function savePinterestQueue(items) {
   return clean;
 }
 
+/** Rimette in pending i pin in errore (es. dopo upgrade accesso Pinterest). */
+export async function retryPinterestErrors() {
+  const queue = await getPinterestQueue();
+  let reset = 0;
+  const next = queue.map((q) => {
+    if (q.status !== 'error') return q;
+    reset += 1;
+    return {
+      ...q,
+      status: 'pending',
+      error: null,
+    };
+  });
+  await savePinterestQueue(next);
+  return {
+    ok: true,
+    reset,
+    pending: next.filter((q) => q.status === 'pending').length,
+    error: next.filter((q) => q.status === 'error').length,
+  };
+}
+
 export function publicPinImageUrl(imageFile) {
   const name = String(imageFile || '')
     .replace(/^.*[\\/]/, '')
@@ -548,7 +570,7 @@ export function isPinterestPublishDue(schedule, now = new Date(), { publishedTod
   if (!schedule || !schedule.enabled) return { due: false, reason: 'disabled' };
   const rome = getRomeParts(now);
   if (rome.hour < schedule.hour) return { due: false, reason: 'before_hour', rome };
-  const pinsPerDay = clampInt(schedule.pinsPerDay, 1, 5, 2);
+  const pinsPerDay = clampInt(schedule.pinsPerDay, 1, 10, 2);
   if (publishedToday >= pinsPerDay) return { due: false, reason: 'already_today', rome, publishedToday };
   if (publishedToday > 0) return { due: true, reason: 'ok_more_today', rome, publishedToday };
 
@@ -567,7 +589,7 @@ export function isPinterestPublishDue(schedule, now = new Date(), { publishedTod
 export function describePinterestSchedule(schedule) {
   if (!schedule || !schedule.enabled) return 'Programmazione Pinterest disattivata.';
   const every = schedule.intervalDays === 1 ? 'ogni giorno' : `ogni ${schedule.intervalDays} giorni`;
-  const n = clampInt(schedule.pinsPerDay, 1, 5, 2);
+  const n = clampInt(schedule.pinsPerDay, 1, 10, 2);
   const pins = n === 1 ? '1 pin' : `${n} pin`;
   const time = `${String(schedule.hour).padStart(2, '0')}:00 (ora Italia)`;
   return `Attiva: ${every} alle ${time}, ${pins}/giorno dalla coda.`;
@@ -675,7 +697,7 @@ export async function runScheduledPinterestPublish({ force = false } = {}) {
     }
 
     const published = [];
-    const maxPerRun = force ? 1 : clampInt(schedule.pinsPerDay, 1, 5, 2);
+    const maxPerRun = force ? 1 : clampInt(schedule.pinsPerDay, 1, 10, 2);
 
     while (published.length < maxPerRun) {
       if (!force) {
@@ -781,6 +803,8 @@ export async function pinterestStatus() {
       pending: queue.filter((q) => q.status === 'pending').length,
       published: schedule.totalPublished || 0,
       error: queue.filter((q) => q.status === 'error').length,
+      publishedToday: publishedTodayFromSchedule(schedule),
+      pinsPerDay: clampInt(schedule.pinsPerDay, 1, 10, 2),
     },
     boards,
     boardsError,

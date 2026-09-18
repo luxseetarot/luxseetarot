@@ -958,7 +958,8 @@
         <div class="admin-blog-editor show" id="admin-pin-schedule" style="margin-bottom:14px">
           <div class="phase-tag" style="margin-bottom:10px">PUBBLICAZIONE AUTOMATICA PIN</div>
           <p id="admin-pin-schedule-hint" style="margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.5">Caricamento…</p>
-          <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.75);line-height:1.45">GitHub Actions: <strong style="font-weight:500;color:rgba(236,230,216,.8)">2 volte al giorno</strong> (mattina). Pubblica i pin dovuti dalla coda (fino a N/giorno) se il programma è attivo. Secret <code style="color:rgba(212,175,106,.9)">CRON_SECRET</code> uguale su Vercel e GitHub.</p>
+          <p id="admin-pin-publish-log" style="margin:0 0 12px;font-size:13px;color:rgba(236,230,216,.88);line-height:1.55;padding:10px 12px;border:1px solid rgba(212,175,106,.25);background:rgba(15,20,32,.45)"></p>
+          <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.75);line-height:1.45">GitHub Actions: <strong style="font-weight:500;color:rgba(236,230,216,.8)">2 volte al giorno</strong> (mattina). Pubblica i pin dovuti dalla coda (fino a N/giorno) se il programma è attivo.</p>
           <div class="admin-blog-filters" style="margin-bottom:10px">
             <label style="display:flex;align-items:center;gap:8px;margin:0;color:var(--fg);font-size:12px;letter-spacing:.04em">
               <input type="checkbox" id="admin-pin-sched-enabled" />
@@ -981,11 +982,18 @@
               <span>(ora Italia)</span>
             </label>
             <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:var(--muted)">
-              Pin/giorno
+              Quanti pin oggi / ogni giorno
               <select id="admin-pin-sched-perday" aria-label="Pin per giorno">
                 <option value="1">1</option>
                 <option value="2" selected>2</option>
                 <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
               </select>
             </label>
           </div>
@@ -993,6 +1001,7 @@
           <div class="admin-blog-editor-actions">
             <button type="button" class="gold-btn" id="admin-pin-sched-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA PROGRAMMA</button>
             <button type="button" class="ghost-btn" id="admin-pin-run" style="width:auto;padding:10px 14px;font-size:11px">PUBBLICA ORA IL PROSSIMO</button>
+            <button type="button" class="ghost-btn" id="admin-pin-retry-errors" style="width:auto;padding:10px 14px;font-size:11px">RIPROVA ERRORI</button>
           </div>
         </div>
         <div class="admin-blog-filters" style="margin-bottom:12px">
@@ -4082,9 +4091,9 @@
       if(kpis){
         kpis.innerHTML =
           '<div class="admin-kpi"><b>'+(qc.pending||0)+'</b><span>IN CODA</span></div>'+
+          '<div class="admin-kpi"><b>'+(qc.publishedToday||0)+'/'+(qc.pinsPerDay||s.pinsPerDay||2)+'</b><span>OGGI</span></div>'+
           '<div class="admin-kpi"><b>'+(qc.published||0)+'</b><span>PUBBLICATI</span></div>'+
-          '<div class="admin-kpi"><b>'+(qc.error||0)+'</b><span>ERRORI</span></div>'+
-          '<div class="admin-kpi"><b>'+(data.connected ? 'SÌ' : 'NO')+'</b><span>COLLEGATO</span></div>';
+          '<div class="admin-kpi"><b>'+(qc.error||0)+'</b><span>ERRORI</span></div>';
       }
       var statusEl = document.getElementById('admin-pin-status');
       if(statusEl){
@@ -4112,18 +4121,34 @@
       var perDayEl = document.getElementById('admin-pin-sched-perday');
       var hintEl = document.getElementById('admin-pin-schedule-hint');
       var nextEl = document.getElementById('admin-pin-schedule-next');
+      var logEl = document.getElementById('admin-pin-publish-log');
       if(enabledEl) enabledEl.checked = !!s.enabled;
       if(intervalEl) intervalEl.value = String(s.intervalDays || 1);
       if(hourEl) hourEl.value = String(s.hour != null ? s.hour : 9);
       if(perDayEl) perDayEl.value = String(s.pinsPerDay != null ? s.pinsPerDay : 2);
       if(hintEl) hintEl.textContent = data.scheduleHint || 'Programma la pubblicazione automatica dei pin in coda.';
+      if(logEl){
+        var todayN = qc.publishedToday || 0;
+        var goal = qc.pinsPerDay || s.pinsPerDay || 2;
+        var lines = [];
+        lines.push('Oggi: ' + todayN + ' / ' + goal + ' pin · Totale pubblicati via API: ' + (qc.published||0));
+        if(s.lastPublishedAt){
+          lines.push('Ultima pubblicazione: ' + s.lastPublishedAt + (s.lastPublishedId ? ' (id ' + s.lastPublishedId + ')' : ''));
+        } else {
+          lines.push('Nessuna pubblicazione riuscita finora via API.');
+        }
+        if(s.lastResult) lines.push('Ultimo esito cron/manuale: ' + s.lastResult);
+        if(s.lastError) lines.push('Ultimo errore: ' + s.lastError);
+        if((qc.error||0) > 0) lines.push('In coda ci sono ' + qc.error + ' pin in errore (usa Riprova errori dopo aver sbloccato l’API).');
+        logEl.textContent = lines.join('\n');
+        logEl.style.whiteSpace = 'pre-wrap';
+        logEl.style.color = s.lastError ? 'rgba(220,140,140,.95)' : 'rgba(236,230,216,.88)';
+      }
       if(nextEl){
         var bits = [];
         var pending = (data.queue || []).find(function(q){ return q.status === 'pending'; });
         if(pending) bits.push('Prossimo: “' + (pending.title || pending.image) + '”');
         else bits.push('Nessun pin in coda.');
-        if(s.lastResult) bits.push('Esito: ' + s.lastResult);
-        if(s.lastError) bits.push('Errore: ' + s.lastError);
         nextEl.textContent = bits.join(' · ');
       }
       var tbody = document.getElementById('admin-pin-tbody');
@@ -4520,6 +4545,18 @@
           }
           return loadPinterest();
         }).catch(function(){ showErr('Pubblicazione pin fallita'); });
+      });
+    }
+    var pinRetry = document.getElementById('admin-pin-retry-errors');
+    if(pinRetry){
+      pinRetry.addEventListener('click', function(){
+        if(!confirm('Rimetto in coda tutti i pin in errore?')) return;
+        showErr('');
+        adminFetch({ action: 'pinterest-retry-errors' }).then(function(res){
+          if(!res.ok){ showErr(res.error || 'Riprova errori fallita'); return; }
+          if(metaEl) metaEl.textContent = 'Errori rimessi in coda: ' + (res.reset||0);
+          renderPinterest(res);
+        }).catch(function(){ showErr('Riprova errori fallita'); });
       });
     }
     var pinSeed = document.getElementById('admin-pin-seed');
