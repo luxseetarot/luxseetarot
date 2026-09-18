@@ -82,6 +82,9 @@ export function defaultPinterestSchedule() {
     lastRunAt: null,
     lastError: null,
     lastResult: null,
+    publishedDayKey: null,
+    publishedTodayCount: 0,
+    totalPublished: 0,
   };
 }
 
@@ -104,6 +107,9 @@ export function sanitizePinterestSchedule(raw = {}) {
     lastRunAt: raw.lastRunAt ? String(raw.lastRunAt) : null,
     lastError: raw.lastError ? String(raw.lastError).slice(0, 400) : null,
     lastResult: raw.lastResult ? String(raw.lastResult).slice(0, 200) : null,
+    publishedDayKey: raw.publishedDayKey ? String(raw.publishedDayKey).slice(0, 16) : null,
+    publishedTodayCount: clampInt(raw.publishedTodayCount, 0, 100, 0),
+    totalPublished: clampInt(raw.totalPublished, 0, 10000000, 0),
   };
 }
 
@@ -142,6 +148,15 @@ export async function savePinterestSchedule(input) {
     lastResult: Object.prototype.hasOwnProperty.call(input || {}, 'lastResult')
       ? input.lastResult
       : prev.lastResult,
+    publishedDayKey: Object.prototype.hasOwnProperty.call(input || {}, 'publishedDayKey')
+      ? input.publishedDayKey
+      : prev.publishedDayKey,
+    publishedTodayCount: Object.prototype.hasOwnProperty.call(input || {}, 'publishedTodayCount')
+      ? input.publishedTodayCount
+      : prev.publishedTodayCount,
+    totalPublished: Object.prototype.hasOwnProperty.call(input || {}, 'totalPublished')
+      ? input.totalPublished
+      : prev.totalPublished,
   });
   if (funnelStorageMode() === 'redis') {
     await redisCommand(['SET', SCHEDULE_KEY, JSON.stringify(next)]);
@@ -522,6 +537,13 @@ export function countPublishedToday(queue, now = new Date()) {
   ).length;
 }
 
+/** Conta i pin pubblicati oggi dallo schedule (la coda li cancella dopo publish). */
+export function publishedTodayFromSchedule(schedule, now = new Date()) {
+  const todayKey = romeDateKey(now);
+  if (!schedule || schedule.publishedDayKey !== todayKey) return 0;
+  return clampInt(schedule.publishedTodayCount, 0, 100, 0);
+}
+
 export function isPinterestPublishDue(schedule, now = new Date(), { publishedToday = 0 } = {}) {
   if (!schedule || !schedule.enabled) return { due: false, reason: 'disabled' };
   const rome = getRomeParts(now);
@@ -608,7 +630,8 @@ async function publishOneQueueItem(queue, item, nowIso) {
   next.pinterestPinId = created.pin.id;
   next.publishedAt = nowIso;
   next.error = null;
-  const updated = queue.map((q) => (q.id === next.id ? next : q));
+  // Rimuovi dalla coda Redis dopo publish (resta solo pending/error).
+  const updated = queue.filter((q) => q.id !== next.id);
   await savePinterestQueue(updated);
   return { ok: true, queue: updated, item: next, pin: created.pin };
 }
@@ -625,7 +648,7 @@ export async function runScheduledPinterestPublish({ force = false } = {}) {
 
     if (!force) {
       const check = isPinterestPublishDue(schedule, now, {
-        publishedToday: countPublishedToday(queue, now),
+        publishedToday: publishedTodayFromSchedule(schedule, now),
       });
       if (!check.due) {
         schedule = (
@@ -657,7 +680,7 @@ export async function runScheduledPinterestPublish({ force = false } = {}) {
     while (published.length < maxPerRun) {
       if (!force) {
         const check = isPinterestPublishDue(schedule, now, {
-          publishedToday: countPublishedToday(queue, now),
+          publishedToday: publishedTodayFromSchedule(schedule, now),
         });
         if (!check.due) break;
       }
@@ -696,6 +719,8 @@ export async function runScheduledPinterestPublish({ force = false } = {}) {
       }
 
       published.push(result);
+      const todayKey = romeDateKey(now);
+      const prevToday = publishedTodayFromSchedule(schedule, now);
       schedule = (
         await savePinterestSchedule({
           lastPublishedAt: nowIso,
@@ -703,6 +728,9 @@ export async function runScheduledPinterestPublish({ force = false } = {}) {
           lastRunAt: nowIso,
           lastError: null,
           lastResult: `published:${result.item.id}:${result.pin.id}`,
+          publishedDayKey: todayKey,
+          publishedTodayCount: prevToday + 1,
+          totalPublished: clampInt(schedule.totalPublished, 0, 10000000, 0) + 1,
         })
       ).schedule;
 
@@ -751,7 +779,7 @@ export async function pinterestStatus() {
     queueCounts: {
       total: queue.length,
       pending: queue.filter((q) => q.status === 'pending').length,
-      published: queue.filter((q) => q.status === 'published').length,
+      published: schedule.totalPublished || 0,
       error: queue.filter((q) => q.status === 'error').length,
     },
     boards,
