@@ -60,7 +60,11 @@ ${deepen
 export default async function handler(req, res) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method not allowed' });
+  // GET/altri metodi: 410 (non 405) così Google toglie /api/reading dall’indice Search Console.
+  if (req.method !== 'POST') {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    return res.status(410).json({ ok: false, error: 'Gone' });
+  }
 
   try {
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || 'unknown';

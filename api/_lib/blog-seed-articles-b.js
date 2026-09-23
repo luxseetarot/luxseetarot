@@ -460,6 +460,8 @@ ${CTA}
 
     article({
       slug: 'tarocchi-soldi-e-risorse',
+      // Pubblicato: URL già linkata da altri articoli e segnalata 404 in Search Console.
+      status: 'published',
       title: 'Tarocchi, soldi e risorse: orientamento (non previsioni finanziarie)',
       description:
         'Come leggere i tarocchi su soldi e risorse con realismo: mentalità, blocchi, priorità. Non sono consulenza finanziaria.',

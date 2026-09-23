@@ -575,6 +575,12 @@ export async function seedDemoArticle({ force = false, syncContent = false } = {
     }
 
     if (syncContent && existing) {
+      // Se il catalogo marca published e in Redis è ancora bozza → pubblica (es. 404 GSC).
+      const promote =
+        demo.status === 'published' &&
+        existing.status !== 'published' &&
+        existing.status !== 'deleted';
+      const nextStatus = promote ? 'published' : existing.status || 'draft';
       const post = sanitizePost({
         ...existing,
         title: demo.title,
@@ -584,9 +590,11 @@ export async function seedDemoArticle({ force = false, syncContent = false } = {
         faq: demo.faq || existing.faq || [],
         coverImage: demo.coverImage || existing.coverImage || '',
         coverAlt: demo.coverAlt || existing.coverAlt || '',
-        status: existing.status || 'draft',
+        status: nextStatus,
         createdAt: existing.createdAt,
-        publishedAt: existing.publishedAt,
+        publishedAt: promote
+          ? existing.publishedAt || new Date().toISOString()
+          : existing.publishedAt,
       });
       if (post) {
         toWrite.push(post);

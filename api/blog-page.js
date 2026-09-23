@@ -1,4 +1,5 @@
-import { getPost, slugify } from './_lib/blog.js';
+import { getPost, setPostStatus, slugify } from './_lib/blog.js';
+import { getSeedArticlesB } from './_lib/blog-seed-articles-b.js';
 import { renderBlogArticleHtml, renderBlogNotFoundHtml } from './_lib/blog-html.js';
 
 function getAdminSecret() {
@@ -19,6 +20,15 @@ function sendHtml(res, status, html, { cache = 'private, no-store' } = {}) {
   res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.setHeader('Cache-Control', cache);
   res.end(html);
+}
+
+/** Bozze linkate da altri articoli ma ancora draft → pubblica se il seed dice published. */
+async function promoteIfSeedPublished(post) {
+  if (!post || post.status === 'published' || post.status === 'deleted') return post;
+  const seed = getSeedArticlesB().find((p) => p.slug === post.slug);
+  if (!seed || seed.status !== 'published') return post;
+  const result = await setPostStatus(post.slug, 'published', { skipFacebook: true });
+  return result.ok && result.post ? result.post : post;
 }
 
 export default async function handler(req, res) {
@@ -43,9 +53,13 @@ export default async function handler(req, res) {
       return sendHtml(res, 404, renderBlogNotFoundHtml());
     }
 
-    const post = await getPost(slug);
+    let post = await getPost(slug);
     if (!post || post.status === 'deleted') {
       return sendHtml(res, 404, renderBlogNotFoundHtml());
+    }
+
+    if (post.status !== 'published') {
+      post = await promoteIfSeedPublished(post);
     }
 
     if (post.status !== 'published') {
