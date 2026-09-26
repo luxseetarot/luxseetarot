@@ -10,6 +10,9 @@ on:
       - "api/_lib/blog-seed-articles-c.js"
       - "api/_lib/blog-seed-articles-d.js"
       - "api/_lib/blog-seed-articles-e.js"
+      - "api/_lib/blog-seed-articles-f.js"
+      - "api/_lib/blog-seed-articles-g.js"
+      - "api/_lib/blog.js"
       - "api/cron-blog-publish.js"
 
 jobs:
@@ -54,7 +57,7 @@ jobs:
             echo
 
             if [ "${HTTP_CODE}" = "200" ]; then
-              if python3 -c 'import json,sys; d=json.load(open("/tmp/seed-sync.json")); print(d); sys.exit(0 if d.get("job")=="seed-sync" and d.get("ok") else 1)'; then
+              if python3 -c 'import json,sys; d=json.load(open("/tmp/seed-sync.json")); s=d.get("seed") or {}; g=d.get("lotG") or {}; print("seeded", s.get("seeded"), "patched", s.get("patched"), "skipped", s.get("skipped"), "total", s.get("total"), "lotG", g); sys.exit(0 if d.get("job")=="seed-sync" and d.get("ok") else 1)'; then
                 echo "Sync SEO OK"
                 exit 0
               fi

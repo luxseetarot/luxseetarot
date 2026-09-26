@@ -2,6 +2,7 @@ import { runScheduledBlogPublish } from './_lib/blog-schedule.js';
 import { runScheduledPinterestPublish } from './_lib/pinterest.js';
 import { getPost, seedDemoArticle, setPostStatus } from './_lib/blog.js';
 import { getSeedArticlesF } from './_lib/blog-seed-articles-f.js';
+import { getSeedArticlesG } from './_lib/blog-seed-articles-g.js';
 
 function headerValue(req, name) {
   const v = req.headers[name] || req.headers[name.toLowerCase()];
@@ -128,10 +129,28 @@ export default async function handler(req, res) {
     }
     if (job === 'seed-sync' || job === 'sync-seo') {
       const seed = await seedDemoArticle({ force: false, syncContent: true });
+      const gSlugs = getSeedArticlesG().map((p) => p.slug);
+      const gPosts = await Promise.all(gSlugs.map((slug) => getPost(slug)));
+      const gPresent = gPosts.filter(Boolean);
+      const gDraft = gPresent.filter((p) => p.status === 'draft').length;
+      const gPublished = gPresent.filter((p) => p.status === 'published').length;
       return res.status(200).json({
         ok: true,
         job: 'seed-sync',
-        seed,
+        seed: {
+          ok: seed.ok,
+          seeded: seed.seeded,
+          patched: seed.patched,
+          skipped: seed.skipped,
+          total: seed.total,
+        },
+        lotG: {
+          expected: gSlugs.length,
+          present: gPresent.length,
+          draft: gDraft,
+          published: gPublished,
+          missing: gSlugs.filter((slug, i) => !gPosts[i]),
+        },
       });
     }
     const result = await runScheduledBlogPublish({ force: false });
