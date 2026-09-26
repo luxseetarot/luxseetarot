@@ -1,0 +1,111 @@
+# Buffer lot 5 (pin 41–140) — DA CARICARE IN CODA
+
+100 pin · 2 al giorno (09:00 e 11:00 Europe/Rome) → **1 set – 20 ott 2026**.
+
+Immagini: `pinterest-pins/pin-41-*.png` … `pin-140-*.png`
+Testi/link/bacheca: `pinterest-pins/pins-guida.csv` (id 41–140)
+
+| Data | Ora Roma | Pin | Titolo |
+|------|----------|-----|--------|
+| 01/09/26 | 09:00 | 41 | Tre carte. Una domanda. Chiarezza. |
+| 01/09/26 | 11:00 | 42 | Gratis la prima occhiata |
+| 02/09/26 | 09:00 | 43 | Prova i tarocchi online |
+| 02/09/26 | 11:00 | 44 | Zero impegno. Solo carte. |
+| 03/09/26 | 09:00 | 45 | Una lettura leggera |
+| 03/09/26 | 11:00 | 46 | Estrai tre carte gratis |
+| 04/09/26 | 09:00 | 47 | Solo tre carte |
+| 04/09/26 | 11:00 | 48 | Inizia senza pressione |
+| 05/09/26 | 09:00 | 49 | Chiarezza in 3 carte |
+| 05/09/26 | 11:00 | 50 | Tarocchi senza account |
+| 06/09/26 | 09:00 | 51 | Il primo sguardo |
+| 06/09/26 | 11:00 | 52 | Prova ora i tarocchi |
+| 07/09/26 | 09:00 | 53 | Piccola lettura, grande calma |
+| 07/09/26 | 11:00 | 54 | Niente pacchetti subito |
+| 08/09/26 | 09:00 | 55 | Le carte, senza fronzoli |
+| 08/09/26 | 11:00 | 56 | Una serata con le carte |
+| 09/09/26 | 09:00 | 57 | Tarocchi digitali |
+| 09/09/26 | 11:00 | 58 | Se sei curioso |
+| 10/09/26 | 09:00 | 59 | Lettura leggibile |
+| 10/09/26 | 11:00 | 60 | Dal telefono o dal PC |
+| 11/09/26 | 09:00 | 61 | Tre posizioni |
+| 11/09/26 | 11:00 | 62 | Meno ansia, più focus |
+| 12/09/26 | 09:00 | 63 | Il tuo momento |
+| 12/09/26 | 11:00 | 64 | Apri le carte |
+| 13/09/26 | 09:00 | 65 | Tarocchi per chi inizia |
+| 13/09/26 | 11:00 | 66 | Cosa non dici? |
+| 14/09/26 | 09:00 | 67 | Segnali confusi? |
+| 14/09/26 | 11:00 | 68 | Cuore in dubbio |
+| 15/09/26 | 09:00 | 69 | Lui / lei / noi |
+| 15/09/26 | 11:00 | 70 | Chiusura o ritorno? |
+| 16/09/26 | 09:00 | 71 | Nuovo incontro? |
+| 16/09/26 | 11:00 | 72 | Troppe storie in testa |
+| 17/09/26 | 09:00 | 73 | Amore a distanza |
+| 17/09/26 | 11:00 | 74 | Gelosia o intuizione? |
+| 18/09/26 | 09:00 | 75 | Silent treatment |
+| 18/09/26 | 11:00 | 76 | Mi vuole ancora? |
+| 19/09/26 | 09:00 | 77 | Dopo una lite |
+| 19/09/26 | 11:00 | 78 | Crush o connessione? |
+| 20/09/26 | 09:00 | 79 | Paura di lasciar andare |
+| 20/09/26 | 11:00 | 80 | Messaggi misti |
+| 21/09/26 | 09:00 | 81 | Tornare insieme? |
+| 21/09/26 | 11:00 | 82 | Single e sereno? |
+| 22/09/26 | 09:00 | 83 | Amore e confini |
+| 22/09/26 | 11:00 | 84 | Il timing dell’amore |
+| 23/09/26 | 09:00 | 85 | Ti senti invisibile |
+| 23/09/26 | 11:00 | 86 | Passione vs stabilità |
+| 24/09/26 | 09:00 | 87 | Parlare o aspettare? |
+| 24/09/26 | 11:00 | 88 | Amore soft |
+| 25/09/26 | 09:00 | 89 | Il nodo del momento |
+| 25/09/26 | 11:00 | 90 | Tarocchi amore online |
+| 26/09/26 | 09:00 | 91 | Resto o cambio? |
+| 26/09/26 | 11:00 | 92 | Stallo professionale |
+| 27/09/26 | 09:00 | 93 | Colloquio in arrivo |
+| 27/09/26 | 11:00 | 94 | Burnout o noia? |
+| 28/09/26 | 09:00 | 95 | Promozione? |
+| 28/09/26 | 11:00 | 96 | Lavoro e confini |
+| 29/09/26 | 09:00 | 97 | Team difficile |
+| 29/09/26 | 11:00 | 98 | Partita IVA? |
+| 30/09/26 | 09:00 | 99 | Nuovo progetto |
+| 30/09/26 | 11:00 | 100 | Soldi e lavoro |
+| 01/10/26 | 09:00 | 101 | Mi sottovalutano |
+| 01/10/26 | 11:00 | 102 | Cambio città per lavoro |
+| 02/10/26 | 09:00 | 103 | Creatività bloccata |
+| 02/10/26 | 11:00 | 104 | Leadership soft |
+| 03/10/26 | 09:00 | 105 | Lunedì difficile |
+| 03/10/26 | 11:00 | 106 | Feedback ricevuto |
+| 04/10/26 | 09:00 | 107 | Rete o merito? |
+| 04/10/26 | 11:00 | 108 | Dimissioni in testa |
+| 05/10/26 | 09:00 | 109 | Obiettivi Q4 |
+| 05/10/26 | 11:00 | 110 | Tarocchi lavoro online |
+| 06/10/26 | 09:00 | 111 | Il prossimo passo |
+| 06/10/26 | 11:00 | 112 | Cosa preparare |
+| 07/10/26 | 09:00 | 113 | Paura del dopo |
+| 07/10/26 | 11:00 | 114 | Una porta socchiusa |
+| 08/10/26 | 09:00 | 115 | Ciclo che finisce |
+| 08/10/26 | 11:00 | 116 | Orizzonte vicino |
+| 09/10/26 | 09:00 | 117 | Se non cambio nulla |
+| 09/10/26 | 11:00 | 118 | Speranza o piano? |
+| 10/10/26 | 09:00 | 119 | Anno nuovo energia |
+| 10/10/26 | 11:00 | 120 | Rischio calcolato |
+| 11/10/26 | 09:00 | 121 | Il dopo-scelta |
+| 11/10/26 | 11:00 | 122 | Nebbia davanti |
+| 12/10/26 | 09:00 | 123 | Futuro soft |
+| 12/10/26 | 11:00 | 124 | Domanda sul futuro |
+| 13/10/26 | 09:00 | 125 | Tarocchi futuro online |
+| 13/10/26 | 11:00 | 126 | La domanda giusta |
+| 14/10/26 | 09:00 | 127 | Non chiedere sì/no |
+| 14/10/26 | 11:00 | 128 | Una domanda sola |
+| 15/10/26 | 09:00 | 129 | Prima di pescare |
+| 15/10/26 | 11:00 | 130 | Esempi utili |
+| 16/10/26 | 09:00 | 131 | Controllo sull’altro? |
+| 16/10/26 | 11:00 | 132 | Date assolute |
+| 17/10/26 | 09:00 | 133 | Domanda confusa |
+| 17/10/26 | 11:00 | 134 | Cosa vuoi capire |
+| 18/10/26 | 09:00 | 135 | Troppe domande |
+| 18/10/26 | 11:00 | 136 | Domanda da principiante |
+| 19/10/26 | 09:00 | 137 | La domanda debole |
+| 19/10/26 | 11:00 | 138 | Respiro. Poi domanda. |
+| 20/10/26 | 09:00 | 139 | Formula e prova |
+| 20/10/26 | 11:00 | 140 | Fare una domanda |
+
+Nota: genera URL host (catbox o sito) se lo scheduler non carica da disco.

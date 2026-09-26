@@ -1,0 +1,76 @@
+# Buffer lot 5 — batch 3 (pin 61–70) PRONTO
+
+URL Catbox in `lot5-batch3-urls.json`.
+Orari: 11/09/26 – 15/09/26, 09:00 e 11:00 Rome.
+Buffer Free: max ~10 in coda — carica quando il batch precedente ha finito di pubblicare.
+
+- **2026-09-11 09:00** | Lettura Tarocchi Gratis | Passato, presente, filo
+  img: https://files.catbox.moe/s3c6d4.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Non per chiudere il destino. Per vedere il movimento che stai vivendo.
+  
+  #spread #tarocchi #storia #movimento #chiarezza
+- **2026-09-11 11:00** | Lettura Tarocchi Gratis | Meno ansia, più focus
+  img: https://files.catbox.moe/7ql9mo.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Scegli un nodo. Lascia il resto fuori dalla stanza, anche solo per un attimo.
+  
+  #ansia #focus #tarocchi #calma #mente
+- **2026-09-12 09:00** | Lettura Tarocchi Gratis | Il tuo momento
+  img: https://files.catbox.moe/c1rl6b.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Non tutti i giorni. Solo quando qualcosa dentro chiede di essere visto.
+  
+  #momento #tarocchi #verità #ascolto #sé
+- **2026-09-12 11:00** | Lettura Tarocchi Gratis | Apri quello che chiudi
+  img: https://files.catbox.moe/bld31y.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Il dubbio non si scaccia. Si ascolta, finché diventa più chiaro.
+  
+  #dubbio #tarocchi #delicatezza #emozioni #apertura
+- **2026-09-13 09:00** | Lettura Tarocchi Gratis | Se stai iniziando
+  img: https://files.catbox.moe/ugjysy.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Non serve esperienza. Serve una domanda vera e un po’ di coraggio.
+  
+  #iniziare #tarocchi #onestà #coraggio #sé
+- **2026-09-13 11:00** | Tarocchi Amore | Cosa non dici?
+  img: https://files.catbox.moe/cm3de4.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Quando le parole mancano, resta un peso nel petto. A volte è lì che inizia la verità.
+  
+  #amore #parole #tarocchi #emozioni #cuore
+- **2026-09-14 09:00** | Tarocchi Amore | Segnali confusi?
+  img: https://files.catbox.moe/ircsqc.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Tra sentimento e aspettativa c’è una nebbia. Non sei debole: stai cercando di vedere.
+  
+  #segnali #amore #tarocchi #chiarezza #relazioni
+- **2026-09-14 11:00** | Tarocchi Amore | Cuore in dubbio
+  img: https://files.catbox.moe/43zchq.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Dubitare non significa non amare. Significa che qualcosa chiede attenzione.
+  
+  #cuore #dubbio #amore #tarocchi #ascolto
+- **2026-09-15 09:00** | Tarocchi Amore | Lui / lei / noi
+  img: https://files.catbox.moe/dk4av6.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Non per controllare l’altro. Per capire cosa stai portando tu nella danza.
+  
+  #dinamica #amore #tarocchi #relazioni #consapevolezza
+- **2026-09-15 11:00** | Tarocchi Amore | Chiusura o ritorno?
+  img: https://files.catbox.moe/3kesuw.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Le risposte sì/no chiudono troppo presto. Il cuore ha bisogno di spazio.
+  
+  #ex #chiusura #amore #tarocchi #emozioni

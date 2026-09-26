@@ -1,0 +1,76 @@
+# Buffer lot 5 — batch 10 (pin 131–140) PRONTO
+
+URL Catbox in `lot5-batch10-urls.json`.
+Orari: 16/10/26 – 20/10/26, 09:00 e 11:00 Rome.
+Buffer Free: max ~10 in coda — carica quando il batch precedente ha finito di pubblicare.
+
+- **2026-10-16 09:00** | Come Fare una Domanda ai Tarocchi | Controllo sull’altro?
+  img: https://files.catbox.moe/x2aj8p.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Chiedi il tuo ruolo e la dinamica. Più utile, meno ansia.
+  
+  #controllo #domanda #tarocchi #relazioni #mindset
+- **2026-10-16 11:00** | Come Fare una Domanda ai Tarocchi | Date assolute
+  img: https://files.catbox.moe/qmxkud.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  “In questa fase” batte “il giorno esatto”. Il tempo interiore non è un calendario.
+  
+  #date #domanda #tarocchi #realismo #futuro
+- **2026-10-17 09:00** | Come Fare una Domanda ai Tarocchi | Domanda confusa
+  img: https://files.catbox.moe/pmh79i.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Scarica tutto → sottolinea il nodo → riscrivi aperta. Poi respira.
+  
+  #metodo #domanda #tarocchi #chiarezza #pratica
+- **2026-10-17 11:00** | Come Fare una Domanda ai Tarocchi | Cosa vuoi capire
+  img: https://files.catbox.moe/ilzfwu.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Chiarezza — o solo rassicurazione? L’onestà viene prima delle carte.
+  
+  #onestà #domanda #tarocchi #introspezione #verità
+- **2026-10-18 09:00** | Come Fare una Domanda ai Tarocchi | Troppe domande
+  img: https://files.catbox.moe/f4fqn7.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Approfondisci dopo, sullo stesso filo. Non sparare a raffica.
+  
+  #approfondimento #domanda #tarocchi #focus #pazienza
+- **2026-10-18 11:00** | Come Fare una Domanda ai Tarocchi | Se stai iniziando
+  img: https://files.catbox.moe/r2v3j7.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Chi + cosa + orizzonte. Poi resta in ascolto di ciò che emerge.
+  
+  #principianti #domanda #tarocchi #template #ascolto
+- **2026-10-19 09:00** | Come Fare una Domanda ai Tarocchi | Domanda debole
+  img: https://files.catbox.moe/5tr2sy.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Una chiude. L’altra apre. La differenza si sente nel corpo.
+  
+  #esempi #domanda #tarocchi #corpo #chiarezza
+- **2026-10-19 11:00** | Come Fare una Domanda ai Tarocchi | Respiro. Poi domanda.
+  img: https://files.catbox.moe/nf7yc7.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Il ritmo conta quanto le parole. La fretta confonde tutto.
+  
+  #ritmo #domanda #tarocchi #presenza #calma
+- **2026-10-20 09:00** | Come Fare una Domanda ai Tarocchi | Scrivi, poi ascolta
+  img: https://files.catbox.moe/zixiyk.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Quando la domanda è scritta bene, metà della confusione è già sciolta.
+  
+  #pratica #domanda #tarocchi #chiarezza #scrittura
+- **2026-10-20 11:00** | Come Fare una Domanda ai Tarocchi | Fare una domanda
+  img: https://files.catbox.moe/oh47e7.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Verso te, verso il mistero. Non per costringere una risposta.
+  
+  #domanda #tarocchi #rispetto #mistero #ascolto

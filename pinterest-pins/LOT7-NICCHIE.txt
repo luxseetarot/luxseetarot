@@ -1,0 +1,7 @@
+spiritualita: 100
+ombra: 100
+evoluzione: 100
+coppe: 25
+bastoni: 25
+spade: 25
+denari: 25

@@ -1,0 +1,76 @@
+# Buffer lot 5 — batch 6 (pin 91–100) PRONTO
+
+URL Catbox in `lot5-batch6-urls.json`.
+Orari: 26/09/26 – 30/09/26, 09:00 e 11:00 Rome.
+Buffer Free: max ~10 in coda — carica quando il batch precedente ha finito di pubblicare.
+
+- **2026-09-26 09:00** | Tarocchi Lavoro | Resto o cambio?
+  img: https://files.catbox.moe/89eaxd.png
+  link: https://www.luxseetarot.com/tarocchi-lavoro.html
+  copy:
+  Non è solo carriera. È dove metti energia — e dove la perdi.
+  
+  #lavoro #scelta #tarocchi #energia #carriera
+- **2026-09-26 11:00** | Tarocchi Lavoro | Stallo professionale
+  img: https://files.catbox.moe/lxhowv.png
+  link: https://www.luxseetarot.com/tarocchi-lavoro.html
+  copy:
+  A volte lo stallo non è pigrizia. È un messaggio che non hai ancora ascoltato.
+  
+  #stallo #lavoro #tarocchi #motivazione #ascolto
+- **2026-09-27 09:00** | Tarocchi Lavoro | Colloquio in arrivo
+  img: https://files.catbox.moe/e68po1.png
+  link: https://www.luxseetarot.com/tarocchi-lavoro.html
+  copy:
+  Oltre il curriculum: quale energia vuoi portare nella stanza?
+  
+  #colloquio #lavoro #tarocchi #presenza #carriera
+- **2026-09-27 11:00** | Tarocchi Lavoro | Burnout o noia?
+  img: https://files.catbox.moe/5frhg4.png
+  link: https://www.luxseetarot.com/tarocchi-lavoro.html
+  copy:
+  Uno brucia. L’altro spegne. Dare il nome giusto cambia il prossimo passo.
+  
+  #burnout #lavoro #tarocchi #benessere #chiarezza
+- **2026-09-28 09:00** | Tarocchi Lavoro | Promozione?
+  img: https://files.catbox.moe/vt71ww.png
+  link: https://www.luxseetarot.com/tarocchi-lavoro.html
+  copy:
+  A volte il titolo nuovo non è la direzione. Guarda cosa ti nutre davvero.
+  
+  #promozione #carriera #tarocchi #direzione #senso
+- **2026-09-28 11:00** | Tarocchi Lavoro | Lavoro e confini
+  img: https://files.catbox.moe/ogng2s.png
+  link: https://www.luxseetarot.com/tarocchi-lavoro.html
+  copy:
+  Cosa stai sacrificando senza dirtelo? Il corpo lo sa già.
+  
+  #confini #worklife #tarocchi #equilibrio #lavoro
+- **2026-09-29 09:00** | Tarocchi Lavoro | Team difficile
+  img: https://files.catbox.moe/6ru8v5.png
+  link: https://www.luxseetarot.com/tarocchi-lavoro.html
+  copy:
+  Non il gossip. Il tuo spazio di azione — e dove smetti di portarti tutto.
+  
+  #team #lavoro #tarocchi #confini #relazioni
+- **2026-09-29 11:00** | Tarocchi Lavoro | Partita IVA?
+  img: https://files.catbox.moe/oqzydz.png
+  link: https://www.luxseetarot.com/tarocchi-lavoro.html
+  copy:
+  Dietro la scelta pratica c’è una paura e un desiderio. Entrambi meritano luce.
+  
+  #partitaiva #scelta #tarocchi #lavoro #paura
+- **2026-09-30 09:00** | Tarocchi Lavoro | Nuovo progetto
+  img: https://files.catbox.moe/y12qcn.png
+  link: https://www.luxseetarot.com/tarocchi-lavoro.html
+  copy:
+  Cosa ti serve per partire bene — non solo per partire in fretta?
+  
+  #progetto #lavoro #tarocchi #lancio #chiarezza
+- **2026-09-30 11:00** | Tarocchi Lavoro | Soldi e lavoro
+  img: https://files.catbox.moe/xvam31.png
+  link: https://www.luxseetarot.com/tarocchi-lavoro.html
+  copy:
+  Simboli sul valore e sulla pressione — non una previsione finanziaria.
+  
+  #soldi #lavoro #tarocchi #valore #pressione

@@ -1,0 +1,5 @@
+arte: 80
+punk: 80
+cinema: 80
+natura: 80
+filosofia: 80

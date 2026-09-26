@@ -1,0 +1,76 @@
+# Buffer lot 5 — batch 8 (pin 111–120) PRONTO
+
+URL Catbox in `lot5-batch8-urls.json`.
+Orari: 06/10/26 – 10/10/26, 09:00 e 11:00 Rome.
+Buffer Free: max ~10 in coda — carica quando il batch precedente ha finito di pubblicare.
+
+- **2026-10-06 09:00** | Tarocchi Futuro | Il prossimo passo
+  img: https://files.catbox.moe/jp3wch.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Illumina la direzione, non il destino fisso. Basta un passo onesto.
+  
+  #futuro #direzione #tarocchi #passo #chiarezza
+- **2026-10-06 11:00** | Tarocchi Futuro | Cosa preparare
+  img: https://files.catbox.moe/gczsdz.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Meglio “cosa coltivare” che “il giorno esatto”. Il corpo preferisce la cura alla profezia.
+  
+  #preparazione #futuro #tarocchi #cura #realismo
+- **2026-10-07 09:00** | Tarocchi Futuro | Paura del dopo
+  img: https://files.catbox.moe/ckppig.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Finché resta vaga, comanda. Quando ha un nome, puoi respirare accanto.
+  
+  #paura #futuro #tarocchi #emozioni #calma
+- **2026-10-07 11:00** | Tarocchi Futuro | Una porta socchiusa
+  img: https://files.catbox.moe/odjvai.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Non è solo opportunità. È anche il coraggio di attraversare.
+  
+  #porta #scelta #tarocchi #futuro #coraggio
+- **2026-10-08 09:00** | Tarocchi Futuro | Ciclo che finisce
+  img: https://files.catbox.moe/gb5cwu.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Passato, presente, tendenza. Una storia in movimento — non un verdetto.
+  
+  #cicli #cambiamento #tarocchi #futuro #storia
+- **2026-10-08 11:00** | Tarocchi Futuro | Orizzonte vicino
+  img: https://files.catbox.moe/6rk7bb.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Chiedi sul prossimo gesto concreto, non sul romanzo intero.
+  
+  #orizzonte #futuro #tarocchi #azione #chiarezza
+- **2026-10-09 09:00** | Tarocchi Futuro | Se non cambio nulla
+  img: https://files.catbox.moe/zmig6p.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Una domanda onesta. A volte il “dopo” è già scritto nel “come sto ora”.
+  
+  #tendenza #futuro #tarocchi #realismo #scelta
+- **2026-10-09 11:00** | Tarocchi Futuro | Speranza o piano?
+  img: https://files.catbox.moe/we5qg4.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Sognare nutre. Agire orienta. Sapere quale stai facendo ti rende libero.
+  
+  #speranza #piano #tarocchi #futuro #azione
+- **2026-10-10 09:00** | Tarocchi Futuro | Check-in con te
+  img: https://files.catbox.moe/8sqc8t.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Anche a metà strada: tre simboli su dove sei davvero diretto.
+  
+  #checkin #futuro #tarocchi #intenzione #presenza
+- **2026-10-10 11:00** | Tarocchi Futuro | Rischio calcolato
+  img: https://files.catbox.moe/zv27pa.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Chiarisci il movente. Il coraggio e la fuga a volte si mascherano uguali.
+  
+  #rischio #scelta #tarocchi #futuro #consapevolezza

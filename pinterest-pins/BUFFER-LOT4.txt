@@ -1,0 +1,22 @@
+# Buffer lot 4 (pin 31–40) — IN CODA
+
+Programmato il 26 ago 2026 su Buffer Free (10/10).
+
+Orari: **09:00 e 11:00** Europe/Rome, 2/giorno → **27–31 agosto**.
+
+| Data | Ora Roma | Pin | Titolo |
+|------|----------|-----|--------|
+| 27 ago | 09:00 | 31 | Cosa non dici? Tarocchi amore |
+| 27 ago | 11:00 | 32 | Resto o cambio? Tarocchi lavoro |
+| 28 ago | 09:00 | 33 | Tre carte — anteprima gratis |
+| 28 ago | 11:00 | 34 | La domanda giusta cambia la lettura |
+| 29 ago | 09:00 | 35 | Segnali misti? Tarocchi amore |
+| 29 ago | 11:00 | 36 | Un passo alla volta — tarocchi futuro |
+| 30 ago | 09:00 | 37 | Prova ora — 3 carte gratis |
+| 30 ago | 11:00 | 38 | Non forzare — ascolta le carte |
+| 31 ago | 09:00 | 39 | Nuova fase? Tarocchi lavoro |
+| 31 ago | 11:00 | 40 | Chiarezza stasera — anteprima 3 carte |
+
+Immagini hostate su catbox (permanenti): `pinterest-pins/lot4-urls.json`
+
+Nota: i 4 post falliti del lot precedente (URL scaduti) sono stati cancellati per liberare la coda.

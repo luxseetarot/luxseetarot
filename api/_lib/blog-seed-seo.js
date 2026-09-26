@@ -17,9 +17,9 @@ const CLUSTERS = {
 <p>Ricerche tipiche: <strong>tarocchi futuro imminente 9 carte gratis</strong>, <strong>tarocchi amore futuro immediato</strong>, <strong>tarocchi del destino gratis</strong>, <strong>le carte del destino gratis</strong>, <strong>tarocchi karma destino gratis</strong>, <strong>tarocchi 10 carte gratis</strong> e <strong>tarocchi carta del giorno gratis</strong>. Per chiarezza partiamo da tre carte leggibili: <a href="/tarocchi-futuro.html">tarocchi futuro</a> o <a href="/blog/tarocchi-futuro-imminente-9-carte">futuro imminente 9 carte</a>.</p>`,
   },
   gratis: {
-    match: /gratis|online|cartomanzia|affidabil|attendibil|distanza|casa|principiant|quotidiani|abitudine|etica|preparazione/i,
+    match: /gratis|online|cartomanzia|affidabil|attendibil|distanza|casa|principiant|quotidiani|abitudine|etica|preparazione|lettura tarocchi|senza registrazione|una carta|tre carte|browser|app/i,
     html: `<h2 ${BLOCK_ATTR}>Parole che le persone cercano sui tarocchi gratis</h2>
-<p>Oltre a <strong>tarocchi gratis online</strong> compaiono <strong>tarocchi online gratis attendibili</strong>, <strong>tarocchi potenti gratis</strong>, <strong>tarocchi gratis zingara</strong>, <strong>tarocchi gratis sì o no</strong>, <strong>tarocchi 1 carta gratis</strong>, <strong>tarocchi gratis decani</strong> e <strong>tarocchi gratis tre carte napoletane</strong>. L’anteprima Luxseetarot resta su <a href="/tarocchi-gratis.html">tarocchi gratis</a>; approfondimenti in <a href="/blog/tarocchi-online-gratis-attendibili">online gratis attendibili</a>.</p>`,
+<p>Oltre a <strong>lettura tarocchi gratis</strong> e <strong>lettura tarocchi gratuita</strong> compaiono <strong>tarocchi gratis online</strong>, <strong>lettura tarocchi gratis senza registrazione</strong>, <strong>tarocchi online gratis attendibili</strong>, <strong>tarocchi 1 carta gratis</strong>, <strong>tarocchi gratis amore tre carte</strong>, <strong>tarocchi gratis sì o no</strong>, <strong>tarocchi del destino gratis</strong> e <strong>tarocchi carta del giorno gratis</strong>. L’anteprima Luxseetarot resta su <a href="/tarocchi-gratis.html">tarocchi gratis</a>.</p>`,
   },
   stesa: {
     match: /stesa|croce|celtica|carte|spread|mescol|rovesciat|combinazion|semi|arcani|mazzo|rider|napoletan|sibill|oracolo/i,

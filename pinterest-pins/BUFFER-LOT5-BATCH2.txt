@@ -1,0 +1,76 @@
+# Buffer lot 5 — batch 2 (pin 51–60) PRONTO
+
+URL Catbox in `lot5-batch2-urls.json`.
+Orari: 06/09/26 – 10/09/26, 09:00 e 11:00 Rome.
+Buffer Free: max ~10 in coda — carica quando il batch precedente ha finito di pubblicare.
+
+- **2026-09-06 09:00** | Lettura Tarocchi Gratis | Il primo sguardo
+  img: https://files.catbox.moe/x0gxlv.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Non serve sapere tutto. Serve guardare quello che hai evitato.
+  
+  #tarocchi #sguardo #verità #introspezione #emozioni
+- **2026-09-06 11:00** | Lettura Tarocchi Gratis | Quando non sai da dove
+  img: https://files.catbox.moe/nriozi.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  La domanda più utile non è sull’altro. È su cosa stai portando tu, adesso.
+  
+  #tarocchi #sé #domanda #focus #chiarezza
+- **2026-09-07 09:00** | Lettura Tarocchi Gratis | Un pezzo di quiete
+  img: https://files.catbox.moe/erwhoa.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Anche pochi minuti bastano, se sono davvero tuoi.
+  
+  #quiete #tarocchi #benessere #presenza #calma
+- **2026-09-07 11:00** | Lettura Tarocchi Gratis | Non forzare il senso
+  img: https://files.catbox.moe/8xyw14.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  A volte la fretta di capire nasconde la paura di sentire.
+  
+  #tarocchi #paura #ascolto #emozioni #pazienza
+- **2026-09-08 09:00** | Lettura Tarocchi Gratis | Le parole che mancano
+  img: https://files.catbox.moe/o9uhop.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Ciò che non riesci a dire è già una storia. Merita di essere ascoltata.
+  
+  #parole #tarocchi #silenzio #emozioni #cuore
+- **2026-09-08 11:00** | Lettura Tarocchi Gratis | Una serata diversa
+  img: https://files.catbox.moe/7tbccz.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Restare con una domanda è più coraggioso di scappare in un’altra notifica.
+  
+  #sera #tarocchi #presenza #coraggio #focus
+- **2026-09-09 09:00** | Lettura Tarocchi Gratis | Simboli, non promesse
+  img: https://files.catbox.moe/8478br.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Niente destinazioni fissate. Solo immagini che ti riportano a te.
+  
+  #simboli #tarocchi #specchio #consapevolezza #lettura
+- **2026-09-09 11:00** | Lettura Tarocchi Gratis | Se sei curioso di te
+  img: https://files.catbox.moe/i1ddlx.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  La curiosità più onesta è quella che guarda dentro, non quella che chiede garanzie.
+  
+  #curiosità #tarocchi #sé #onestà #introspezione
+- **2026-09-10 09:00** | Lettura Tarocchi Gratis | Una lettura che respira
+  img: https://files.catbox.moe/tc8kdg.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Testo calmo, spazio per sentire. Niente pressione, niente spettacolo.
+  
+  #lettura #tarocchi #calma #chiarezza #italiano
+- **2026-09-10 11:00** | Lettura Tarocchi Gratis | Dove sei, adesso
+  img: https://files.catbox.moe/oz8k7m.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Il presente ha già abbastanza verità. A volte basta guardarlo.
+  
+  #presente #tarocchi #verità #presenza #sé

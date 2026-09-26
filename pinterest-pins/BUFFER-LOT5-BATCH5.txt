@@ -1,0 +1,76 @@
+# Buffer lot 5 — batch 5 (pin 81–90) PRONTO
+
+URL Catbox in `lot5-batch5-urls.json`.
+Orari: 21/09/26 – 25/09/26, 09:00 e 11:00 Rome.
+Buffer Free: max ~10 in coda — carica quando il batch precedente ha finito di pubblicare.
+
+- **2026-09-21 09:00** | Tarocchi Amore | Tornare insieme?
+  img: https://files.catbox.moe/31qcxh.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Non una profezia. Un momento onesto su cosa cerchi davvero, tu.
+  
+  #ricongiungimento #amore #tarocchi #scelta #onestà
+- **2026-09-21 11:00** | Tarocchi Amore | Single e sereno?
+  img: https://files.catbox.moe/f2p0al.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Chiediti cosa stai coltivando. La solitudine e l’attesa non sono la stessa cosa.
+  
+  #single #amore #tarocchi #sé #crescita
+- **2026-09-22 09:00** | Tarocchi Amore | Amore e confini
+  img: https://files.catbox.moe/abp8oi.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  A volte il cuore generoso dimentica dove finisci tu.
+  
+  #confini #amore #tarocchi #assertività #sé
+- **2026-09-22 11:00** | Tarocchi Amore | Il timing dell’amore
+  img: https://files.catbox.moe/d9jug3.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Conta l’atteggiamento, non il calendario. Cosa sei pronto a vivere?
+  
+  #timing #amore #tarocchi #prontezza #realismo
+- **2026-09-23 09:00** | Tarocchi Amore | Ti senti invisibile
+  img: https://files.catbox.moe/qtw7dh.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Una domanda su di te, non solo sull’altro. Essere visti inizia da lì.
+  
+  #invisibile #amore #tarocchi #ascolto #valore
+- **2026-09-23 11:00** | Tarocchi Amore | Passione vs stabilità
+  img: https://files.catbox.moe/6n6xvt.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Non c’è una risposta giusta per sempre. C’è quella vera per questo momento.
+  
+  #passione #stabilità #dilemmi #amore #tarocchi
+- **2026-09-24 09:00** | Tarocchi Amore | Parlare o aspettare?
+  img: https://files.catbox.moe/2x1kk2.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Non è solo “cosa dire”. È se sei pronto ad ascoltare la risposta.
+  
+  #comunicazione #amore #tarocchi #ascolto #scelta
+- **2026-09-24 11:00** | Tarocchi Amore | Amore soft
+  img: https://files.catbox.moe/gdmz58.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  C’è anche un modo quieto di guardare il cuore. Meno rumore, più verità.
+  
+  #soft #amore #tarocchi #calma #cuore
+- **2026-09-25 09:00** | Tarocchi Amore | Il nodo del momento
+  img: https://files.catbox.moe/6jav0v.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Una sola frase di domanda. Il resto è rumore che confonde.
+  
+  #nodo #amore #tarocchi #focus #emozioni
+- **2026-09-25 11:00** | Tarocchi Amore | Quando l’amore confonde
+  img: https://files.catbox.moe/iqd9vi.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Non serve urlare una certezza. Serve onestà su ciò che ti muove.
+  
+  #amore #tarocchi #sentire #onestà #relazioni

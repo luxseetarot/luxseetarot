@@ -1,0 +1,26 @@
+Stile master (trial-05…08) — tipografia grande + art plate fotorealistiche.
+Colori/immagini ciclano su 16 palette (vedi scripts/generate-pinterest-master-style.mjs STYLES).
+
+Rigenerazione: node scripts/generate-pinterest-master-style.mjs [--from=N --to=M]
+Upload Catbox lot5: node scripts/reupload-lot5-all.mjs
+Upload Catbox lot6: node scripts/upload-lot6-catbox.mjs --all
+
+Palette (rotate per pin):
+1. navy-gold — carte
+2. noir-door — porta
+3. cream-burgundy — scale
+4. navy-copper — lanterna
+5. wine-rose — cuore
+6. midnight-key — chiave
+7. forest-moon — luna
+8. blush-question — punto interrogativo
+9. ice-compass — bussola
+10. violet-mirror — specchio
+11. ember-pause — pausa
+12. sage-thread — filo
+13. black-ring — anello
+14. slate-arrows — frecce
+15. navy-brush — pennellata
+16. teal-cards — carte teal
+
+Fascia pin: 41–440 (1–40 restano stile storico già pubblicato).

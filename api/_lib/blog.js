@@ -7,6 +7,7 @@ import { getSeedArticlesC } from './blog-seed-articles-c.js';
 import { getSeedArticlesD } from './blog-seed-articles-d.js';
 import { getSeedArticlesE } from './blog-seed-articles-e.js';
 import { getSeedArticlesF } from './blog-seed-articles-f.js';
+import { getSeedArticlesG } from './blog-seed-articles-g.js';
 import { facebookConfigured, shareBlogPostOnFacebook } from './facebook.js';
 import { withSeoKeywords } from './blog-seed-seo.js';
 
@@ -471,6 +472,7 @@ function catalogArticles() {
     ...getSeedArticlesD(),
     ...getSeedArticlesE(),
     ...getSeedArticlesF(),
+    ...getSeedArticlesG(),
   ]) {
     if (!map.has(post.slug)) map.set(post.slug, post);
   }

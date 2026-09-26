@@ -1,0 +1,76 @@
+# Buffer lot 5 — batch 1 (pin 41–50) PRONTO
+
+URL Catbox in `lot5-batch1-urls.json`.
+Orari: 01/09/26 – 05/09/26, 09:00 e 11:00 Rome.
+Buffer Free: max ~10 in coda — carica quando il batch precedente ha finito di pubblicare.
+
+- **2026-09-01 09:00** | Lettura Tarocchi Gratis | Quello che non dici a voce
+  img: https://files.catbox.moe/s0ljcp.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  C’è una domanda che ripeti in silenzio da giorni. Non serve spiegarla a nessuno: basta farla stare ferma un attimo.
+  
+  #tarocchi #chiarezza #introspezione #silenzio #lettura
+- **2026-09-01 11:00** | Lettura Tarocchi Gratis | Quando la testa non tace
+  img: https://files.catbox.moe/ova23x.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Se i pensieri girano a vuoto, tre simboli possono dare una forma a ciò che senti — senza giudicarti.
+  
+  #tarocchi #pensieri #calma #emozioni #riflessione
+- **2026-09-02 09:00** | Lettura Tarocchi Gratis | Hai bisogno di un filo
+  img: https://files.catbox.moe/2yjd4w.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Non è certezza quella che cerchi. È un filo da seguire quando tutto sembra confuso.
+  
+  #tarocchi #confusione #direzione #chiarezza #online
+- **2026-09-02 11:00** | Lettura Tarocchi Gratis | Stasera, solo tu
+  img: https://files.catbox.moe/rvzyxx.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Spegni il rumore. Resta con la domanda vera — quella che non posti da nessuna parte.
+  
+  #tarocchi #sera #intimità #ascolto #sé
+- **2026-09-03 09:00** | Lettura Tarocchi Gratis | Il dubbio ha una forma
+  img: https://files.catbox.moe/vcg3s9.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Prima di scegliere, a volte serve solo riconoscere cosa ti sta stringendo il petto.
+  
+  #dubbio #tarocchi #emozioni #chiarezza #introspezione
+- **2026-09-03 11:00** | Lettura Tarocchi Gratis | Non sei confuso. Sei pieno.
+  img: https://files.catbox.moe/g922dn.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Troppe voci dentro. Tre carte non le spengono: le mettono in ordine, una per una.
+  
+  #tarocchi #pieno #emozioni #ordine #calma
+- **2026-09-04 09:00** | Lettura Tarocchi Gratis | Quello che giri da giorni
+  img: https://files.catbox.moe/2gauu6.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Non è debolezza fermarsi. È il primo gesto di rispetto verso te stesso.
+  
+  #tarocchi #rispetto #sé #pausa #chiarezza
+- **2026-09-04 11:00** | Lettura Tarocchi Gratis | C’è un nodo
+  img: https://files.catbox.moe/n31e5z.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Non serve un oracolo magico. Serve uno spazio onesto, dove il nodo può mostrarsi.
+  
+  #nodo #tarocchi #onestà #emozioni #lettura
+- **2026-09-05 09:00** | Lettura Tarocchi Gratis | Chiarezza, non controllo
+  img: https://files.catbox.moe/ybem46.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Le carte non ti dicono cosa fare. Ti aiutano a vedere cosa stai già sapendo.
+  
+  #chiarezza #tarocchi #intuito #consapevolezza #sé
+- **2026-09-05 11:00** | Lettura Tarocchi Gratis | Prima della decisione
+  img: https://files.catbox.moe/mxjf68.png
+  link: https://www.luxseetarot.com/tarocchi-gratis.html
+  copy:
+  Tra il panico e la scelta c’è uno spazio. Lì le carte parlano meglio.
+  
+  #decisione #tarocchi #respiro #calma #scelta

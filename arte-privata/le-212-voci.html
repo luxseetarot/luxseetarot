@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex,nofollow" />
+<title>Le 212 Voci — arte privata</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --ink: #07060c;
+    --night: #0e0c18;
+    --gold: #c9a56a;
+    --gold-soft: rgba(201, 165, 106, 0.55);
+    --cream: #ece6d8;
+    --mist: rgba(236, 230, 216, 0.72);
+    --ember: #8b5a3c;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--ink);
+    color: var(--cream);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    overflow: hidden;
+    cursor: none;
+  }
+
+  #sky {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    z-index: 0;
+  }
+
+  .veil {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% 35%, transparent 0%, rgba(7, 6, 12, 0.35) 55%, rgba(7, 6, 12, 0.92) 100%),
+      linear-gradient(180deg, rgba(7, 6, 12, 0.2) 0%, transparent 30%, rgba(7, 6, 12, 0.55) 100%);
+  }
+
+  .cursor {
+    position: fixed;
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--gold-soft);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 50;
+    transform: translate(-50%, -50%);
+    transition: width 0.25s ease, height 0.25s ease, border-color 0.25s ease;
+    mix-blend-mode: screen;
+  }
+  .cursor.hot {
+    width: 28px;
+    height: 28px;
+    border-color: var(--gold);
+  }
+  .cursor::after {
+    content: "";
+    position: absolute;
+    inset: 40%;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0.7;
+  }
+
+  .stage {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    padding: clamp(1rem, 4vw, 3rem);
+  }
+
+  .intro, .ritual, .after {
+    text-align: center;
+    max-width: 36rem;
+    transition: opacity 1.2s ease, transform 1.2s ease, filter 1.2s ease;
+  }
+
+  .intro.hidden, .ritual.hidden, .after.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(12px);
+    filter: blur(6px);
+    position: absolute;
+  }
+
+  .eyebrow {
+    font-family: Cinzel, serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 1.4rem;
+    opacity: 0;
+    animation: rise 1.8s 0.3s ease forwards;
+  }
+
+  h1 {
+    font-family: Cinzel, serif;
+    font-weight: 400;
+    font-size: clamp(2.4rem, 8vw, 4.6rem);
+    letter-spacing: 0.08em;
+    line-height: 1.05;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: rise 1.8s 0.55s ease forwards;
+  }
+
+  .lede {
+    font-size: clamp(1.15rem, 2.6vw, 1.45rem);
+    font-style: italic;
+    color: var(--mist);
+    line-height: 1.55;
+    margin-bottom: 2.4rem;
+    opacity: 0;
+    animation: rise 1.8s 0.8s ease forwards;
+  }
+
+  .meta {
+    font-family: Cinzel, serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(201, 165, 106, 0.45);
+    margin-bottom: 2.8rem;
+    opacity: 0;
+    animation: rise 1.8s 1s ease forwards;
+  }
+
+  .begin {
+    appearance: none;
+    border: 1px solid rgba(201, 165, 106, 0.45);
+    background: transparent;
+    color: var(--cream);
+    font-family: Cinzel, serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.34em;
+    text-transform: uppercase;
+    padding: 1rem 1.8rem;
+    cursor: none;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    animation: rise 1.8s 1.2s ease forwards;
+    transition: border-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .begin::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent, rgba(201, 165, 106, 0.18), transparent);
+    transform: translateX(-120%);
+    transition: transform 0.7s ease;
+  }
+  .begin:hover {
+    border-color: var(--gold);
+    color: #fff8e8;
+    box-shadow: 0 0 40px rgba(201, 165, 106, 0.12);
+  }
+  .begin:hover::before { transform: translateX(120%); }
+
+  .whisper-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .whisper {
+    position: absolute;
+    font-style: italic;
+    font-size: clamp(0.85rem, 1.8vw, 1.15rem);
+    color: rgba(236, 230, 216, 0.18);
+    white-space: nowrap;
+    letter-spacing: 0.04em;
+    transition: color 0.8s ease, opacity 1.2s ease;
+    will-change: transform, opacity;
+  }
+  .whisper.near {
+    color: rgba(201, 165, 106, 0.72);
+    text-shadow: 0 0 24px rgba(201, 165, 106, 0.25);
+  }
+
+  .cards {
+    display: flex;
+    gap: clamp(0.7rem, 2.5vw, 1.6rem);
+    align-items: center;
+    justify-content: center;
+    perspective: 1400px;
+    min-height: 58vh;
+  }
+
+  .card {
+    width: clamp(7.2rem, 22vw, 11.5rem);
+    aspect-ratio: 2 / 3;
+    position: relative;
+    transform-style: preserve-3d;
+    transform: rotateY(180deg) translateY(40px) scale(0.92);
+    opacity: 0;
+    transition: transform 1.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 1s ease;
+  }
+  .card.show {
+    opacity: 1;
+    transform: rotateY(0deg) translateY(0) scale(1);
+  }
+  .card:nth-child(1).show { transition-delay: 0.15s; transform: rotateY(0) rotateZ(-6deg) translateY(8px); }
+  .card:nth-child(2).show { transition-delay: 0.45s; }
+  .card:nth-child(3).show { transition-delay: 0.75s; transform: rotateY(0) rotateZ(6deg) translateY(8px); }
+
+  .face {
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    backface-visibility: hidden;
+    border: 1px solid rgba(201, 165, 106, 0.35);
+    box-shadow:
+      0 20px 60px rgba(0, 0, 0, 0.55),
+      inset 0 0 0 1px rgba(255, 248, 232, 0.04);
+    overflow: hidden;
+  }
+  .face.back {
+    background:
+      radial-gradient(circle at 50% 30%, rgba(201, 165, 106, 0.12), transparent 55%),
+      linear-gradient(160deg, #1a1524, #0b0a12 70%);
+    transform: rotateY(180deg);
+  }
+  .face.back::before {
+    content: "";
+    position: absolute;
+    inset: 12%;
+    border: 1px solid rgba(201, 165, 106, 0.22);
+    border-radius: 6px;
+    background:
+      repeating-linear-gradient(45deg, transparent, transparent 6px, rgba(201, 165, 106, 0.04) 6px, rgba(201, 165, 106, 0.04) 7px);
+  }
+  .face.front {
+    background:
+      radial-gradient(ellipse at 50% 20%, rgba(201, 165, 106, 0.16), transparent 50%),
+      linear-gradient(180deg, #16121f 0%, #0c0a14 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.85rem 0.7rem 0.95rem;
+  }
+
+  .roman {
+    font-family: Cinzel, serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.28em;
+    color: var(--gold);
+  }
+  .glyph {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    font-size: clamp(2.2rem, 6vw, 3.4rem);
+    line-height: 1;
+    filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
+  }
+  .card-title {
+    font-family: Cinzel, serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .card-line {
+    margin-top: 0.35rem;
+    font-style: italic;
+    font-size: 0.78rem;
+    color: var(--mist);
+    line-height: 1.35;
+  }
+
+  .prompt {
+    margin-top: 2.2rem;
+    font-style: italic;
+    color: var(--mist);
+    font-size: 1.15rem;
+    opacity: 0;
+    transition: opacity 1.4s ease 1.4s;
+  }
+  .prompt.show { opacity: 1; }
+
+  .after h2 {
+    font-family: Cinzel, serif;
+    font-weight: 400;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+  .after p {
+    font-size: 1.2rem;
+    font-style: italic;
+    color: var(--mist);
+    line-height: 1.6;
+    margin-bottom: 1.6rem;
+  }
+  .stats {
+    display: grid;
+    gap: 0.7rem;
+    font-family: Cinzel, serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: rgba(201, 165, 106, 0.7);
+    margin-bottom: 2rem;
+  }
+  .again {
+    appearance: none;
+    border: none;
+    background: transparent;
+    color: var(--gold);
+    font-family: Cinzel, serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    cursor: none;
+    text-decoration: underline;
+    text-underline-offset: 0.45em;
+  }
+
+  .hud {
+    position: fixed;
+    left: 1.2rem;
+    bottom: 1.1rem;
+    z-index: 5;
+    font-family: Cinzel, serif;
+    font-size: 0.55rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(236, 230, 216, 0.28);
+    pointer-events: none;
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    body { cursor: auto; }
+    .cursor { display: none; }
+    .begin, .again { cursor: pointer; }
+    .cards { flex-wrap: nowrap; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+</head>
+<body>
+<canvas id="sky"></canvas>
+<div class="veil"></div>
+<div class="cursor" id="cursor"></div>
+<div class="whisper-layer" id="whispers" aria-hidden="true"></div>
+
+<main class="stage">
+  <section class="intro" id="intro">
+    <p class="eyebrow">Arte privata · non è un sito</p>
+    <h1>Le 212 Voci</h1>
+    <p class="lede">
+      Su Google ti cercano 212 volte. Nessuno clicca.<br />
+      Questa stanza raccoglie quelle voci — e ne fa tre carte.
+    </p>
+    <p class="meta">Search Console · 28 giorni · 0 clic · pos. 74,6</p>
+    <button class="begin" id="begin" type="button">Ascolta</button>
+  </section>
+
+  <section class="ritual hidden" id="ritual">
+    <div class="cards" id="cards" aria-live="polite"></div>
+    <p class="prompt" id="prompt">Tieni lo sguardo. Le voci scelgono per te.</p>
+  </section>
+
+  <section class="after hidden" id="after">
+    <h2 id="after-title"></h2>
+    <p id="after-body"></p>
+    <div class="stats" id="after-stats"></div>
+    <button class="again" id="again" type="button">Ascolta ancora</button>
+  </section>
+</main>
+
+<p class="hud">Luxseetarot · rituale interno</p>
+
+<script>
+(() => {
+  const QUERIES = [
+    { q: "tarocchi gratis", n: 21 },
+    { q: "tarocchi 3 carte gratis", n: 10 },
+    { q: "tarocchi 10 carte gratis", n: 7 },
+    { q: "tarocchi gratis tre carte napoletane", n: 6 },
+    { q: "tarocchi del destino gratis", n: 5 },
+    { q: "blog tarocchi", n: 5 },
+    { q: "tarocchi online gratis", n: 5 },
+    { q: "tre carte gratis", n: 4 },
+    { q: "tarocchi gratis amore tre carte", n: 4 },
+    { q: "carte gratis", n: 4 },
+    { q: "gli arcani maggiori", n: 4 },
+    { q: "tarocchi gratuiti", n: 4 },
+    { q: "gratis tarocchi", n: 4 },
+    { q: "tarocchi gratis online", n: 4 },
+    { q: "i tarocchi dei decani", n: 3 },
+    { q: "tarocchi decani", n: 3 },
+    { q: "tarocchi karma destino gratis", n: 3 },
+    { q: "le tre carte della zingara gratis", n: 3 },
+    { q: "tarocchi sentimenti del partner", n: 3 },
+    { q: "tarocchi gratis tre carte", n: 3 },
+    { q: "tarocchi free", n: 3 },
+    { q: "carte gratis tarocchi", n: 3 },
+    { q: "tarocchi decano", n: 2 },
+    { q: "estrai tre carte gratis", n: 2 },
+    { q: "tarocchi 1 carta gratis", n: 2 },
+    { q: "tarocchi gratis lavoro tre carte", n: 2 },
+    { q: "tarocchi tre carte gratis", n: 2 },
+    { q: "tre carte tarocchi gratis", n: 2 },
+    { q: "le tre carte del destino gratis", n: 2 },
+    { q: "tarocchi i sentimenti del partner", n: 2 },
+    { q: "tarocchi del futuro", n: 2 },
+    { q: "sibille amore", n: 2 },
+    { q: "tarocchi sentimenti", n: 2 },
+    { q: "tarocchi gratis amore", n: 2 },
+    { q: "tarocchi gratuito", n: 2 },
+    { q: "tarocchi blog", n: 2 },
+    { q: "interpretazione tarocchi", n: 2 }
+  ];
+
+  const DECK = [
+    { roman: "0", title: "Il Matto", glyph: "✦", line: "Inizi senza mappa. È così che si apre la strada." },
+    { roman: "I", title: "Il Mago", glyph: "✶", line: "Hai già gli strumenti. Serve solo dirigerli." },
+    { roman: "II", title: "La Papessa", glyph: "☾", line: "Ciò che non dici sta già maturando." },
+    { roman: "III", title: "L’Imperatrice", glyph: "❀", line: "Crescita lenta, fertile, senza forzare." },
+    { roman: "VI", title: "Gli Amanti", glyph: "♡", line: "Non è solo amore: è una scelta di verità." },
+    { roman: "VIII", title: "La Forza", glyph: "♌", line: "Dolcezza più forte del pugno." },
+    { roman: "IX", title: "L’Eremita", glyph: "☉", line: "Un passo indietro per vedere meglio." },
+    { roman: "X", title: "La Ruota", glyph: "☯", line: "Il ciclo gira. Non sei fermo: stai cambiando fase." },
+    { roman: "XIII", title: "La Morte", glyph: "†", line: "Fine di una forma. Non della storia." },
+    { roman: "XVII", title: "La Stella", glyph: "★", line: "212 luci lontane. Una sola ti riguarda." },
+    { roman: "XVIII", title: "La Luna", glyph: "☽", line: "Il dubbio non è nemico: è nebbia da attraversare." },
+    { roman: "XIX", title: "Il Sole", glyph: "☀", line: "Chiarezza secca, senza scuse." },
+    { roman: "XX", title: "Il Giudizio", glyph: "⟳", line: "Rinascita: rispondi a ciò che già senti." },
+    { roman: "XXI", title: "Il Mondo", glyph: "◎", line: "Un cerchio si chiude. Un altro può iniziare." }
+  ];
+
+  const POSITIONS = [
+    { name: "Ciò che cercano", hint: "la domanda collettiva" },
+    { name: "Ciò che non cliccano", hint: "la soglia invisibile" },
+    { name: "Ciò che puoi offrire", hint: "il passo successivo" }
+  ];
+
+  const canvas = document.getElementById("sky");
+  const ctx = canvas.getContext("2d");
+  const cursor = document.getElementById("cursor");
+  const whispersEl = document.getElementById("whispers");
+  const intro = document.getElementById("intro");
+  const ritual = document.getElementById("ritual");
+  const after = document.getElementById("after");
+  const cardsEl = document.getElementById("cards");
+  const prompt = document.getElementById("prompt");
+
+  let w = 0, h = 0, dpr = 1;
+  let mouse = { x: 0.5, y: 0.45 };
+  let stars = [];
+  let phase = "intro";
+  let audioCtx = null;
+  let reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = window.innerWidth;
+    h = window.innerHeight;
+    canvas.width = Math.floor(w * dpr);
+    canvas.height = Math.floor(h * dpr);
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    buildStars();
+  }
+
+  function buildStars() {
+    stars = [];
+    for (let i = 0; i < 212; i++) {
+      stars.push({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        z: Math.random(),
+        tw: Math.random() * Math.PI * 2,
+        speed: 0.15 + Math.random() * 0.55
+      });
+    }
+  }
+
+  function draw(t) {
+    ctx.clearRect(0, 0, w, h);
+    const g = ctx.createRadialGradient(w * 0.5, h * 0.28, 0, w * 0.5, h * 0.4, Math.max(w, h) * 0.7);
+    g.addColorStop(0, "#15101f");
+    g.addColorStop(0.45, "#0c0a14");
+    g.addColorStop(1, "#05040a");
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, w, h);
+
+    for (const s of stars) {
+      const pulse = 0.35 + 0.65 * (0.5 + 0.5 * Math.sin(t * 0.0015 * s.speed + s.tw));
+      const size = 0.6 + s.z * 1.8;
+      const dx = (mouse.x * w - s.x) * 0.008 * s.z;
+      const dy = (mouse.y * h - s.y) * 0.008 * s.z;
+      ctx.beginPath();
+      ctx.fillStyle = `rgba(236, 230, 216, ${0.15 + pulse * 0.55 * s.z})`;
+      ctx.arc(s.x + dx, s.y + dy, size, 0, Math.PI * 2);
+      ctx.fill();
+      if (s.z > 0.82) {
+        ctx.beginPath();
+        ctx.strokeStyle = `rgba(201, 165, 106, ${0.12 + pulse * 0.2})`;
+        ctx.lineWidth = 0.5;
+        ctx.moveTo(s.x + dx - size * 3, s.y + dy);
+        ctx.lineTo(s.x + dx + size * 3, s.y + dy);
+        ctx.moveTo(s.x + dx, s.y + dy - size * 3);
+        ctx.lineTo(s.x + dx, s.y + dy + size * 3);
+        ctx.stroke();
+      }
+    }
+
+    // soft gold bloom near cursor during ritual
+    if (phase !== "intro") {
+      const bloom = ctx.createRadialGradient(mouse.x * w, mouse.y * h, 0, mouse.x * w, mouse.y * h, 180);
+      bloom.addColorStop(0, "rgba(201,165,106,0.08)");
+      bloom.addColorStop(1, "transparent");
+      ctx.fillStyle = bloom;
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  function placeWhispers() {
+    whispersEl.innerHTML = "";
+    const pool = [];
+    QUERIES.forEach(({ q, n }) => {
+      for (let i = 0; i < Math.max(1, Math.round(n / 3)); i++) pool.push(q);
+    });
+    while (pool.length < 28) pool.push(...QUERIES.map(x => x.q));
+    pool.slice(0, 28).forEach((text, i) => {
+      const el = document.createElement("span");
+      el.className = "whisper";
+      el.textContent = text;
+      const x = 4 + (i * 37) % 90;
+      const y = 8 + ((i * 53) % 78);
+      el.style.left = x + "%";
+      el.style.top = y + "%";
+      el.dataset.x = x;
+      el.dataset.y = y;
+      el.style.opacity = String(0.12 + (i % 5) * 0.04);
+      whispersEl.appendChild(el);
+    });
+  }
+
+  function updateWhisperProximity() {
+    const nodes = whispersEl.querySelectorAll(".whisper");
+    nodes.forEach((el) => {
+      const x = Number(el.dataset.x) / 100;
+      const y = Number(el.dataset.y) / 100;
+      const d = Math.hypot(x - mouse.x, y - mouse.y);
+      el.classList.toggle("near", d < 0.16);
+      if (!reduced) {
+        const drift = Math.sin(performance.now() * 0.0004 + x * 10) * 0.4;
+        el.style.transform = `translate(${drift}vw, ${drift * 0.4}vh)`;
+      }
+    });
+  }
+
+  function tone(freq = 220, dur = 0.9, type = "sine", gain = 0.03) {
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.value = freq;
+      g.gain.value = gain;
+      o.connect(g);
+      g.connect(audioCtx.destination);
+      const now = audioCtx.currentTime;
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.exponentialRampToValueAtTime(gain, now + 0.08);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + dur);
+      o.start(now);
+      o.stop(now + dur + 0.05);
+    } catch (_) {}
+  }
+
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function drawCards() {
+    const picks = shuffle(DECK).slice(0, 3);
+    // Bias: if ritual, ensure The Star can appear often as the "212" motif
+    if (Math.random() < 0.42) {
+      const star = DECK.find(c => c.title === "La Stella");
+      picks[1] = star;
+    }
+    cardsEl.innerHTML = "";
+    picks.forEach((card, i) => {
+      const wrap = document.createElement("article");
+      wrap.className = "card";
+      wrap.innerHTML = `
+        <div class="face back"></div>
+        <div class="face front">
+          <div class="roman">${POSITIONS[i].name}</div>
+          <div class="glyph" aria-hidden="true">${card.glyph}</div>
+          <div>
+            <div class="card-title">${card.title}</div>
+            <div class="card-line">${card.line}</div>
+          </div>
+        </div>`;
+      cardsEl.appendChild(wrap);
+      requestAnimationFrame(() => {
+        setTimeout(() => wrap.classList.add("show"), 40);
+      });
+    });
+    prompt.classList.add("show");
+    tone(164.81, 1.4, "sine", 0.025);
+    setTimeout(() => tone(246.94, 1.6, "triangle", 0.018), 280);
+    setTimeout(() => tone(329.63, 1.8, "sine", 0.015), 560);
+
+    setTimeout(() => revealAfter(picks), reduced ? 800 : 4200);
+  }
+
+  function revealAfter(picks) {
+    ritual.classList.add("hidden");
+    after.classList.remove("hidden");
+    phase = "after";
+    const center = picks[1];
+    document.getElementById("after-title").textContent = center.title;
+    document.getElementById("after-body").textContent =
+      `Le voci dicono «${QUERIES[0].q}». Analytics dice: Facebook porta gente, Google ancora no. ` +
+      `Questa carta al centro — ${center.title.toLowerCase()} — è il ponte tra le 212 impressioni e il primo clic.`;
+    document.getElementById("after-stats").innerHTML = `
+      <span>GSC 28g · 212 impr. · 0 clic</span>
+      <span>GA 7g · 9 utenti · +social · 0 organic search</span>
+      <span>Top bisogno · tre carte gratis</span>`;
+    tone(196, 2.2, "sine", 0.02);
+  }
+
+  function startRitual() {
+    intro.classList.add("hidden");
+    ritual.classList.remove("hidden");
+    after.classList.add("hidden");
+    phase = "ritual";
+    prompt.classList.remove("show");
+    cardsEl.innerHTML = "";
+    tone(110, 1.1, "sine", 0.02);
+    setTimeout(drawCards, reduced ? 200 : 900);
+  }
+
+  document.getElementById("begin").addEventListener("click", startRitual);
+  document.getElementById("again").addEventListener("click", () => {
+    after.classList.add("hidden");
+    startRitual();
+  });
+
+  window.addEventListener("pointermove", (e) => {
+    mouse.x = e.clientX / w;
+    mouse.y = e.clientY / h;
+    cursor.style.left = e.clientX + "px";
+    cursor.style.top = e.clientY + "px";
+    const hot = e.target.closest("button, .card");
+    cursor.classList.toggle("hot", Boolean(hot));
+    updateWhisperProximity();
+  });
+
+  window.addEventListener("resize", resize);
+  resize();
+  placeWhispers();
+  requestAnimationFrame(draw);
+  setInterval(updateWhisperProximity, 80);
+})();
+</script>
+</body>
+</html>

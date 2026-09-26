@@ -1,0 +1,76 @@
+# Buffer lot 5 — batch 4 (pin 71–80) PRONTO
+
+URL Catbox in `lot5-batch4-urls.json`.
+Orari: 16/09/26 – 20/09/26, 09:00 e 11:00 Rome.
+Buffer Free: max ~10 in coda — carica quando il batch precedente ha finito di pubblicare.
+
+- **2026-09-16 09:00** | Tarocchi Amore | Nuovo incontro?
+  img: https://files.catbox.moe/ts3ge1.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Prima di chiedere “chi è”, chiedi cosa stai offrendo — e cosa temi di ripetere.
+  
+  #nuovoamore #incontro #tarocchi #sé #relazioni
+- **2026-09-16 11:00** | Tarocchi Amore | Troppe storie in testa
+  img: https://files.catbox.moe/lg6u9p.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Scegli il nodo vero. Il resto sono echi che ti tengono sveglio.
+  
+  #pensieri #amore #tarocchi #focus #notte
+- **2026-09-17 09:00** | Tarocchi Amore | Amore a distanza
+  img: https://files.catbox.moe/fc9xkr.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Cosa tenete ancora? Cosa avete già lasciato andare senza dirvelo?
+  
+  #distanza #amore #tarocchi #filo #relazioni
+- **2026-09-17 11:00** | Tarocchi Amore | Gelosia o intuizione?
+  img: https://files.catbox.moe/olc6i5.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Una nasce dalla paura. L’altra dal corpo che sa. Meritano nomi distinti.
+  
+  #gelosia #intuito #amore #tarocchi #emozioni
+- **2026-09-18 09:00** | Tarocchi Amore | Silent treatment
+  img: https://files.catbox.moe/3vl542.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Prima di decifrare l’altro, ascolta cosa fa il silenzio dentro di te.
+  
+  #silenzio #amore #tarocchi #dolore #comunicazione
+- **2026-09-18 11:00** | Tarocchi Amore | Mi vuole ancora?
+  img: https://files.catbox.moe/wq3yqv.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Meglio: quale energia c’è tra noi, ora? Meno verdetto, più presenza.
+  
+  #amore #domanda #tarocchi #presenza #cuore
+- **2026-09-19 09:00** | Tarocchi Amore | Dopo una lite
+  img: https://files.catbox.moe/fkujnl.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  C’è rabbia, c’è ferita, c’è anche il bisogno di non perdere te stesso.
+  
+  #litigio #amore #tarocchi #perdono #confini
+- **2026-09-19 11:00** | Tarocchi Amore | Crush o connessione?
+  img: https://files.catbox.moe/wf60y4.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Non inventare un destino. Guarda cosa c’è già — e cosa stai proiettando.
+  
+  #crush #connessione #amore #tarocchi #realismo
+- **2026-09-20 09:00** | Tarocchi Amore | Paura di lasciar andare
+  img: https://files.catbox.moe/6udz13.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  A volte stringi per non sentire il vuoto. Le carte aiutano a distinguerlo.
+  
+  #lasciareandare #amore #tarocchi #attaccamento #crescita
+- **2026-09-20 11:00** | Tarocchi Amore | Messaggi misti
+  img: https://files.catbox.moe/6l795j.png
+  link: https://www.luxseetarot.com/tarocchi-amore.html
+  copy:
+  Quando le parole online e il corpo non tornano, serve ordine — non più scroll.
+  
+  #messaggi #amore #tarocchi #chiarezza #confusione

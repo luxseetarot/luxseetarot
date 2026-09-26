@@ -1,0 +1,5 @@
+archetipi: 84
+tempo: 81
+amore_karmico: 75
+cyber: 72
+cozy: 88

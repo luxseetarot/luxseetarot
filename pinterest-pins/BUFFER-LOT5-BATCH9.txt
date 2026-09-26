@@ -1,0 +1,76 @@
+# Buffer lot 5 — batch 9 (pin 121–130) PRONTO
+
+URL Catbox in `lot5-batch9-urls.json`.
+Orari: 11/10/26 – 15/10/26, 09:00 e 11:00 Rome.
+Buffer Free: max ~10 in coda — carica quando il batch precedente ha finito di pubblicare.
+
+- **2026-10-11 09:00** | Tarocchi Futuro | Il dopo-scelta
+  img: https://files.catbox.moe/pld8jx.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Non solo “cosa succede”. Come ti muovi tu, dopo.
+  
+  #dopo #scelta #tarocchi #futuro #sé
+- **2026-10-11 11:00** | Tarocchi Futuro | Nebbia davanti
+  img: https://files.catbox.moe/2auruo.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Non serve la mappa intera. Serve un punto di appoggio per stanotte.
+  
+  #nebbia #chiarezza #tarocchi #futuro #calma
+- **2026-10-12 09:00** | Tarocchi Futuro | Futuro soft
+  img: https://files.catbox.moe/ydjw0d.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Guardare avanti può essere quieto. Non tutto deve essere urgenza.
+  
+  #soft #futuro #tarocchi #calma #benessere
+- **2026-10-12 11:00** | Tarocchi Futuro | Domanda sul futuro
+  img: https://files.catbox.moe/mwysaq.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Apri, concreta, un solo tema. Il resto è rumore che confonde le carte.
+  
+  #domanda #futuro #tarocchi #focus #chiarezza
+- **2026-10-13 09:00** | Tarocchi Futuro | Quello che verrà
+  img: https://files.catbox.moe/rf29zv.png
+  link: https://www.luxseetarot.com/tarocchi-futuro.html
+  copy:
+  Il futuro non è un film. È la somma di come ti tratti oggi.
+  
+  #futuro #tarocchi #oggi #cura #sé
+- **2026-10-13 11:00** | Come Fare una Domanda ai Tarocchi | La domanda giusta
+  img: https://files.catbox.moe/u6c6em.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Le carte rispondono al focus che dai. Una domanda confusa genera solo nebbia.
+  
+  #domanda #tarocchi #focus #chiarezza #introspezione
+- **2026-10-14 09:00** | Come Fare una Domanda ai Tarocchi | Non chiedere sì/no
+  img: https://files.catbox.moe/ls9acf.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Apri: dinamica, atteggiamento, prossimo passo. Il cuore ha bisogno di spazio.
+  
+  #sìno #domanda #tarocchi #apertura #chiarezza
+- **2026-10-14 11:00** | Come Fare una Domanda ai Tarocchi | Una domanda sola
+  img: https://files.catbox.moe/o7dwrd.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Troppi temi = lettura confusa. Scegli il nodo. Il resto aspetta.
+  
+  #focus #domanda #tarocchi #nodo #chiarezza
+- **2026-10-15 09:00** | Come Fare una Domanda ai Tarocchi | Prima di pescare
+  img: https://files.catbox.moe/ljewwz.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Tre minuti di chiarezza valgono più di dieci estrazioni affrettate.
+  
+  #preparazione #domanda #tarocchi #rituale #calma
+- **2026-10-15 11:00** | Come Fare una Domanda ai Tarocchi | Esempi che aiutano
+  img: https://files.catbox.moe/9ql5i4.png
+  link: https://www.luxseetarot.com/blog/come-fare-una-domanda-ai-tarocchi
+  copy:
+  Domande aperte, oneste, senza verdetto. Poi ascolta cosa emerge.
+  
+  #esempi #domanda #tarocchi #amore #lavoro
