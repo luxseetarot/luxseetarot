@@ -19,6 +19,26 @@
   ],
   "rewrites": [
     {
+      "source": "/l1",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/l2",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/l3",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/l4",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/l5",
+      "destination": "/index.html"
+    },
+    {
       "source": "/blog/:slug",
       "destination": "/api/blog-page?slug=:slug"
     },

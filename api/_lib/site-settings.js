@@ -24,14 +24,22 @@ function clampInt(n, min, max, fallback) {
   return Math.min(max, Math.max(min, v));
 }
 
+const ALLOWED_LANDING_VARIANTS = [1, 2, 3, 4, 5];
+
 export function defaultSiteSettings() {
   return {
     fullPriceCents: 490,
     packPriceCents: 990,
     packCredits: 5,
     gptModel: 'gpt-4.1-nano',
+    /** Landing homepage attiva (1–5). Gli URL /l1…/l5 forzano sempre la rispettiva variante. */
+    landingVariant: 1,
     updatedAt: null,
   };
+}
+
+export function allowedLandingVariants() {
+  return ALLOWED_LANDING_VARIANTS.slice();
 }
 
 export function allowedGptModels() {
@@ -41,11 +49,13 @@ export function allowedGptModels() {
 export function sanitizeSiteSettings(raw = {}) {
   const base = defaultSiteSettings();
   const model = String(raw.gptModel || base.gptModel).trim();
+  const landing = clampInt(raw.landingVariant, 1, 5, base.landingVariant);
   return {
     fullPriceCents: clampInt(raw.fullPriceCents, 50, 50000, base.fullPriceCents),
     packPriceCents: clampInt(raw.packPriceCents, 50, 100000, base.packPriceCents),
     packCredits: clampInt(raw.packCredits, 2, 50, base.packCredits),
     gptModel: ALLOWED_GPT_MODELS.includes(model) ? model : base.gptModel,
+    landingVariant: ALLOWED_LANDING_VARIANTS.includes(landing) ? landing : base.landingVariant,
     updatedAt: raw.updatedAt ? String(raw.updatedAt) : null,
   };
 }
@@ -131,6 +141,7 @@ export async function getPublicPricing() {
     fullPriceCents: s.fullPriceCents,
     packPriceCents: s.packPriceCents,
     packCredits: s.packCredits,
+    landingVariant: s.landingVariant,
   };
 }
 

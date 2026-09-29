@@ -596,10 +596,10 @@
 
     </div>
 
-    <h1 class="title">Tarocchi Gratis Online</h1>
+    <h1 class="title" id="hero-title">Tarocchi Gratis Online</h1>
 
-    <p class="subtitle">Estrai tre carte, fai una domanda e leggi subito l’anteprima — in privato, senza chiamata e senza appuntamento.</p>
-    <p class="hero-note">Testo chiaro da rileggere quando vuoi. Niente pressione al telefono.</p>
+    <p class="subtitle" id="hero-subtitle">Estrai tre carte, fai una domanda e leggi subito l’anteprima — in privato, senza chiamata e senza appuntamento.</p>
+    <p class="hero-note" id="hero-note">Testo chiaro da rileggere quando vuoi. Niente pressione al telefono.</p>
 
   </header>
 
@@ -609,7 +609,7 @@
 
   <section class="phase active" id="phase-input">
 
-    <div class="hero-benefits" aria-label="Perché scegliere Luxseetarot">
+    <div class="hero-benefits" id="hero-benefits" aria-label="Perché scegliere Luxseetarot">
       <div class="hero-benefit"><strong>Subito</strong><span>Risposta in pochi minuti, 24/7</span></div>
       <div class="hero-benefit"><strong>Privato</strong><span>Solo tu e le carte, nessuna voce al telefono</span></div>
       <div class="hero-benefit"><strong>Scritto</strong><span>Approfondisci e scarica il PDF</span></div>
@@ -619,7 +619,7 @@
 
       <div class="phase-tag">FASE I</div>
 
-      <h2 class="subtitle-h">Presentati alle carte</h2>
+      <h2 class="subtitle-h" id="hero-form-title">Presentati alle carte</h2>
 
       <div class="field">
 
@@ -1036,6 +1036,10 @@
           <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Usato per anteprima e lettura completa. Cambia solo modelli disponibili sul tuo account OpenAI.</p>
           <label for="admin-set-gpt-model">Modello</label>
           <select id="admin-set-gpt-model" aria-label="Modello GPT"></select>
+          <div class="phase-tag" style="margin:18px 0 10px">LANDING PAGE (A/B ADS)</div>
+          <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Scegli quale landing mostra la homepage <code style="color:var(--gold)">/</code>. Per le ADS usa i link diretti <code style="color:var(--gold)">/l1</code>…<code style="color:var(--gold)">/l5</code> (ognuno forza quella variante).</p>
+          <div id="admin-landing-radios" style="display:flex;flex-direction:column;gap:8px;margin:0 0 12px"></div>
+          <div id="admin-landing-urls" style="margin:0 0 8px;padding:10px 12px;border:1px solid rgba(212,175,106,.2);border-radius:10px;background:rgba(20,16,40,.4)"></div>
           <p id="admin-settings-hint" style="margin:12px 0 0;font-size:12px;color:rgba(212,175,106,.8);line-height:1.45"></p>
           <div class="admin-blog-editor-actions" style="margin-top:14px">
             <button type="button" class="gold-btn" id="admin-settings-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA IMPOSTAZIONI</button>
@@ -1352,8 +1356,156 @@
     teaserText:null, fullText:null, turnstileToken:null, turnstileWidgetId:null,
     checkoutTurnstileToken:null, checkoutTurnstileWidgetId:null, turnstileSiteKey:null,
     pricing:{ fullPriceCents:490, packPriceCents:990, packCredits:5 },
+    landingVariant:1, landingFromUrl:false,
     checkoutPass:null, pendingFollowUp:null, freeLimitReached:false
   };
+
+  var LANDING_VARIANTS = {
+    1: {
+      label: 'Controllo — Tarocchi gratis',
+      blurb: 'Messaggio attuale: gratis + privato + anteprima.',
+      title: 'Tarocchi Gratis Online',
+      subtitle: 'Estrai tre carte, fai una domanda e leggi subito l’anteprima — in privato, senza chiamata e senza appuntamento.',
+      note: 'Testo chiaro da rileggere quando vuoi. Niente pressione al telefono.',
+      formTitle: 'Presentati alle carte',
+      cta: 'INIZIA LA LETTURA GRATUITA',
+      docTitle: 'Tarocchi Gratis Online | Lettura a 3 Carte | Luxseetarot',
+      benefits: [
+        { k: 'Subito', v: 'Risposta in pochi minuti, 24/7' },
+        { k: 'Privato', v: 'Solo tu e le carte, nessuna voce al telefono' },
+        { k: 'Scritto', v: 'Approfondisci e scarica il PDF' }
+      ]
+    },
+    2: {
+      label: 'Amore — Cosa prova?',
+      blurb: 'Focus relazioni / sentimento. Ideale per ADS amore.',
+      title: 'Cosa prova davvero per te?',
+      subtitle: 'Tre carte sui tuoi sentimenti: leggi subito un’anteprima chiara, in privato, senza chiamate.',
+      note: 'Per quando il cuore chiede una risposta — senza appuntamenti e senza pressione.',
+      formTitle: 'Descrivi la situazione di cuore',
+      cta: 'SCOPRI L’ANTEPRIMA GRATUITA',
+      docTitle: 'Cosa prova per te? | Lettura Tarocchi Amore | Luxseetarot',
+      benefits: [
+        { k: 'Amore', v: 'Focus su cosa sente e dove siete' },
+        { k: 'Privato', v: 'Nessuna voce al telefono, solo testo' },
+        { k: 'Subito', v: 'Anteprima in pochi minuti' }
+      ]
+    },
+    3: {
+      label: 'Chiarezza — Serve una risposta',
+      blurb: 'Urgency soft: dubbio, decisione, bisogno di chiarezza.',
+      title: 'Hai bisogno di chiarezza ora?',
+      subtitle: 'Fai la domanda che ti gira in testa. Tre carte, anteprima subito — senza coda e senza chiamata.',
+      note: 'Quando il dubbio pesa, una lettura scritta aiuta a vedere meglio.',
+      formTitle: 'Scrivi ciò che ti confonde',
+      cta: 'CHIEDI ALLE CARTE — GRATIS',
+      docTitle: 'Chiarezza con i Tarocchi | Anteprima Gratis | Luxseetarot',
+      benefits: [
+        { k: 'Chiaro', v: 'Testo leggibile, non frasi vaghe' },
+        { k: 'Veloce', v: 'Niente attese né appuntamenti' },
+        { k: 'Tuo', v: 'Rileggi quando ti serve' }
+      ]
+    },
+    4: {
+      label: 'Privacy — Senza telefono',
+      blurb: 'Contrasto con consulti telefonici / pressione.',
+      title: 'Tarocchi senza chiamata',
+      subtitle: 'Leggi in silenzio, al tuo ritmo. Nessun operatore, nessuna pressione al telefono — solo carte e testo.',
+      note: 'Privato sul tuo schermo. Nessuno ti sente. Nessuno ti spinge.',
+      formTitle: 'Inizia in privato',
+      cta: 'LEGGI L’ANTEPRIMA IN PRIVATO',
+      docTitle: 'Tarocchi Privati Online | Senza Telefono | Luxseetarot',
+      benefits: [
+        { k: 'Silenzio', v: 'Zero chiamata, zero voce estranea' },
+        { k: 'Calma', v: 'Niente pressione commerciale al telefono' },
+        { k: 'Scritto', v: 'Tieni e rileggi la risposta' }
+      ]
+    },
+    5: {
+      label: 'Risultato — 3 carte subito',
+      blurb: 'Promessa concreta e semplice: processo chiaro.',
+      title: '3 carte. Anteprima subito.',
+      subtitle: 'Scegli le carte, poni la domanda, leggi l’anteprima in pochi minuti — poi approfondisci se vuoi.',
+      note: 'Semplice: nome, domanda, tre carte. Niente account obbligatorio.',
+      formTitle: 'Inizia in due passi',
+      cta: 'ESTRAI 3 CARTE GRATIS',
+      docTitle: 'Estrai 3 Carte Gratis | Anteprima Immediata | Luxseetarot',
+      benefits: [
+        { k: '1', v: 'Scrivi nome e domanda' },
+        { k: '2', v: 'Scegli tre carte' },
+        { k: '3', v: 'Leggi l’anteprima subito' }
+      ]
+    }
+  };
+
+  function parseLandingFromUrl(){
+    try {
+      var path = (location.pathname || '/').replace(/\/+$/, '') || '/';
+      var m = path.match(/^\/l([1-5])$/i);
+      if(m) return parseInt(m[1], 10);
+      var q = new URLSearchParams(location.search || '');
+      var raw = q.get('l') || q.get('landing') || '';
+      var n = parseInt(raw, 10);
+      if(n >= 1 && n <= 5) return n;
+    } catch(e){}
+    return null;
+  }
+
+  function applyLandingVariant(n){
+    var id = parseInt(n, 10);
+    if(!(id >= 1 && id <= 5)) id = 1;
+    var L = LANDING_VARIANTS[id] || LANDING_VARIANTS[1];
+    state.landingVariant = id;
+    try { document.body.setAttribute('data-landing', String(id)); } catch(e){}
+    var titleEl = document.getElementById('hero-title');
+    var subEl = document.getElementById('hero-subtitle');
+    var noteEl = document.getElementById('hero-note');
+    var formTitleEl = document.getElementById('hero-form-title');
+    var ctaEl = document.getElementById('btn-start-reading');
+    var benefitsEl = document.getElementById('hero-benefits');
+    if(titleEl) titleEl.textContent = L.title;
+    if(subEl) subEl.textContent = L.subtitle;
+    if(noteEl) noteEl.textContent = L.note;
+    if(formTitleEl) formTitleEl.textContent = L.formTitle;
+    if(ctaEl) ctaEl.textContent = L.cta;
+    if(benefitsEl && L.benefits && L.benefits.length){
+      benefitsEl.textContent = '';
+      L.benefits.forEach(function(b){
+        var box = document.createElement('div');
+        box.className = 'hero-benefit';
+        var strong = document.createElement('strong');
+        strong.textContent = b.k;
+        var span = document.createElement('span');
+        span.textContent = b.v;
+        box.appendChild(strong);
+        box.appendChild(span);
+        benefitsEl.appendChild(box);
+      });
+    }
+    if(L.docTitle){
+      try { document.title = L.docTitle; } catch(e){}
+    }
+    try {
+      if(typeof gtag === 'function'){
+        gtag('event', 'landing_view', { landing_variant: id, landing_label: L.label });
+        gtag('set', { landing_variant: String(id) });
+      }
+    } catch(e){}
+  }
+
+  function resolveAndApplyLanding(adminDefault){
+    var fromUrl = parseLandingFromUrl();
+    if(fromUrl != null){
+      state.landingFromUrl = true;
+      applyLandingVariant(fromUrl);
+      return;
+    }
+    state.landingFromUrl = false;
+    applyLandingVariant(adminDefault != null ? adminDefault : 1);
+  }
+
+  // Applica subito se l’URL forza una variante (ADS), senza aspettare /api/config
+  resolveAndApplyLanding(1);
 
   var POSITIONS = ['Passato','Presente','Futuro'];
   var STORAGE_KEY = 'luxsee_unlock';
@@ -1511,6 +1663,10 @@
         packCredits: Number(cfg.pricing.packCredits) || 5
       };
       applyPricingUI();
+    }
+    var landingDefault = (cfg && (cfg.landingVariant != null ? cfg.landingVariant : (cfg.pricing && cfg.pricing.landingVariant))) || 1;
+    if(!state.landingFromUrl){
+      resolveAndApplyLanding(landingDefault);
     }
   }).catch(function(){});
 
@@ -4201,6 +4357,8 @@
       var creditsEl = document.getElementById('admin-set-pack-credits');
       var modelEl = document.getElementById('admin-set-gpt-model');
       var hintEl = document.getElementById('admin-settings-hint');
+      var radiosWrap = document.getElementById('admin-landing-radios');
+      var urlsWrap = document.getElementById('admin-landing-urls');
       if(fullEl) fullEl.value = centsToEuroInput(s.fullPriceCents != null ? s.fullPriceCents : 490);
       if(packEl) packEl.value = centsToEuroInput(s.packPriceCents != null ? s.packPriceCents : 990);
       if(creditsEl) creditsEl.value = String(s.packCredits != null ? s.packCredits : 5);
@@ -4212,6 +4370,32 @@
           return '<option value="'+escapeHtml(m)+'">'+escapeHtml(m)+'</option>';
         }).join('');
         modelEl.value = current;
+      }
+      var activeLanding = parseInt(s.landingVariant, 10);
+      if(!(activeLanding >= 1 && activeLanding <= 5)) activeLanding = 1;
+      if(radiosWrap){
+        radiosWrap.innerHTML = [1,2,3,4,5].map(function(id){
+          var L = LANDING_VARIANTS[id];
+          var checked = id === activeLanding ? ' checked' : '';
+          return '<label style="display:flex;align-items:flex-start;gap:10px;margin:0;padding:10px 12px;border:1px solid rgba(212,175,106,'+(id===activeLanding?'.45':'.18')+');border-radius:10px;cursor:pointer;background:rgba(20,16,40,'+(id===activeLanding?'.55':'.28')+')">' +
+            '<input type="radio" name="admin-landing-variant" value="'+id+'"'+checked+' style="margin-top:3px" />' +
+            '<span style="flex:1">' +
+              '<strong style="display:block;font-size:12px;letter-spacing:.06em;color:var(--gold);margin:0 0 4px">L'+id+' — '+escapeHtml(L.label)+'</strong>' +
+              '<span style="display:block;font-size:12px;color:var(--muted);line-height:1.4">'+escapeHtml(L.blurb)+'</span>' +
+            '</span></label>';
+        }).join('');
+      }
+      if(urlsWrap){
+        var origin = location.origin || '';
+        urlsWrap.innerHTML = '<div style="font-size:11px;letter-spacing:.12em;color:var(--gold);margin:0 0 8px">LINK PER LE ADS</div>' +
+          [1,2,3,4,5].map(function(id){
+            var url = origin + '/l' + id;
+            return '<div style="display:flex;align-items:center;gap:8px;margin:0 0 6px;flex-wrap:wrap">' +
+              '<code style="flex:1;min-width:160px;font-size:12px;color:rgba(236,230,216,.9)">'+escapeHtml(url)+'</code>' +
+              '<button type="button" class="ghost-btn admin-copy-landing-url" data-url="'+escapeHtml(url)+'" style="width:auto;padding:6px 10px;font-size:10px">COPIA</button>' +
+            '</div>';
+          }).join('') +
+          '<p style="margin:8px 0 0;font-size:11px;color:rgba(154,145,168,.85);line-height:1.4">Homepage <code style="color:var(--gold)">/</code> = landing selezionata sopra. I link /l1…/l5 restano fissi per i test ADS.</p>';
       }
       if(metaEl){
         metaEl.textContent = 'Storage: ' + ((data && data.storage) || '?') +
@@ -4328,6 +4512,8 @@
         var creditsEl = document.getElementById('admin-set-pack-credits');
         var modelEl = document.getElementById('admin-set-gpt-model');
         var packCredits = creditsEl ? parseInt(creditsEl.value, 10) : 5;
+        var landingRadio = document.querySelector('input[name="admin-landing-variant"]:checked');
+        var landingVariant = landingRadio ? parseInt(landingRadio.value, 10) : 1;
         if(fullCents == null || fullCents < 50){
           showErr('Prezzo lettura singola non valido (minimo €0,50).');
           return;
@@ -4340,6 +4526,10 @@
           showErr('Il pack deve includere da 2 a 50 letture.');
           return;
         }
+        if(!(landingVariant >= 1 && landingVariant <= 5)){
+          showErr('Seleziona una landing da 1 a 5.');
+          return;
+        }
         showErr('');
         adminFetch({
           action: 'settings-save',
@@ -4347,7 +4537,8 @@
             fullPriceCents: fullCents,
             packPriceCents: packCents,
             packCredits: packCredits,
-            gptModel: modelEl ? modelEl.value : 'gpt-4.1-nano'
+            gptModel: modelEl ? modelEl.value : 'gpt-4.1-nano',
+            landingVariant: landingVariant
           }
         }).then(function(res){
           if(!res.ok){ showErr(res.error || 'Salvataggio fallito'); return; }
@@ -4359,9 +4550,34 @@
               packCredits: res.settings.packCredits
             };
             applyPricingUI();
+            if(!state.landingFromUrl){
+              resolveAndApplyLanding(res.settings.landingVariant);
+            }
           }
-          if(metaEl) metaEl.textContent = 'Impostazioni salvate.';
+          if(metaEl) metaEl.textContent = 'Impostazioni salvate. Landing homepage: L' + ((res.settings && res.settings.landingVariant) || landingVariant);
         }).catch(function(){ showErr('Salvataggio fallito'); });
+      });
+    }
+    var urlsPane = document.getElementById('admin-landing-urls');
+    if(urlsPane){
+      urlsPane.addEventListener('click', function(e){
+        var btn = e.target && e.target.closest ? e.target.closest('.admin-copy-landing-url') : null;
+        if(!btn) return;
+        e.preventDefault();
+        var url = btn.getAttribute('data-url') || '';
+        if(!url) return;
+        function ok(){
+          var prev = btn.textContent;
+          btn.textContent = 'COPIATO';
+          setTimeout(function(){ btn.textContent = prev || 'COPIA'; }, 1200);
+        }
+        if(navigator.clipboard && navigator.clipboard.writeText){
+          navigator.clipboard.writeText(url).then(ok).catch(function(){
+            window.prompt('Copia il link:', url);
+          });
+        } else {
+          window.prompt('Copia il link:', url);
+        }
       });
     }
     var emailTestBtn = document.getElementById('admin-email-test');

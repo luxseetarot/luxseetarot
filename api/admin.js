@@ -306,6 +306,7 @@ export default async function handler(req, res) {
         packPriceCents: payload.packPriceCents,
         packCredits: payload.packCredits,
         gptModel: payload.gptModel,
+        landingVariant: payload.landingVariant,
       });
       return res.status(200).json({
         ok: true,

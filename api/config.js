@@ -12,5 +12,6 @@ export default async function handler(req, res) {
     ok: true,
     turnstileSiteKey: (process.env.CF_TURNSTILE_SITE_KEY || '').trim(),
     pricing,
+    landingVariant: pricing.landingVariant || 1,
   });
 }
