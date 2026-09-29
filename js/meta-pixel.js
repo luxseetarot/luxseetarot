@@ -1,7 +1,5 @@
 /**
- * Meta (Facebook) Pixel loader — legge /api/config e inizializza fbq.
- * Su index.html risolve l’ID dalla landing (/ oppure /l1…/l5).
- * Sulle altre pagine usa pages[path] || defaultId.
+ * Meta (Facebook) Pixel — un solo ID su tutto il sito (da /api/config).
  */
 (function () {
   'use strict';
@@ -11,33 +9,9 @@
   var inited = false;
   var pageViewSent = false;
 
-  function pathKey() {
-    var p = (location.pathname || '/').replace(/\/+$/, '') || '/';
-    if (p === '/' || p === '/index.html') return 'home';
-    var m = p.match(/^\/l([1-5])$/i);
-    if (m) return 'landing:' + m[1];
-    if (/^\/blog(\/|$)/i.test(p)) return 'blog';
-    var file = p.replace(/^\//, '');
-    return file || 'home';
-  }
-
-  function resolveId(pixelCfg, landingVariant) {
+  function resolveId(pixelCfg) {
     if (!pixelCfg || !pixelCfg.enabled) return '';
-    var key = pathKey();
-    var landings = pixelCfg.landings || {};
-    var pages = pixelCfg.pages || {};
-    var def = pixelCfg.defaultId || '';
-    if (key === 'home') {
-      return pixelCfg.home || def || '';
-    }
-    if (key.indexOf('landing:') === 0) {
-      var n = key.split(':')[1];
-      return (landings[n] || def || '');
-    }
-    if (key === 'blog') {
-      return pages.blog || pages['blog.html'] || def || '';
-    }
-    return pages[key] || def || '';
+    return pixelCfg.defaultId || '';
   }
 
   function ensureFbq() {
@@ -89,12 +63,11 @@
     pageViewSent = true;
   }
 
-  function applyConfig(pixelCfg, landingVariant) {
+  function applyConfig(pixelCfg) {
     cfg = pixelCfg || null;
-    var id = resolveId(cfg, landingVariant);
-    activeId = id;
-    if (!id) return;
-    if (initWithId(id)) sendPageView();
+    activeId = resolveId(cfg);
+    if (!activeId) return;
+    if (initWithId(activeId)) sendPageView();
   }
 
   function boot() {
@@ -104,10 +77,7 @@
       })
       .then(function (data) {
         if (!data || !data.ok) return;
-        var pixel = data.metaPixel || null;
-        var landing = data.landingVariant || 1;
-        if (window.__luxLandingVariant) landing = window.__luxLandingVariant;
-        applyConfig(pixel, landing);
+        applyConfig(data.metaPixel || null);
         try {
           window.dispatchEvent(new CustomEvent('lux-meta-pixel-ready', { detail: { id: activeId, cfg: cfg } }));
         } catch (e) {}
@@ -125,7 +95,7 @@
     track: function (eventName, params) {
       if (!cfg || !cfg.enabled) return;
       if (cfg.trackFunnelEvents === false) return;
-      if (!activeId && cfg) activeId = resolveId(cfg);
+      if (!activeId) activeId = resolveId(cfg);
       if (!initWithId(activeId)) return;
       if (params) track('track', eventName, params);
       else track('track', eventName);
@@ -133,23 +103,12 @@
     trackCustom: function (eventName, params) {
       if (!cfg || !cfg.enabled) return;
       if (cfg.trackFunnelEvents === false) return;
-      if (!activeId && cfg) activeId = resolveId(cfg);
+      if (!activeId) activeId = resolveId(cfg);
       if (!initWithId(activeId)) return;
       if (params) track('trackCustom', eventName, params);
       else track('trackCustom', eventName);
     },
-    setLandingVariant: function (n) {
-      window.__luxLandingVariant = n;
-      if (!cfg) return;
-      var key = pathKey();
-      if (key !== 'home') return;
-      var id = resolveId(cfg, n);
-      if (id && id !== activeId) {
-        pageViewSent = false;
-        activeId = id;
-        if (initWithId(id)) sendPageView();
-      }
-    },
+    setLandingVariant: function () {},
     refresh: boot,
   };
 

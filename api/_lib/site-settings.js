@@ -16,17 +16,7 @@ const ALLOWED_GPT_MODELS = [
   'gpt-5',
 ];
 
-const META_PIXEL_PAGE_KEYS = [
-  'tarocchi-gratis.html',
-  'tarocchi-amore.html',
-  'tarocchi-lavoro.html',
-  'tarocchi-futuro.html',
-  'blog.html',
-  'blog',
-  'chi-siamo.html',
-  'contatti.html',
-  'privacy.html',
-];
+const ALLOWED_LANDING_VARIANTS = [1, 2, 3, 4, 5];
 
 let memSettings = null;
 
@@ -35,8 +25,6 @@ function clampInt(n, min, max, fallback) {
   if (!Number.isFinite(v)) return fallback;
   return Math.min(max, Math.max(min, v));
 }
-
-const ALLOWED_LANDING_VARIANTS = [1, 2, 3, 4, 5];
 
 function sanitizePixelId(raw) {
   const digits = String(raw == null ? '' : raw).replace(/\D/g, '');
@@ -48,40 +36,15 @@ function defaultMetaPixel() {
   return {
     enabled: false,
     defaultId: '',
-    home: '',
-    landings: { '1': '', '2': '', '3': '', '4': '', '5': '' },
-    pages: META_PIXEL_PAGE_KEYS.reduce((acc, k) => {
-      acc[k] = '';
-      return acc;
-    }, {}),
     trackFunnelEvents: true,
   };
 }
 
-export function metaPixelPageKeys() {
-  return META_PIXEL_PAGE_KEYS.slice();
-}
-
 function sanitizeMetaPixel(raw = {}) {
-  const base = defaultMetaPixel();
   const src = raw && typeof raw === 'object' ? raw : {};
-  const landingsIn = src.landings && typeof src.landings === 'object' ? src.landings : {};
-  const pagesIn = src.pages && typeof src.pages === 'object' ? src.pages : {};
-  const landings = {};
-  ALLOWED_LANDING_VARIANTS.forEach((n) => {
-    const key = String(n);
-    landings[key] = sanitizePixelId(landingsIn[key] != null ? landingsIn[key] : landingsIn[n]);
-  });
-  const pages = {};
-  META_PIXEL_PAGE_KEYS.forEach((k) => {
-    pages[k] = sanitizePixelId(pagesIn[k]);
-  });
   return {
     enabled: src.enabled === true || src.enabled === 'true' || src.enabled === 1 || src.enabled === '1',
     defaultId: sanitizePixelId(src.defaultId),
-    home: sanitizePixelId(src.home),
-    landings,
-    pages,
     trackFunnelEvents: src.trackFunnelEvents !== false && src.trackFunnelEvents !== 'false' && src.trackFunnelEvents !== 0,
   };
 }
