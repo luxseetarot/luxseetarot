@@ -39,6 +39,26 @@
       "destination": "/index.html"
     },
     {
+      "source": "/l6",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/l7",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/l8",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/l9",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/l10",
+      "destination": "/index.html"
+    },
+    {
       "source": "/blog/:slug",
       "destination": "/api/blog-page?slug=:slug"
     },

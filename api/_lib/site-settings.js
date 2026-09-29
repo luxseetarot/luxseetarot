@@ -16,7 +16,7 @@ const ALLOWED_GPT_MODELS = [
   'gpt-5',
 ];
 
-const ALLOWED_LANDING_VARIANTS = [1, 2, 3, 4, 5];
+const ALLOWED_LANDING_VARIANTS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 let memSettings = null;
 
@@ -55,7 +55,7 @@ export function defaultSiteSettings() {
     packPriceCents: 990,
     packCredits: 5,
     gptModel: 'gpt-4.1-nano',
-    /** Landing homepage attiva (1–5). Gli URL /l1…/l5 forzano sempre la rispettiva variante. */
+    /** Landing homepage attiva (1–10). Gli URL /l1…/l10 forzano sempre la rispettiva variante. */
     landingVariant: 1,
     metaPixel: defaultMetaPixel(),
     updatedAt: null,
@@ -73,7 +73,7 @@ export function allowedGptModels() {
 export function sanitizeSiteSettings(raw = {}) {
   const base = defaultSiteSettings();
   const model = String(raw.gptModel || base.gptModel).trim();
-  const landing = clampInt(raw.landingVariant, 1, 5, base.landingVariant);
+  const landing = clampInt(raw.landingVariant, 1, 10, base.landingVariant);
   return {
     fullPriceCents: clampInt(raw.fullPriceCents, 50, 50000, base.fullPriceCents),
     packPriceCents: clampInt(raw.packPriceCents, 50, 100000, base.packPriceCents),
