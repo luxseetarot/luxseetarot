@@ -31,6 +31,17 @@
 <meta name="keywords" content="tarocchi gratis, tarocchi gratis online, tarocchi online gratis attendibili, estrai tre carte gratis, tarocchi gratis amore, tarocchi gratis amore tre carte, tarocchi gratis sì o no, tarocchi 1 carta gratis, tarocchi carta del giorno gratis, tarocchi del destino gratis, fare una domanda ai tarocchi, Luxseetarot" />
 
 <link rel="canonical" href="https://www.luxseetarot.com/" />
+<script>
+(function(){
+  var p = (location.pathname || '/').replace(/\/+$/, '') || '/';
+  if(/^\/l[1-5]$/i.test(p)){
+    var robots = document.querySelector('meta[name="robots"]');
+    if(robots) robots.setAttribute('content','noindex,follow');
+    var canon = document.querySelector('link[rel="canonical"]');
+    if(canon) canon.setAttribute('href','https://www.luxseetarot.com/');
+  }
+})();
+</script>
 
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
@@ -209,6 +220,115 @@
   .cta-pack-hint{
     margin:10px 0 0;font-family:'Cormorant Garamond',serif;font-style:italic;
     font-size:15px;line-height:1.4;color:rgba(154,145,168,.9);
+  }
+
+  /* Landing A/B — temi grafici (stesso brand, layout diverso) */
+  header.landing-hero{position:relative;overflow:hidden}
+  .hero-motif{
+    position:absolute;left:50%;top:8px;transform:translateX(-50%);
+    width:min(320px,88vw);height:72px;pointer-events:none;opacity:.55;
+    color:var(--landing-motif, var(--gold-soft));
+  }
+  .hero-motif svg{width:100%;height:100%;display:block}
+
+  body[data-landing="1"]{--landing-accent:#d4af6a;--landing-motif:rgba(212,175,106,.5);--landing-form-border:rgba(212,175,106,.18)}
+  body[data-landing="2"]{--landing-accent:#e8b4bc;--landing-motif:rgba(232,180,188,.45);--landing-form-border:rgba(232,180,188,.22)}
+  body[data-landing="3"]{--landing-accent:#a8c4e8;--landing-motif:rgba(168,196,232,.4);--landing-form-border:rgba(168,196,232,.2)}
+  body[data-landing="4"]{--landing-accent:#b8a8c8;--landing-motif:rgba(184,168,200,.35);--landing-form-border:rgba(184,168,200,.18)}
+  body[data-landing="5"]{--landing-accent:#e6c587;--landing-motif:rgba(230,197,135,.55);--landing-form-border:rgba(212,175,106,.28)}
+
+  body[data-landing="2"]{
+    background:radial-gradient(ellipse at top, #2a1824 0%, #0b0a14 58%, #050410 100%);
+  }
+  body[data-landing="3"]{
+    background:radial-gradient(ellipse at 50% -10%, #1a2848 0%, #0b0a14 55%, #050410 100%);
+  }
+  body[data-landing="4"]{
+    background:radial-gradient(ellipse at center, #12101a 0%, #0b0a14 50%, #030208 100%);
+  }
+  body[data-landing="5"]{
+    background:radial-gradient(ellipse at top, #221a10 0%, #0b0a14 55%, #050410 100%);
+  }
+
+  body[data-landing="2"] header.landing-hero::before,
+  body[data-landing="3"] header.landing-hero::before,
+  body[data-landing="4"] header.landing-hero::before,
+  body[data-landing="5"] header.landing-hero::before{
+    content:'';position:absolute;inset:-40% -20% auto;height:220px;pointer-events:none;z-index:0;
+    background:radial-gradient(ellipse at center, var(--landing-motif) 0%, transparent 68%);
+    opacity:.35;
+  }
+  body[data-landing="2"] h1.title{color:var(--landing-accent)}
+  body[data-landing="3"] h1.title{letter-spacing:.04em;text-shadow:0 0 40px rgba(168,196,232,.15)}
+  body[data-landing="4"] h1.title{font-weight:500;letter-spacing:.12em;font-size:clamp(26px,4.5vw,42px)}
+  body[data-landing="5"] h1.title{font-size:clamp(32px,5.5vw,52px);letter-spacing:.02em}
+
+  body[data-landing="2"] .hero-benefits{grid-template-columns:1fr;max-width:360px;gap:12px}
+  body[data-landing="2"] .hero-benefit{
+    text-align:left;padding:14px 16px 14px 18px;border-left:3px solid var(--landing-accent);
+    border-radius:0 14px 14px 0;background:rgba(42,24,36,.45);
+  }
+  body[data-landing="3"] .hero-benefits{grid-template-columns:1fr;max-width:400px}
+  body[data-landing="3"] .hero-benefit{
+    display:flex;align-items:flex-start;gap:14px;text-align:left;padding:14px 16px;
+    border-radius:14px;background:rgba(26,40,72,.35);border:1px solid rgba(168,196,232,.15);
+  }
+  body[data-landing="3"] .hero-benefit strong{
+    flex:0 0 2.2em;width:2.2em;height:2.2em;margin:0;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(168,196,232,.12);border:1px solid rgba(168,196,232,.25);
+    font-size:10px;
+  }
+  body[data-landing="3"] .hero-benefit span{flex:1;padding-top:2px}
+  body[data-landing="4"] .hero-benefits{
+    display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;max-width:520px;
+    grid-template-columns:unset;
+  }
+  body[data-landing="4"] .hero-benefit{
+    flex:1 1 140px;max-width:160px;padding:16px 8px;border:none;border-radius:50%;
+    aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(18,16,26,.75);box-shadow:inset 0 0 0 1px rgba(184,168,200,.2);
+  }
+  body[data-landing="4"] .hero-benefit strong{font-size:9px;margin-bottom:4px}
+  body[data-landing="4"] .hero-benefit span{font-size:13px;line-height:1.25}
+  body[data-landing="5"] .hero-benefits{
+    grid-template-columns:repeat(3,1fr);gap:8px;max-width:480px;position:relative;
+  }
+  body[data-landing="5"] .hero-benefits::before{
+    content:'';position:absolute;top:28px;left:12%;right:12%;height:2px;
+    background:linear-gradient(90deg,transparent,var(--gold-faint),transparent);z-index:0;
+  }
+  body[data-landing="5"] .hero-benefit{
+    position:relative;z-index:1;padding:36px 8px 14px;border-radius:14px;
+    background:linear-gradient(180deg,rgba(34,26,16,.6),rgba(20,16,40,.4));
+    border:1px solid rgba(212,175,106,.22);
+  }
+  body[data-landing="5"] .hero-benefit strong{
+    position:absolute;top:10px;left:50%;transform:translateX(-50%);
+    width:28px;height:28px;line-height:28px;border-radius:50%;
+    background:linear-gradient(135deg,#e6c587,#b88a3e);color:#1a1208;font-size:12px;
+    margin:0;letter-spacing:0;
+  }
+  body[data-landing="5"] .hero-benefit span{margin-top:8px;font-size:14px}
+
+  body[data-landing]:not([data-landing="1"]) form.card-form{
+    border-color:var(--landing-form-border);
+    box-shadow:0 24px 70px -24px var(--landing-motif), 0 10px 40px -10px rgba(0,0,0,.7);
+  }
+  body[data-landing="2"] #btn-start-reading{
+    background:linear-gradient(135deg,#f0c4cc,#c97888);box-shadow:0 0 28px rgba(232,180,188,.3);
+  }
+  body[data-landing="3"] #btn-start-reading{
+    background:linear-gradient(135deg,#b8d4f0,#6a8eb8);color:#0a1018;
+    box-shadow:0 0 28px rgba(168,196,232,.25);
+  }
+  body[data-landing="5"] #btn-start-reading{
+    letter-spacing:.18em;font-size:14px;
+  }
+
+  @media(min-width:520px){
+    body[data-landing="2"] .hero-benefits{max-width:400px}
+    body[data-landing="3"] .hero-benefits{max-width:440px}
   }
 
 
@@ -575,7 +695,7 @@
 
 </head>
 
-<body>
+<body data-landing="1">
 
 <div id="stars"></div>
 
@@ -584,7 +704,9 @@
 
 <main>
 
-  <header>
+  <header class="landing-hero" id="landing-hero">
+
+    <div class="hero-motif" id="hero-motif" aria-hidden="true"></div>
 
     <div class="brand">
 
@@ -1360,10 +1482,18 @@
     checkoutPass:null, pendingFollowUp:null, freeLimitReached:false
   };
 
+  var LANDING_MOTIFS = {
+    1: '',
+    2: '<svg viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M160 58 C160 58 118 38 118 26 C118 18 126 12 134 12 C146 12 152 22 160 32 C168 22 174 12 186 12 C194 12 202 18 202 26 C202 38 160 58 160 58Z" stroke="currentColor" stroke-width="1.2" opacity=".9"/><path d="M48 36h40M232 36h40" stroke="currentColor" stroke-width=".8" opacity=".4"/></svg>',
+    3: '<svg viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="160" cy="36" r="22" stroke="currentColor" stroke-width="1"/><path d="M160 14v6M160 52v6M138 36h-6M188 36h6" stroke="currentColor" stroke-width=".8" opacity=".6"/><circle cx="160" cy="36" r="4" fill="currentColor" opacity=".5"/></svg>',
+    4: '<svg viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M160 12 L176 28 L176 48 C176 56 160 62 160 62 C160 62 144 56 144 48 L144 28 Z" stroke="currentColor" stroke-width="1.1"/><path d="M152 38 L158 44 L170 30" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>',
+    5: '<svg viewBox="0 0 320 72" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="72" y="16" width="44" height="56" rx="4" stroke="currentColor" stroke-width="1" transform="rotate(-8 94 44)"/><rect x="138" y="12" width="44" height="56" rx="4" stroke="currentColor" stroke-width="1.2"/><rect x="204" y="16" width="44" height="56" rx="4" stroke="currentColor" stroke-width="1" transform="rotate(8 226 44)"/></svg>'
+  };
+
   var LANDING_VARIANTS = {
     1: {
       label: 'Controllo — Tarocchi gratis',
-      blurb: 'Messaggio attuale: gratis + privato + anteprima.',
+      blurb: 'Master: layout classico a tre colonne.',
       title: 'Tarocchi Gratis Online',
       subtitle: 'Estrai tre carte, fai una domanda e leggi subito l’anteprima — in privato, senza chiamata e senza appuntamento.',
       note: 'Testo chiaro da rileggere quando vuoi. Niente pressione al telefono.',
@@ -1378,7 +1508,7 @@
     },
     2: {
       label: 'Amore — Cosa prova?',
-      blurb: 'Focus relazioni / sentimento. Ideale per ADS amore.',
+      blurb: 'Amore: accento rosa, benefit a lista, cuore decorativo.',
       title: 'Cosa prova davvero per te?',
       subtitle: 'Tre carte sui tuoi sentimenti: leggi subito un’anteprima chiara, in privato, senza chiamate.',
       note: 'Per quando il cuore chiede una risposta — senza appuntamenti e senza pressione.',
@@ -1393,7 +1523,7 @@
     },
     3: {
       label: 'Chiarezza — Serve una risposta',
-      blurb: 'Urgency soft: dubbio, decisione, bisogno di chiarezza.',
+      blurb: 'Chiarezza: bagliore blu, benefit numerati a cerchio.',
       title: 'Hai bisogno di chiarezza ora?',
       subtitle: 'Fai la domanda che ti gira in testa. Tre carte, anteprima subito — senza coda e senza chiamata.',
       note: 'Quando il dubbio pesa, una lettura scritta aiuta a vedere meglio.',
@@ -1408,7 +1538,7 @@
     },
     4: {
       label: 'Privacy — Senza telefono',
-      blurb: 'Contrasto con consulti telefonici / pressione.',
+      blurb: 'Privacy: toni scuri, tre cerchi minimal, scudo.',
       title: 'Tarocchi senza chiamata',
       subtitle: 'Leggi in silenzio, al tuo ritmo. Nessun operatore, nessuna pressione al telefono — solo carte e testo.',
       note: 'Privato sul tuo schermo. Nessuno ti sente. Nessuno ti spinge.',
@@ -1423,7 +1553,7 @@
     },
     5: {
       label: 'Risultato — 3 carte subito',
-      blurb: 'Promessa concreta e semplice: processo chiaro.',
+      blurb: 'Steps: tre carte + timeline 1-2-3 sopra il form.',
       title: '3 carte. Anteprima subito.',
       subtitle: 'Scegli le carte, poni la domanda, leggi l’anteprima in pochi minuti — poi approfondisci se vuoi.',
       note: 'Semplice: nome, domanda, tre carte. Niente account obbligatorio.',
@@ -1457,6 +1587,12 @@
     var L = LANDING_VARIANTS[id] || LANDING_VARIANTS[1];
     state.landingVariant = id;
     try { document.body.setAttribute('data-landing', String(id)); } catch(e){}
+    var motifEl = document.getElementById('hero-motif');
+    if(motifEl){
+      var motif = LANDING_MOTIFS[id] || '';
+      motifEl.innerHTML = motif;
+      motifEl.style.display = motif ? 'block' : 'none';
+    }
     var titleEl = document.getElementById('hero-title');
     var subEl = document.getElementById('hero-subtitle');
     var noteEl = document.getElementById('hero-note');
@@ -4395,7 +4531,7 @@
               '<button type="button" class="ghost-btn admin-copy-landing-url" data-url="'+escapeHtml(url)+'" style="width:auto;padding:6px 10px;font-size:10px">COPIA</button>' +
             '</div>';
           }).join('') +
-          '<p style="margin:8px 0 0;font-size:11px;color:rgba(154,145,168,.85);line-height:1.4">Homepage <code style="color:var(--gold)">/</code> = landing selezionata sopra. I link /l1…/l5 restano fissi per i test ADS.</p>';
+          '<p style="margin:8px 0 0;font-size:11px;color:rgba(154,145,168,.85);line-height:1.4">Homepage <code style="color:var(--gold)">/</code> = landing selezionata (indicizzata da Google). I link /l1…/l5 sono <strong style="color:rgba(236,230,216,.75);font-weight:500">noindex</strong> — solo per ADS, stesso canonical verso /.</p>';
       }
       if(metaEl){
         metaEl.textContent = 'Storage: ' + ((data && data.storage) || '?') +
