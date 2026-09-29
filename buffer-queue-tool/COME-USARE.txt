@@ -4,7 +4,7 @@ Cartella: buffer-queue-tool/
 Non fa parte del sito Luxseetarot (non va in deploy pubblico).
 
 Usalo per schedulare pin su Buffer → Pinterest (piano Free max 10 in coda).
-L’API Pinterest del sito resta in attesa di Standard access.
+La programmazione pin non passa più dall’API del sito.
 
 Setup chiave Buffer (una volta)
 --------------------------------
@@ -25,8 +25,21 @@ In UI
 - “Aggiorna coda Buffer” rilegge lo stato da Buffer
 - Poi “Schedula su Buffer”
 
+Avviso coda vuota (senza lasciare l'app aperta)
+-----------------------------------------------
+1) Doppio clic su installa-avviso-accensione.bat  (una sola volta)
+2) Windows controllerà Buffer:
+   - ~2 minuti dopo l'accensione del PC
+   - ogni 2 ore se il PC resta acceso
+3) Se la coda è a 0 → notifica "carica altri 10 pin"
+4) Per togliere: rimuovi-avviso-accensione.bat
+
+Non serve lasciare aperto avvia.bat né il PC acceso 24/7.
+avvia.bat serve solo quando vuoi caricare i pin.
+
 Note
 ----
 - Slot liberi = limite Free − post scheduled/sending su Buffer (non lo state.json locale)
 - Le immagini usano URL Catbox già in pins-data.json
 - .env non va in git
+- notify-state.json memorizza l'ultima notifica (cooldown 3 ore)
