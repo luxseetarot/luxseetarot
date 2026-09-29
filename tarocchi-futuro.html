@@ -32,8 +32,10 @@
   a{color:rgba(212,175,106,.85);text-decoration:none}
   a:hover{color:var(--gold)}
   .wrap{max-width:720px;margin:0 auto;padding:48px 22px 40px}
-  .brand{font-family:'Cinzel',serif;letter-spacing:.28em;font-size:13px;color:var(--gold);text-align:center;margin-bottom:18px}
-  .crumbs{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;color:rgba(154,145,168,.8);margin:0 0 22px}
+  .brand{display:flex;align-items:center;justify-content:center;gap:12px;font-family:'Cinzel',serif;letter-spacing:.28em;font-size:14px;color:var(--gold);text-align:center;margin-bottom:18px}
+  .brand svg{width:14px;height:14px;opacity:.85;flex-shrink:0;display:block}
+  .brand a{color:inherit}
+  .crumbs{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;text-align:center;color:rgba(154,145,168,.8);margin:0 0 22px}
   .crumbs a{color:rgba(212,175,106,.75)}
   h1{font-family:'Cinzel',serif;font-weight:500;font-size:clamp(22px,4vw,28px);letter-spacing:.1em;text-align:center;margin:0 0 18px;text-transform:uppercase;color:var(--gold)}
   h2{font-family:'Cinzel',serif;font-weight:500;font-size:14px;letter-spacing:.1em;color:rgba(232,213,163,.92);margin:28px 0 10px;text-transform:uppercase}
@@ -93,7 +95,7 @@
 </head>
 <body>
   <main class="wrap">
-    <div class="brand"><a href="/">LUXSEETAROT</a></div>
+    <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><a href="/">LUXSEETAROT</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
     <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> · Tarocchi futuro</nav>
     <h1>Tarocchi futuro imminente online</h1>
     <p>Cerchi <strong style="color:rgba(236,230,216,.92);font-weight:500">tarocchi futuro imminente 9 carte gratis</strong> o un <strong style="color:rgba(236,230,216,.92);font-weight:500">tarocchi amore futuro immediato</strong>? Su Luxseetarot parti da tre carte leggibili: poni la domanda, estrai e ricevi un testo simbolico sul prossimo passo — non una profezia chiusa.</p>

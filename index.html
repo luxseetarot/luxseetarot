@@ -193,11 +193,11 @@
 
   header{padding:40px 24px 24px;text-align:center}
 
-  .brand{display:inline-flex;align-items:center;gap:14px;color:var(--gold-soft);font-family:'Cinzel',serif;letter-spacing:.5em;font-size:13px}
+  .brand{display:inline-flex;align-items:center;gap:14px;color:var(--gold-soft);font-family:'Cinzel',serif;letter-spacing:.4em;font-size:14px}
 
-  .brand svg{width:14px;height:14px;opacity:.8;display:block;flex-shrink:0}
+  .brand svg{width:15px;height:15px;opacity:.85;display:block;flex-shrink:0}
   body[data-landing] .brand{display:inline-flex;align-items:center;gap:14px}
-  body[data-landing] .brand svg{display:block !important;width:14px;height:14px;opacity:.8;flex-shrink:0}
+  body[data-landing] .brand svg{display:block !important;width:15px;height:15px;opacity:.85;flex-shrink:0}
 
   h1.title{font-family:'Cinzel',serif;font-weight:600;font-size:clamp(30px,5vw,48px);margin:18px 0 10px;color:var(--gold);letter-spacing:.06em}
 
@@ -212,11 +212,11 @@
     background:rgba(20,16,40,.35);
   }
   .hero-benefit strong{
-    display:block;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.16em;color:var(--gold);
+    display:block;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.14em;color:var(--gold);
     font-weight:500;margin:0 0 6px;text-transform:uppercase;
   }
   .hero-benefit span{
-    display:block;font-family:'Cormorant Garamond',serif;font-size:15px;line-height:1.35;
+    display:block;font-family:'Cormorant Garamond',serif;font-size:16px;line-height:1.35;
     color:rgba(154,145,168,.95);
   }
   .cta-pack-hint{
@@ -226,12 +226,11 @@
 
   /* ——— Landing A/B: stili totalmente distinti ——— */
   header.landing-hero{position:relative;overflow:hidden;z-index:2}
-  .hero-motif{
-    position:absolute;left:50%;top:0;transform:translateX(-50%);
-    width:min(360px,90vw);height:80px;pointer-events:none;opacity:.5;
-    color:var(--landing-motif, var(--gold-soft));
+  /* Motivi decorativi sopra il logo: nascosti — solo lune + LUXSEETAROT */
+  .hero-motif,
+  body[data-landing] .hero-motif{
+    display:none !important;
   }
-  .hero-motif svg{width:100%;height:100%;display:block}
 
   /* L1 — master (invariato) */
   body[data-landing="1"]{
@@ -251,11 +250,11 @@
     padding:48px 28px 8px;max-width:640px;margin:0 auto;text-align:left;
   }
   body[data-landing="2"] .brand{
-    letter-spacing:.35em;font-size:11px;margin-bottom:28px;
+    letter-spacing:.3em;font-size:14px;margin-bottom:28px;
     border-bottom:1px solid rgba(201,162,122,.25);padding-bottom:14px;width:100%;
     justify-content:flex-start;gap:10px;
   }
-  body[data-landing="2"] .hero-motif{left:auto;right:8%;top:36px;transform:none;opacity:.35;width:120px;height:120px}
+  body[data-landing="2"] .hero-motif{display:none !important}
   body[data-landing="2"] h1.title{
     font-size:clamp(36px,7vw,58px);line-height:1.05;letter-spacing:.02em;
     color:#f0dcc8;font-weight:500;max-width:14ch;margin:0 0 18px;
@@ -308,10 +307,8 @@
       #07080f;
   }
   body[data-landing="3"] header.landing-hero{padding:56px 24px 12px}
-  body[data-landing="3"] .hero-motif{
-    position:relative;left:auto;transform:none;margin:0 auto 20px;opacity:.7;height:64px;
-  }
-  body[data-landing="3"] .brand{opacity:.75;letter-spacing:.55em;font-size:11px}
+  body[data-landing="3"] .hero-motif{display:none !important}
+  body[data-landing="3"] .brand{opacity:.85;letter-spacing:.4em;font-size:14px}
   body[data-landing="3"] h1.title{
     font-weight:400;font-size:clamp(28px,5vw,44px);letter-spacing:.14em;
     color:#e8e0d0;text-transform:uppercase;
@@ -345,7 +342,7 @@
       0 30px 100px -20px rgba(60,80,140,.35);
     backdrop-filter:blur(16px);
   }
-  body[data-landing="3"] .phase-tag{letter-spacing:.4em;font-size:11px;color:rgba(212,196,160,.55)}
+  body[data-landing="3"] .phase-tag{letter-spacing:.3em;font-size:13px;color:rgba(212,196,160,.55)}
   body[data-landing="3"] #btn-start-reading{
     border-radius:999px;background:linear-gradient(135deg,#e8dcc4,#a89060);
     color:#12100a;letter-spacing:.14em;font-size:14px;box-shadow:0 8px 32px rgba(168,144,96,.35);
@@ -365,12 +362,12 @@
   body[data-landing="4"]::after{right:0;background:linear-gradient(270deg,rgba(0,0,0,.85),transparent)}
   body[data-landing="4"] #stars{opacity:.35}
   body[data-landing="4"] header.landing-hero{padding:64px 32px 20px}
-  body[data-landing="4"] .hero-motif{opacity:.4;height:48px;top:20px}
+  body[data-landing="4"] .hero-motif{display:none !important}
   body[data-landing="4"] .brand{
     display:inline-flex;align-items:center;gap:14px;padding:8px 18px;border:1px solid rgba(176,160,144,.3);
-    border-radius:999px;letter-spacing:.4em;font-size:10px;color:rgba(176,160,144,.85);
+    border-radius:999px;letter-spacing:.28em;font-size:13px;color:rgba(176,160,144,.9);
   }
-  body[data-landing="4"] .brand svg{width:12px;height:12px;opacity:.8;display:block;flex-shrink:0}
+  body[data-landing="4"] .brand svg{width:14px;height:14px;opacity:.85;display:block;flex-shrink:0}
   body[data-landing="4"] h1.title{
     margin-top:36px;font-size:clamp(24px,4.2vw,38px);font-weight:400;
     letter-spacing:.28em;text-transform:uppercase;color:#d8d0c4;
@@ -419,8 +416,8 @@
       #0c0a08;
   }
   body[data-landing="5"] header.landing-hero{padding:36px 20px 4px}
-  body[data-landing="5"] .hero-motif{opacity:.6;height:56px}
-  body[data-landing="5"] .brand{color:#e0b85a;letter-spacing:.45em}
+  body[data-landing="5"] .hero-motif{display:none !important}
+  body[data-landing="5"] .brand{color:#e0b85a;letter-spacing:.35em;font-size:14px}
   body[data-landing="5"] h1.title{
     font-size:clamp(34px,6vw,52px);letter-spacing:-.01em;line-height:1.1;
     background:linear-gradient(180deg,#f5e6c0,#c9a24a);-webkit-background-clip:text;
@@ -452,7 +449,7 @@
     font-size:22px;letter-spacing:0;color:#e0b85a;margin-bottom:6px;
     font-variant-numeric:tabular-nums;
   }
-  body[data-landing="5"] .hero-benefit span{font-size:14px;color:rgba(200,185,160,.9)}
+  body[data-landing="5"] .hero-benefit span{font-size:15px;color:rgba(200,185,160,.9)}
   body[data-landing="5"] form.card-form{
     max-width:480px;border-radius:12px;margin-top:20px;
     border:1px solid rgba(224,184,90,.35);
@@ -473,8 +470,8 @@
       #0a0908;
   }
   body[data-landing="6"] header.landing-hero{padding:52px 24px 10px;max-width:560px;margin:0 auto}
-  body[data-landing="6"] .brand{letter-spacing:.6em;font-size:10px;opacity:.7}
-  body[data-landing="6"] .hero-motif{opacity:.45;height:40px}
+  body[data-landing="6"] .brand{letter-spacing:.4em;font-size:14px;opacity:.85}
+  body[data-landing="6"] .hero-motif{display:none !important}
   body[data-landing="6"] h1.title{
     font-size:clamp(32px,6vw,48px);letter-spacing:.04em;color:#f2ebe0;
     border-bottom:1px solid rgba(212,175,106,.3);padding-bottom:18px;display:inline-block;
@@ -493,7 +490,7 @@
     border:none;border-radius:0;background:transparent;border-bottom:1px solid rgba(212,175,106,.12);
   }
   body[data-landing="6"] .hero-benefit strong{
-    flex:0 0 auto;margin:0;font-size:11px;color:#d4af6a;min-width:4.5em;
+    flex:0 0 auto;margin:0;font-size:13px;color:#d4af6a;min-width:4.5em;
   }
   body[data-landing="6"] .hero-benefit span{font-size:15px;color:rgba(190,180,165,.9)}
   body[data-landing="6"] form.card-form{
@@ -512,7 +509,7 @@
   body[data-landing="7"] header.landing-hero{padding:72px 28px 8px}
   body[data-landing="7"] .hero-motif{display:none !important}
   body[data-landing="7"] .brand{
-    font-size:10px;letter-spacing:.7em;opacity:.45;margin-bottom:48px;
+    font-size:14px;letter-spacing:.4em;opacity:.7;margin-bottom:40px;
   }
   body[data-landing="7"] h1.title{
     font-weight:400;font-size:clamp(28px,5vw,40px);letter-spacing:.12em;
@@ -533,7 +530,7 @@
   }
   body[data-landing="7"] .hero-benefit:last-child{border-bottom:none}
   body[data-landing="7"] .hero-benefit strong{
-    font-size:11px;letter-spacing:.2em;color:rgba(212,175,106,.85);margin-bottom:4px;
+    font-size:13px;letter-spacing:.16em;color:rgba(212,175,106,.85);margin-bottom:4px;
   }
   body[data-landing="7"] .hero-benefit span{font-size:15px;color:rgba(170,168,180,.88)}
   body[data-landing="7"] form.card-form{
@@ -545,7 +542,7 @@
   body[data-landing="7"] h2.subtitle-h{
     font-size:15px;letter-spacing:.2em;color:rgba(180,175,165,.75);margin-bottom:28px;
   }
-  body[data-landing="7"] label{letter-spacing:.18em;font-size:12px}
+  body[data-landing="7"] label{letter-spacing:.14em;font-size:13px}
   body[data-landing="7"] #btn-start-reading{
     margin-top:8px;background:transparent;color:#d4af6a;
     border:1px solid rgba(212,175,106,.4);border-radius:0;
@@ -561,8 +558,8 @@
       #070812;
   }
   body[data-landing="8"] header.landing-hero{padding:44px 20px 8px}
-  body[data-landing="8"] .hero-motif{opacity:.55;height:70px;color:rgba(160,180,255,.5)}
-  body[data-landing="8"] .brand{color:rgba(180,190,230,.7);letter-spacing:.4em}
+  body[data-landing="8"] .hero-motif{display:none !important}
+  body[data-landing="8"] .brand{color:rgba(180,190,230,.85);letter-spacing:.32em;font-size:14px}
   body[data-landing="8"] h1.title{
     font-size:clamp(30px,5.5vw,46px);color:#e8ecff;
     text-shadow:0 0 40px rgba(120,140,220,.35);
@@ -570,19 +567,19 @@
   body[data-landing="8"] .subtitle{
     color:rgba(160,170,210,.85);max-width:34ch;margin-top:16px;font-size:17px;
   }
-  body[data-landing="8"] .hero-note{font-size:14px;color:rgba(140,150,190,.7)}
+  body[data-landing="8"] .hero-note{font-size:15px;color:rgba(140,150,190,.75)}
   body[data-landing="8"] .hero-benefits{
     display:flex;flex-wrap:wrap;justify-content:center;gap:8px;max-width:480px;
     grid-template-columns:unset;margin:16px auto 0;
   }
   body[data-landing="8"] .hero-benefit{
-    flex:0 1 auto;padding:8px 14px;border-radius:999px;
+    flex:0 1 auto;padding:10px 16px;border-radius:999px;
     border:1px solid rgba(140,160,220,.25);background:rgba(30,40,80,.4);
   }
   body[data-landing="8"] .hero-benefit strong{
-    display:inline;margin:0 6px 0 0;font-size:10px;letter-spacing:.12em;color:#a8b8f0;
+    display:inline;margin:0 6px 0 0;font-size:12px;letter-spacing:.1em;color:#a8b8f0;
   }
-  body[data-landing="8"] .hero-benefit span{display:inline;font-size:14px;color:rgba(190,200,230,.9)}
+  body[data-landing="8"] .hero-benefit span{display:inline;font-size:15px;color:rgba(190,200,230,.9)}
   body[data-landing="8"] form.card-form{
     border-radius:20px;border:1px solid rgba(140,160,220,.22);
     background:rgba(16,20,40,.75);box-shadow:0 20px 60px rgba(40,60,140,.3);
@@ -605,8 +602,8 @@
   body[data-landing="9"] #phase-input form.card-form{
     /* atmosphere via shared panel feel on form */
   }
-  body[data-landing="9"] .brand{color:#c4a574;letter-spacing:.35em}
-  body[data-landing="9"] .hero-motif{opacity:.5;color:#c4a574;height:52px}
+  body[data-landing="9"] .brand{color:#c4a574;letter-spacing:.3em;font-size:14px}
+  body[data-landing="9"] .hero-motif{display:none !important}
   body[data-landing="9"] h1.title{
     font-size:clamp(28px,5vw,42px);color:#f0e4cc;font-weight:500;
   }
@@ -614,7 +611,7 @@
     font-size:18px;color:rgba(200,180,140,.88);max-width:32ch;
   }
   body[data-landing="9"] .hero-note{
-    font-size:14px;color:rgba(160,140,110,.75);
+    font-size:15px;color:rgba(160,140,110,.78);
   }
   body[data-landing="9"] .hero-benefits{
     grid-template-columns:1fr;max-width:440px;gap:0;margin:12px auto;
@@ -628,7 +625,7 @@
   }
   body[data-landing="9"] .hero-benefit:last-child{border-bottom:none}
   body[data-landing="9"] .hero-benefit strong{
-    margin:0;font-size:11px;color:#c4a574;align-self:start;padding-top:2px;
+    margin:0;font-size:13px;color:#c4a574;align-self:start;padding-top:2px;
   }
   body[data-landing="9"] form.card-form{
     max-width:440px;border-radius:10px;
@@ -650,8 +647,8 @@
       #05050a;
   }
   body[data-landing="10"] header.landing-hero{padding:48px 20px 0}
-  body[data-landing="10"] .hero-motif{opacity:.4;height:48px}
-  body[data-landing="10"] .brand{letter-spacing:.5em;font-size:11px}
+  body[data-landing="10"] .hero-motif{display:none !important}
+  body[data-landing="10"] .brand{letter-spacing:.35em;font-size:14px}
   body[data-landing="10"] h1.title{
     font-size:clamp(36px,6.5vw,54px);letter-spacing:.02em;color:#f5edd8;
   }
@@ -688,7 +685,7 @@
   /* Mobile: tipografia leggibile su tutte le landing ADS */
   @media(max-width:519px){
     body[data-landing]:not([data-landing="1"]) .brand{
-      font-size:13px !important;letter-spacing:.22em !important;
+      font-size:14px !important;letter-spacing:.2em !important;
     }
     body[data-landing]:not([data-landing="1"]) h1.title{
       font-size:clamp(30px,8.5vw,42px) !important;
@@ -709,7 +706,7 @@
       display:block !important;font-size:16px !important;line-height:1.4 !important;
     }
     body[data-landing]:not([data-landing="1"]) .hero-benefit strong{
-      font-size:13px !important;letter-spacing:.08em !important;
+      font-size:14px !important;letter-spacing:.06em !important;
     }
     body[data-landing]:not([data-landing="1"]) .hero-benefit span{
       font-size:16px !important;line-height:1.35 !important;
@@ -721,11 +718,11 @@
       font-size:17px !important;letter-spacing:.06em !important;
     }
     body[data-landing]:not([data-landing="1"]) #btn-start-reading{
-      font-size:15px !important;letter-spacing:.08em !important;
+      font-size:16px !important;letter-spacing:.06em !important;
       padding:16px 18px !important;line-height:1.3 !important;
     }
     body[data-landing]:not([data-landing="1"]) label{
-      font-size:13px !important;letter-spacing:.1em !important;
+      font-size:14px !important;letter-spacing:.08em !important;
     }
     body[data-landing]:not([data-landing="1"]) input,
     body[data-landing]:not([data-landing="1"]) textarea{
@@ -763,11 +760,11 @@
 
   form.card-form{max-width:440px;margin:24px auto 0;background:rgba(20,16,40,.55);backdrop-filter:blur(10px);border:1px solid var(--gold-faint);border-radius:18px;padding:32px;box-shadow:var(--shadow-arcane)}
 
-  .phase-tag{text-align:center;font-family:'Cinzel',serif;letter-spacing:.3em;font-size:13px;color:var(--gold-soft)}
+  .phase-tag{text-align:center;font-family:'Cinzel',serif;letter-spacing:.28em;font-size:14px;color:var(--gold-soft)}
 
   h2.subtitle-h{font-family:'Cinzel',serif;text-align:center;font-size:20px;margin:8px 0 24px;color:var(--fg);font-weight:500;letter-spacing:.08em}
 
-  label{display:block;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  label{display:block;font-size:14px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
 
   input,textarea{width:100%;background:rgba(11,10,20,.6);border:1px solid rgba(212,175,106,.28);border-radius:10px;padding:12px 14px;color:var(--fg);font-family:'Inter',sans-serif;font-size:16px;outline:none;transition:border .2s,box-shadow .2s}
 
@@ -849,7 +846,7 @@
 
   .flip-face.back{transform:rotateY(180deg);background:linear-gradient(160deg,#1c1638 0%,#0e0820 100%);border:1px solid var(--gold);display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:14px 8px;text-align:center}
 
-  .flip-face.back .name{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.12em;color:var(--gold);line-height:1.3}
+  .flip-face.back .name{font-family:'Cinzel',serif;font-size:14px;letter-spacing:.12em;color:var(--gold);line-height:1.3}
 
   .flip-face.back .sigil{display:flex;align-items:center;justify-content:center;color:var(--gold);filter:drop-shadow(0 0 10px rgba(212,175,106,.45))}
 
@@ -859,7 +856,7 @@
 
   .flip-face.front{font-size:0}
 
-  .flip-face.back .pos{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:13px;color:var(--muted)}
+  .flip-face.back .pos{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--muted)}
 
 
 
@@ -918,16 +915,16 @@
   .cta-box{display:none;max-width:560px;margin:28px auto 0;background:linear-gradient(135deg,rgba(43,27,74,.7),rgba(20,16,40,.85));border:1px solid var(--gold-soft);border-radius:18px;padding:28px;text-align:center;box-shadow:var(--shadow-arcane);opacity:0;transform:translateY(12px);transition:opacity .7s ease,transform .7s ease}
   .cta-actions{display:flex;flex-direction:column;gap:12px;align-items:stretch;margin:8px 0 4px}
   .cta-actions .gold-btn{width:100%}
-  .ghost-btn{appearance:none;border:1px solid var(--gold-soft);background:transparent;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:.12em;font-size:12px;padding:14px 18px;border-radius:999px;cursor:pointer;transition:background .2s,border-color .2s}
+  .ghost-btn{appearance:none;border:1px solid var(--gold-soft);background:transparent;color:var(--gold);font-family:'Cinzel',serif;letter-spacing:.12em;font-size:13px;padding:14px 18px;border-radius:999px;cursor:pointer;transition:background .2s,border-color .2s}
   .ghost-btn:hover{background:rgba(212,175,106,.08);border-color:var(--gold)}
-  .disclaimer{max-width:100%;min-width:200px;margin:18px 0 0;font-size:12px;line-height:1.55;color:rgba(154,145,168,.85);text-align:center;padding:0;box-sizing:border-box;word-break:normal;white-space:normal;overflow-wrap:normal;letter-spacing:normal;text-transform:none;font-family:'Inter',sans-serif;display:block;width:100%}
-  .consent{display:flex;gap:10px;align-items:center;margin:4px 0 14px;max-width:100%;box-sizing:border-box;font-size:12px;line-height:1.45;color:rgba(154,145,168,.9);cursor:pointer;text-align:left;text-transform:none;letter-spacing:normal;font-family:'Cormorant Garamond',serif;font-weight:400}
+  .disclaimer{max-width:100%;min-width:200px;margin:18px 0 0;font-size:13px;line-height:1.55;color:rgba(154,145,168,.85);text-align:center;padding:0;box-sizing:border-box;word-break:normal;white-space:normal;overflow-wrap:normal;letter-spacing:normal;text-transform:none;font-family:'Inter',sans-serif;display:block;width:100%}
+  .consent{display:flex;gap:10px;align-items:center;margin:4px 0 14px;max-width:100%;box-sizing:border-box;font-size:14px;line-height:1.45;color:rgba(154,145,168,.9);cursor:pointer;text-align:left;text-transform:none;letter-spacing:normal;font-family:'Cormorant Garamond',serif;font-weight:400}
   .consent input{margin-top:0;flex:0 0 auto;accent-color:#d4af6a}
   .consent span{flex:1;min-width:0;overflow-wrap:anywhere;word-break:break-word;text-transform:none;letter-spacing:normal}
   .turnstile-wrap{display:flex;justify-content:center;margin:8px 0 16px;min-height:0}
   .credits-pill{
     display:none;appearance:none;border:1px solid var(--gold-faint);background:transparent;
-    color:var(--gold);font-family:'Inter',sans-serif;font-size:12px;letter-spacing:.08em;
+    color:var(--gold);font-family:'Inter',sans-serif;font-size:13px;letter-spacing:.08em;
     padding:12px 16px;border-radius:999px;cursor:pointer;width:100%;text-align:center;
     transition:background .2s,border-color .2s;box-sizing:border-box;
   }
@@ -1065,11 +1062,11 @@
 
 
 
-  footer{position:relative;z-index:1;text-align:center;font-size:12px;letter-spacing:.3em;text-transform:uppercase;color:rgba(154,145,168,.6);padding:24px 0 18px}
-  footer .footer-links{display:flex;flex-wrap:wrap;gap:10px 18px;justify-content:center;margin:0 0 12px;letter-spacing:.12em;text-transform:none;font-size:13px}
+  footer{position:relative;z-index:1;text-align:center;font-size:13px;letter-spacing:.28em;text-transform:uppercase;color:rgba(154,145,168,.6);padding:24px 0 18px}
+  footer .footer-links{display:flex;flex-wrap:wrap;gap:10px 18px;justify-content:center;margin:0 0 12px;letter-spacing:.12em;text-transform:none;font-size:14px}
   footer .footer-links a{color:rgba(212,175,106,.72);text-decoration:none}
   footer .footer-links a:hover{color:var(--gold)}
-  footer .footer-copy{font-size:9px;letter-spacing:.1em;line-height:1.55;max-width:640px;margin:0 auto;color:rgba(154,145,168,.45)}
+  footer .footer-copy{font-size:11px;letter-spacing:.08em;line-height:1.55;max-width:640px;margin:0 auto;color:rgba(154,145,168,.5)}
 
   .seo-panel{
     position:relative;z-index:1;max-width:720px;margin:8px auto 40px;padding:0 20px;
@@ -1117,8 +1114,6 @@
 <main>
 
   <header class="landing-hero" id="landing-hero">
-
-    <div class="hero-motif" id="hero-motif" aria-hidden="true"></div>
 
     <div class="brand">
 
@@ -1178,7 +1173,7 @@
       <button type="submit" class="gold-btn full" id="btn-start-reading">INIZIA LA LETTURA GRATUITA</button>
 
       <p class="privacy" id="form-privacy">Nessun account richiesto. <a href="/privacy.html" style="color:rgba(212,175,106,.75)">Privacy</a></p>
-      <div style="font-size: 12px; line-height: 1.55; color: rgba(154,145,168,.85); text-align: center; margin: 18px 0 0; writing-mode: horizontal-tb !important; text-orientation: mixed !important; direction: ltr !important; display: block !important; width: 100% !important; white-space: normal !important; word-spacing: normal !important; letter-spacing: normal !important;">Servizio di intrattenimento e riflessione. Non sostituisce consigli medici, legali o finanziari. I testi sono generati digitalmente.</div>
+      <div style="font-size: 13px; line-height: 1.55; color: rgba(154,145,168,.85); text-align: center; margin: 18px 0 0; writing-mode: horizontal-tb !important; text-orientation: mixed !important; direction: ltr !important; display: block !important; width: 100% !important; white-space: normal !important; word-spacing: normal !important; letter-spacing: normal !important;">Servizio di intrattenimento e riflessione. Non sostituisce consigli medici, legali o finanziari. I testi sono generati digitalmente.</div>
       <button type="button" class="credits-pill credits-pill--home" id="credits-pill-home" title="Clicca per gestire i crediti" style="display:none"></button>
 
     </form>
@@ -1834,19 +1829,6 @@
     checkoutPass:null, pendingFollowUp:null, freeLimitReached:false
   };
 
-  var LANDING_MOTIFS = {
-    1: '',
-    2: '<svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="60" cy="60" r="48" stroke="currentColor" stroke-width=".8" opacity=".5"/><path d="M60 28 C60 28 42 42 42 58 C42 70 50 78 60 88 C70 78 78 70 78 58 C78 42 60 28 60 28Z" stroke="currentColor" stroke-width="1.2"/><path d="M36 92h48" stroke="currentColor" stroke-width=".6" opacity=".4"/></svg>',
-    3: '<svg viewBox="0 0 320 64" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M160 4v56" stroke="currentColor" stroke-width="1"/><circle cx="160" cy="32" r="10" stroke="currentColor" stroke-width="1"/><path d="M148 20l12-12 12 12M148 44l12 12 12-12" stroke="currentColor" stroke-width=".8" opacity=".6"/></svg>',
-    4: '<svg viewBox="0 0 320 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 24h240" stroke="currentColor" stroke-width=".6" opacity=".4"/><rect x="148" y="12" width="24" height="24" stroke="currentColor" stroke-width="1" transform="rotate(45 160 24)"/></svg>',
-    5: '<svg viewBox="0 0 320 56" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M40 40 L80 16 L120 40 L160 12 L200 40 L240 16 L280 40" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/><circle cx="160" cy="12" r="3" fill="currentColor"/></svg>',
-    6: '<svg viewBox="0 0 320 40" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M60 20h200" stroke="currentColor" stroke-width="1"/><circle cx="160" cy="20" r="5" stroke="currentColor" stroke-width="1"/></svg>',
-    7: '',
-    8: '<svg viewBox="0 0 320 70" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="80" cy="30" r="2" fill="currentColor" opacity=".6"/><circle cx="140" cy="18" r="1.5" fill="currentColor"/><circle cx="180" cy="40" r="2.5" fill="currentColor" opacity=".7"/><circle cx="240" cy="22" r="1.5" fill="currentColor"/><path d="M80 30 L140 18 L180 40 L240 22" stroke="currentColor" stroke-width=".6" opacity=".4"/></svg>',
-    9: '<svg viewBox="0 0 320 48" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M100 24h120M160 8v32" stroke="currentColor" stroke-width=".8" opacity=".5"/><path d="M130 14l30 10-30 10M190 14l-30 10 30 10" stroke="currentColor" stroke-width=".8" opacity=".6"/></svg>',
-    10: '<svg viewBox="0 0 320 48" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="160" cy="24" rx="70" ry="16" stroke="currentColor" stroke-width="1" opacity=".5"/><circle cx="160" cy="24" r="4" fill="currentColor" opacity=".7"/></svg>'
-  };
-
   var LANDING_VARIANTS = {
     1: {
       label: 'Controllo — Tarocchi gratis',
@@ -2026,12 +2008,6 @@
         window.__luxLandingVariant = id;
       }
     } catch(e){}
-    var motifEl = document.getElementById('hero-motif');
-    if(motifEl){
-      var motif = LANDING_MOTIFS[id] || '';
-      motifEl.innerHTML = motif;
-      motifEl.style.display = motif ? 'block' : 'none';
-    }
     var titleEl = document.getElementById('hero-title');
     var subEl = document.getElementById('hero-subtitle');
     var noteEl = document.getElementById('hero-note');

@@ -29,10 +29,12 @@ function articleStyles() {
   a{color:rgba(212,175,106,.85);text-decoration:none}
   a:hover{color:var(--gold)}
   .wrap{max-width:720px;margin:0 auto;padding:48px 22px 64px}
-  .brand{font-family:'Cinzel',serif;letter-spacing:.28em;font-size:13px;color:var(--gold);text-align:center;margin-bottom:18px}
-  .crumbs{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;text-align:center;color:rgba(154,145,168,.8);margin:0 0 22px}
+  .brand{display:flex;align-items:center;justify-content:center;gap:12px;font-family:'Cinzel',serif;letter-spacing:.28em;font-size:14px;color:var(--gold);text-align:center;margin-bottom:18px}
+  .brand svg{width:14px;height:14px;opacity:.85;flex-shrink:0;display:block}
+  .brand a{color:inherit}
+  .crumbs{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;text-align:center;color:rgba(154,145,168,.8);margin:0 0 22px}
   .crumbs a{color:rgba(212,175,106,.75)}
-  .preview-banner{text-align:center;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#0b0a14;background:rgba(212,175,106,.88);padding:10px 14px;border-radius:8px;margin:0 0 22px}
+  .preview-banner{text-align:center;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#0b0a14;background:rgba(212,175,106,.88);padding:10px 14px;border-radius:8px;margin:0 0 22px}
   h1{font-family:'Cinzel',serif;font-weight:500;font-size:clamp(22px,4vw,30px);letter-spacing:.08em;text-align:center;margin:0 0 12px;color:var(--gold);line-height:1.3}
   .desc{text-align:center;font-size:19px;line-height:1.65;color:rgba(154,145,168,.98);margin:0 0 10px}
   .cover{display:block;width:100%;max-height:220px;aspect-ratio:12/5;object-fit:cover;object-position:center 40%;border-radius:4px;margin:8px 0 22px;border:1px solid rgba(212,175,106,.18)}
@@ -157,7 +159,7 @@ ${faqLd ? `<script type="application/ld+json">${JSON.stringify(faqLd)}</script>`
 </head>
 <body>
   <main class="wrap">
-    <div class="brand"><a href="/">LUXSEETAROT</a></div>
+    <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><a href="/">LUXSEETAROT</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
     <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> · <a href="/blog.html">Blog</a> · ${escapeHtml(post.title)}</nav>
     ${previewBanner}
     <article>
@@ -199,7 +201,7 @@ export function renderBlogNotFoundHtml() {
 </head>
 <body>
   <main class="wrap">
-    <div class="brand"><a href="/">LUXSEETAROT</a></div>
+    <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><a href="/">LUXSEETAROT</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
     <h1>Articolo non disponibile</h1>
     <p class="desc">Questo contenuto non è pubblico oppure non esiste.</p>
     <a class="cta" href="/blog.html">← Torna al blog</a>
