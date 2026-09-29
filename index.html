@@ -1678,7 +1678,10 @@
     var benefitsEl = document.getElementById('hero-benefits');
     if(titleEl) titleEl.textContent = L.title;
     if(subEl) subEl.textContent = L.subtitle;
-    if(noteEl) noteEl.textContent = L.note;
+    if(noteEl){
+      noteEl.textContent = L.note || '';
+      noteEl.style.display = L.note ? '' : 'none';
+    }
     if(formTitleEl) formTitleEl.textContent = L.formTitle;
     if(ctaEl) ctaEl.textContent = L.cta;
     if(benefitsEl && L.benefits && L.benefits.length){
