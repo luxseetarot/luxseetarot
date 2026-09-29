@@ -1159,9 +1159,7 @@
           <label for="admin-set-gpt-model">Modello</label>
           <select id="admin-set-gpt-model" aria-label="Modello GPT"></select>
           <div class="phase-tag" style="margin:18px 0 10px">LANDING PAGE (A/B ADS)</div>
-          <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Scegli quale landing mostra la homepage <code style="color:var(--gold)">/</code>. Per le ADS usa i link diretti <code style="color:var(--gold)">/l1</code>…<code style="color:var(--gold)">/l5</code> (ognuno forza quella variante).</p>
-          <div id="admin-landing-radios" style="display:flex;flex-direction:column;gap:8px;margin:0 0 12px"></div>
-          <div id="admin-landing-urls" style="margin:0 0 8px;padding:10px 12px;border:1px solid rgba(212,175,106,.2);border-radius:10px;background:rgba(20,16,40,.4)"></div>
+          <div id="admin-landing-urls" style="margin:0 0 8px"></div>
           <p id="admin-settings-hint" style="margin:12px 0 0;font-size:12px;color:rgba(212,175,106,.8);line-height:1.45"></p>
           <div class="admin-blog-editor-actions" style="margin-top:14px">
             <button type="button" class="gold-btn" id="admin-settings-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA IMPOSTAZIONI</button>
@@ -3898,6 +3896,7 @@
     var tapTimer = null;
     var pendingConfirm = null; // { action, ip, step }
     var activeTab = 'funnel';
+    var adminLandingVariant = 1;
     var blogPosts = [];
     var editingSlug = '';
 
@@ -4493,7 +4492,6 @@
       var creditsEl = document.getElementById('admin-set-pack-credits');
       var modelEl = document.getElementById('admin-set-gpt-model');
       var hintEl = document.getElementById('admin-settings-hint');
-      var radiosWrap = document.getElementById('admin-landing-radios');
       var urlsWrap = document.getElementById('admin-landing-urls');
       if(fullEl) fullEl.value = centsToEuroInput(s.fullPriceCents != null ? s.fullPriceCents : 490);
       if(packEl) packEl.value = centsToEuroInput(s.packPriceCents != null ? s.packPriceCents : 990);
@@ -4509,29 +4507,18 @@
       }
       var activeLanding = parseInt(s.landingVariant, 10);
       if(!(activeLanding >= 1 && activeLanding <= 5)) activeLanding = 1;
-      if(radiosWrap){
-        radiosWrap.innerHTML = [1,2,3,4,5].map(function(id){
-          var L = LANDING_VARIANTS[id];
-          var checked = id === activeLanding ? ' checked' : '';
-          return '<label style="display:flex;align-items:flex-start;gap:10px;margin:0;padding:10px 12px;border:1px solid rgba(212,175,106,'+(id===activeLanding?'.45':'.18')+');border-radius:10px;cursor:pointer;background:rgba(20,16,40,'+(id===activeLanding?'.55':'.28')+')">' +
-            '<input type="radio" name="admin-landing-variant" value="'+id+'"'+checked+' style="margin-top:3px" />' +
-            '<span style="flex:1">' +
-              '<strong style="display:block;font-size:12px;letter-spacing:.06em;color:var(--gold);margin:0 0 4px">L'+id+' — '+escapeHtml(L.label)+'</strong>' +
-              '<span style="display:block;font-size:12px;color:var(--muted);line-height:1.4">'+escapeHtml(L.blurb)+'</span>' +
-            '</span></label>';
-        }).join('');
-      }
+      adminLandingVariant = activeLanding;
       if(urlsWrap){
-        var origin = location.origin || '';
-        urlsWrap.innerHTML = '<div style="font-size:11px;letter-spacing:.12em;color:var(--gold);margin:0 0 8px">LINK PER LE ADS</div>' +
-          [1,2,3,4,5].map(function(id){
-            var url = origin + '/l' + id;
-            return '<div style="display:flex;align-items:center;gap:8px;margin:0 0 6px;flex-wrap:wrap">' +
-              '<code style="flex:1;min-width:160px;font-size:12px;color:rgba(236,230,216,.9)">'+escapeHtml(url)+'</code>' +
-              '<button type="button" class="ghost-btn admin-copy-landing-url" data-url="'+escapeHtml(url)+'" style="width:auto;padding:6px 10px;font-size:10px">COPIA</button>' +
+        var origin = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+          ? (location.origin || '')
+          : 'https://www.luxseetarot.com';
+        urlsWrap.innerHTML = [1,2,3,4,5].map(function(id){
+          var url = origin + '/l' + id;
+          return '<div style="display:flex;align-items:center;gap:8px;margin:0 0 8px;flex-wrap:wrap">' +
+            '<code style="flex:1;min-width:160px;font-size:12px;color:rgba(236,230,216,.9);word-break:break-all">'+escapeHtml(url)+'</code>' +
+            '<button type="button" class="ghost-btn admin-copy-landing-url" data-url="'+escapeHtml(url)+'" style="width:auto;padding:6px 10px;font-size:10px">COPIA</button>' +
             '</div>';
-          }).join('') +
-          '<p style="margin:8px 0 0;font-size:11px;color:rgba(154,145,168,.85);line-height:1.4">Homepage <code style="color:var(--gold)">/</code> = landing selezionata (indicizzata da Google). I link /l1…/l5 sono <strong style="color:rgba(236,230,216,.75);font-weight:500">noindex</strong> — solo per ADS, stesso canonical verso /.</p>';
+        }).join('');
       }
       if(metaEl){
         metaEl.textContent = 'Storage: ' + ((data && data.storage) || '?') +
@@ -4648,8 +4635,6 @@
         var creditsEl = document.getElementById('admin-set-pack-credits');
         var modelEl = document.getElementById('admin-set-gpt-model');
         var packCredits = creditsEl ? parseInt(creditsEl.value, 10) : 5;
-        var landingRadio = document.querySelector('input[name="admin-landing-variant"]:checked');
-        var landingVariant = landingRadio ? parseInt(landingRadio.value, 10) : 1;
         if(fullCents == null || fullCents < 50){
           showErr('Prezzo lettura singola non valido (minimo €0,50).');
           return;
@@ -4662,10 +4647,6 @@
           showErr('Il pack deve includere da 2 a 50 letture.');
           return;
         }
-        if(!(landingVariant >= 1 && landingVariant <= 5)){
-          showErr('Seleziona una landing da 1 a 5.');
-          return;
-        }
         showErr('');
         adminFetch({
           action: 'settings-save',
@@ -4674,7 +4655,7 @@
             packPriceCents: packCents,
             packCredits: packCredits,
             gptModel: modelEl ? modelEl.value : 'gpt-4.1-nano',
-            landingVariant: landingVariant
+            landingVariant: adminLandingVariant
           }
         }).then(function(res){
           if(!res.ok){ showErr(res.error || 'Salvataggio fallito'); return; }
@@ -4686,11 +4667,8 @@
               packCredits: res.settings.packCredits
             };
             applyPricingUI();
-            if(!state.landingFromUrl){
-              resolveAndApplyLanding(res.settings.landingVariant);
-            }
           }
-          if(metaEl) metaEl.textContent = 'Impostazioni salvate. Landing homepage: L' + ((res.settings && res.settings.landingVariant) || landingVariant);
+          if(metaEl) metaEl.textContent = 'Impostazioni salvate.';
         }).catch(function(){ showErr('Salvataggio fallito'); });
       });
     }
