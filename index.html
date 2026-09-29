@@ -1080,12 +1080,11 @@
           <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Usato per anteprima e lettura completa. Cambia solo modelli disponibili sul tuo account OpenAI.</p>
           <label for="admin-set-gpt-model">Modello</label>
           <select id="admin-set-gpt-model" aria-label="Modello GPT"></select>
-          <div class="phase-tag" style="margin:18px 0 10px">LANDING PAGE (A/B ADS)</div>
-          <div id="admin-landing-urls" style="margin:0 0 8px"></div>
-          <p id="admin-settings-hint" style="margin:12px 0 0;font-size:12px;color:rgba(212,175,106,.8);line-height:1.45"></p>
           <div class="admin-blog-editor-actions" style="margin-top:14px">
             <button type="button" class="gold-btn" id="admin-settings-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA IMPOSTAZIONI</button>
           </div>
+          <div class="phase-tag" style="margin:18px 0 10px">LANDING PAGE (A/B ADS)</div>
+          <div id="admin-landing-urls" style="margin:0 0 8px"></div>
         </div>
       </div>
 
@@ -4479,7 +4478,6 @@
       var packEl = document.getElementById('admin-set-pack-price');
       var creditsEl = document.getElementById('admin-set-pack-credits');
       var modelEl = document.getElementById('admin-set-gpt-model');
-      var hintEl = document.getElementById('admin-settings-hint');
       var urlsWrap = document.getElementById('admin-landing-urls');
       if(fullEl) fullEl.value = centsToEuroInput(s.fullPriceCents != null ? s.fullPriceCents : 490);
       if(packEl) packEl.value = centsToEuroInput(s.packPriceCents != null ? s.packPriceCents : 990);
@@ -4513,11 +4511,6 @@
           ((data && data.storage) === 'memory'
             ? ' (temporaneo finché non configuri Upstash Redis)'
             : ' (persistente)');
-      }
-      if(hintEl){
-        hintEl.textContent = s.updatedAt
-          ? 'Ultimo salvataggio: ' + fmtIso(s.updatedAt)
-          : 'Valori predefiniti (non ancora salvati).';
       }
     }
 
