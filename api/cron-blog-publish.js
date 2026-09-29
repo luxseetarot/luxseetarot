@@ -1,5 +1,4 @@
 import { runScheduledBlogPublish } from './_lib/blog-schedule.js';
-import { runScheduledPinterestPublish } from './_lib/pinterest.js';
 import { getPost, seedDemoArticle, setPostStatus } from './_lib/blog.js';
 import { getSeedArticlesF } from './_lib/blog-seed-articles-f.js';
 import { getSeedArticlesG } from './_lib/blog-seed-articles-g.js';
@@ -119,10 +118,6 @@ export default async function handler(req, res) {
   const job = jobName(req) || 'blog';
 
   try {
-    if (job === 'pinterest' || job === 'pin') {
-      const result = await runScheduledPinterestPublish({ force: false });
-      return res.status(200).json({ ok: true, job: 'pinterest', ...result });
-    }
     if (job === 'seed-f' || job === 'seed-seo-f') {
       const result = await seedAndPublishLotF();
       return res.status(result.ok ? 200 : 500).json({ ok: result.ok, job: 'seed-f', ...result });
@@ -160,11 +155,9 @@ export default async function handler(req, res) {
     return res.status(500).json({
       ok: false,
       error:
-        job === 'pinterest' || job === 'pin'
-          ? 'Cron Pinterest fallito.'
-          : job === 'seed-f' || job === 'seed-seo-f'
-            ? 'Seed/publish lotto F fallito.'
-            : 'Cron blog publish fallito.',
+        job === 'seed-f' || job === 'seed-seo-f'
+          ? 'Seed/publish lotto F fallito.'
+          : 'Cron blog publish fallito.',
     });
   }
 }

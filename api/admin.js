@@ -25,21 +25,8 @@ import {
   runScheduledBlogPublish,
   saveBlogSchedule,
 } from './_lib/blog-schedule.js';
-import {
-  clearPinterestAuth,
-  describePinterestSchedule,
-  getPinterestQueue,
-  getPinterestSchedule,
-  pinterestStatus,
-  queuePreview,
-  retryPinterestErrors,
-  runScheduledPinterestPublish,
-  savePinterestSchedule,
-  seedPinterestQueue,
-} from './_lib/pinterest.js';
 import { sendCreditsEmail } from './_lib/email.js';
 import { emailConfigStatus, sendPurchaseConfirmation } from './_lib/purchase-email.js';
-import { PINTEREST_SEED_CATALOG } from './_lib/pinterest-seed.js';
 import {
   allowedGptModels,
   getSiteSettings,
@@ -225,68 +212,6 @@ export default async function handler(req, res) {
       const result = await seedDemoArticle({ force, syncContent });
       if (!result.ok) return res.status(400).json(result);
       return res.status(200).json(result);
-    }
-
-    if (action === 'pinterest-status') {
-      const status = await pinterestStatus();
-      const queue = await getPinterestQueue();
-      return res.status(200).json({ ...status, queue: queuePreview(queue) });
-    }
-
-    if (action === 'pinterest-schedule-save') {
-      const payload = (req.body && req.body.schedule) || req.body || {};
-      const result = await savePinterestSchedule({
-        enabled: payload.enabled,
-        intervalDays: payload.intervalDays,
-        hour: payload.hour,
-        minute: 0,
-        pinsPerDay: payload.pinsPerDay,
-      });
-      return res.status(200).json({
-        ok: true,
-        schedule: result.schedule,
-        scheduleHint: describePinterestSchedule(result.schedule),
-      });
-    }
-
-    if (action === 'pinterest-queue-list') {
-      const queue = await getPinterestQueue();
-      const schedule = await getPinterestSchedule();
-      return res.status(200).json({
-        ok: true,
-        queue: queuePreview(queue),
-        schedule,
-        scheduleHint: describePinterestSchedule(schedule),
-      });
-    }
-
-    if (action === 'pinterest-queue-seed') {
-      const replacePending = !!(req.body && req.body.replacePending);
-      const result = await seedPinterestQueue(PINTEREST_SEED_CATALOG, { replacePending });
-      if (!result.ok) return res.status(400).json(result);
-      const status = await pinterestStatus();
-      const queue = await getPinterestQueue();
-      return res.status(200).json({ ...status, ...result, queue: queuePreview(queue) });
-    }
-
-    if (action === 'pinterest-run-now') {
-      const result = await runScheduledPinterestPublish({ force: true });
-      if (!result.ok) return res.status(400).json(result);
-      const queue = await getPinterestQueue();
-      return res.status(200).json({ ...result, queue: queuePreview(queue) });
-    }
-
-    if (action === 'pinterest-retry-errors') {
-      const result = await retryPinterestErrors();
-      const status = await pinterestStatus();
-      const queue = await getPinterestQueue();
-      return res.status(200).json({ ...status, ...result, queue: queuePreview(queue) });
-    }
-
-    if (action === 'pinterest-disconnect') {
-      await clearPinterestAuth();
-      const status = await pinterestStatus();
-      return res.status(200).json(status);
     }
 
     if (action === 'settings-get') {

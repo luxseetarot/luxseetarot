@@ -941,7 +941,6 @@
       <div class="admin-tabs" role="tablist">
         <button type="button" class="active" id="admin-tab-funnel" data-admin-tab="funnel">Funnel</button>
         <button type="button" id="admin-tab-blog" data-admin-tab="blog">Blog</button>
-        <button type="button" id="admin-tab-pinterest" data-admin-tab="pinterest">Pinterest</button>
         <button type="button" id="admin-tab-settings" data-admin-tab="settings">Prezzi / AI</button>
         <button type="button" id="admin-tab-email" data-admin-tab="email">Email</button>
       </div>
@@ -1062,84 +1061,6 @@
               </tr>
             </thead>
             <tbody id="admin-blog-tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="admin-pinterest-pane" style="display:none">
-        <div class="admin-kpis" id="admin-pin-kpis"></div>
-        <div class="admin-blog-editor show" style="margin-bottom:14px">
-          <div class="phase-tag" style="margin-bottom:10px">CONNESSIONE PINTEREST</div>
-          <p id="admin-pin-status" style="margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.5">Caricamento…</p>
-          <p id="admin-pin-boards" style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.85);line-height:1.5"></p>
-          <div class="admin-blog-editor-actions">
-            <button type="button" class="gold-btn" id="admin-pin-connect" style="width:auto;padding:10px 14px;font-size:11px">COLLEGA PINTEREST</button>
-            <button type="button" class="ghost-btn" id="admin-pin-disconnect" style="width:auto;padding:10px 14px;font-size:11px">SCOLLEGA</button>
-          </div>
-        </div>
-        <div class="admin-blog-editor show" id="admin-pin-schedule" style="margin-bottom:14px">
-          <div class="phase-tag" style="margin-bottom:10px">PUBBLICAZIONE AUTOMATICA PIN</div>
-          <p id="admin-pin-schedule-hint" style="margin:0 0 12px;font-size:13px;color:var(--muted);line-height:1.5">Caricamento…</p>
-          <p id="admin-pin-publish-log" style="margin:0 0 12px;font-size:13px;color:rgba(236,230,216,.88);line-height:1.55;padding:10px 12px;border:1px solid rgba(212,175,106,.25);background:rgba(15,20,32,.45)"></p>
-          <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.75);line-height:1.45">GitHub Actions: <strong style="font-weight:500;color:rgba(236,230,216,.8)">2 volte al giorno</strong> (mattina). Pubblica i pin dovuti dalla coda (fino a N/giorno) se il programma è attivo.</p>
-          <div class="admin-blog-filters" style="margin-bottom:10px">
-            <label style="display:flex;align-items:center;gap:8px;margin:0;color:var(--fg);font-size:12px;letter-spacing:.04em">
-              <input type="checkbox" id="admin-pin-sched-enabled" />
-              Attiva
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:var(--muted)">
-              Ogni
-              <select id="admin-pin-sched-interval" aria-label="Intervallo giorni pin">
-                <option value="1" selected>1 giorno</option>
-                <option value="2">2 giorni</option>
-                <option value="3">3 giorni</option>
-                <option value="4">4 giorni</option>
-                <option value="5">5 giorni</option>
-                <option value="7">7 giorni</option>
-              </select>
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:var(--muted)">
-              Alle
-              <select id="admin-pin-sched-hour" aria-label="Ora Italia pin"></select>
-              <span>(ora Italia)</span>
-            </label>
-            <label style="display:flex;align-items:center;gap:6px;margin:0;font-size:12px;color:var(--muted)">
-              Quanti pin oggi / ogni giorno
-              <select id="admin-pin-sched-perday" aria-label="Pin per giorno">
-                <option value="1">1</option>
-                <option value="2" selected>2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-              </select>
-            </label>
-          </div>
-          <p id="admin-pin-schedule-next" style="margin:0 0 12px;font-size:12px;color:rgba(212,175,106,.8)"></p>
-          <div class="admin-blog-editor-actions">
-            <button type="button" class="gold-btn" id="admin-pin-sched-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA PROGRAMMA</button>
-            <button type="button" class="ghost-btn" id="admin-pin-run" style="width:auto;padding:10px 14px;font-size:11px">PUBBLICA ORA IL PROSSIMO</button>
-            <button type="button" class="ghost-btn" id="admin-pin-retry-errors" style="width:auto;padding:10px 14px;font-size:11px">RIPROVA ERRORI</button>
-          </div>
-        </div>
-        <div class="admin-blog-filters" style="margin-bottom:12px">
-          <button type="button" class="ghost-btn" id="admin-pin-seed" style="width:auto;padding:10px 12px;font-size:11px">CARICA CATALOGO COMPLETO (~1590 PIN)</button>
-        </div>
-        <div class="admin-table-wrap">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Pin</th>
-                <th>Bacheca</th>
-                <th>Stato</th>
-                <th>Titolo</th>
-              </tr>
-            </thead>
-            <tbody id="admin-pin-tbody"></tbody>
           </table>
         </div>
       </div>
@@ -3888,7 +3809,6 @@
     var titleEl = document.getElementById('admin-title');
     var funnelPane = document.getElementById('admin-funnel-pane');
     var blogPane = document.getElementById('admin-blog-pane');
-    var pinPane = document.getElementById('admin-pinterest-pane');
     var settingsPane = document.getElementById('admin-settings-pane');
     var emailPane = document.getElementById('admin-email-pane');
     var resetAllBtn = document.getElementById('admin-reset-all');
@@ -3931,34 +3851,28 @@
     }
     function setTab(tab){
       activeTab = tab === 'blog' ? 'blog'
-        : (tab === 'pinterest' ? 'pinterest'
         : (tab === 'settings' ? 'settings'
-        : (tab === 'email' ? 'email' : 'funnel')));
+        : (tab === 'email' ? 'email' : 'funnel'));
       var tabFunnel = document.getElementById('admin-tab-funnel');
       var tabBlog = document.getElementById('admin-tab-blog');
-      var tabPin = document.getElementById('admin-tab-pinterest');
       var tabSettings = document.getElementById('admin-tab-settings');
       var tabEmail = document.getElementById('admin-tab-email');
       if(tabFunnel) tabFunnel.classList.toggle('active', activeTab === 'funnel');
       if(tabBlog) tabBlog.classList.toggle('active', activeTab === 'blog');
-      if(tabPin) tabPin.classList.toggle('active', activeTab === 'pinterest');
       if(tabSettings) tabSettings.classList.toggle('active', activeTab === 'settings');
       if(tabEmail) tabEmail.classList.toggle('active', activeTab === 'email');
       if(funnelPane) funnelPane.style.display = activeTab === 'funnel' ? 'block' : 'none';
       if(blogPane) blogPane.style.display = activeTab === 'blog' ? 'block' : 'none';
-      if(pinPane) pinPane.style.display = activeTab === 'pinterest' ? 'block' : 'none';
       if(settingsPane) settingsPane.style.display = activeTab === 'settings' ? 'block' : 'none';
       if(emailPane) emailPane.style.display = activeTab === 'email' ? 'block' : 'none';
       if(resetAllBtn) resetAllBtn.style.display = activeTab === 'funnel' ? '' : 'none';
       if(titleEl){
         titleEl.textContent = activeTab === 'blog' ? 'Blog articoli'
-          : (activeTab === 'pinterest' ? 'Pinterest pin'
           : (activeTab === 'settings' ? 'Prezzi e AI'
-          : (activeTab === 'email' ? 'Email Brevo' : 'Funnel letture')));
+          : (activeTab === 'email' ? 'Email Brevo' : 'Funnel letture'));
       }
       if(getSecret()){
         if(activeTab === 'blog') loadBlog();
-        else if(activeTab === 'pinterest') loadPinterest();
         else if(activeTab === 'settings') loadSettings();
         else if(activeTab === 'email') loadEmailStatus();
         else loadStats();
@@ -4369,116 +4283,8 @@
         return res;
       }).catch(function(){ showErr('Connessione blog fallita'); });
     }
-    function ensurePinScheduleHourOptions(){
-      var hourEl = document.getElementById('admin-pin-sched-hour');
-      if(!hourEl || hourEl.options.length) return;
-      ;[8, 9, 10].forEach(function(h){
-        var opt = document.createElement('option');
-        opt.value = String(h);
-        opt.textContent = (h < 10 ? '0' : '') + h + ':00';
-        hourEl.appendChild(opt);
-      });
-    }
-    function renderPinterest(data){
-      ensurePinScheduleHourOptions();
-      var s = (data && data.schedule) || {};
-      var qc = (data && data.queueCounts) || {};
-      var kpis = document.getElementById('admin-pin-kpis');
-      if(kpis){
-        kpis.innerHTML =
-          '<div class="admin-kpi"><b>'+(qc.pending||0)+'</b><span>IN CODA</span></div>'+
-          '<div class="admin-kpi"><b>'+(qc.publishedToday||0)+'/'+(qc.pinsPerDay||s.pinsPerDay||2)+'</b><span>OGGI</span></div>'+
-          '<div class="admin-kpi"><b>'+(qc.published||0)+'</b><span>PUBBLICATI</span></div>'+
-          '<div class="admin-kpi"><b>'+(qc.error||0)+'</b><span>ERRORI</span></div>';
-      }
-      var statusEl = document.getElementById('admin-pin-status');
-      if(statusEl){
-        if(!data.configured){
-          statusEl.textContent = 'Su Vercel mancano PINTEREST_APP_ID / PINTEREST_APP_SECRET. Redirect URI: ' + (data.redirectUri || '');
-        } else if(data.connected){
-          statusEl.textContent = 'Account collegato' + (data.updatedAt ? ' · aggiornato ' + data.updatedAt : '') + '.';
-        } else {
-          statusEl.textContent = 'Non collegato. Premi Collega Pinterest (serve login sul tuo account).';
-        }
-      }
-      var boardsEl = document.getElementById('admin-pin-boards');
-      if(boardsEl){
-        if(data.boardsError){
-          boardsEl.textContent = 'Bacheche: ' + data.boardsError;
-        } else if(data.boards && data.boards.length){
-          boardsEl.textContent = 'Bacheche: ' + data.boards.map(function(b){ return b.name; }).join(' · ');
-        } else {
-          boardsEl.textContent = data.connected ? 'Nessuna bacheca trovata.' : '';
-        }
-      }
-      var enabledEl = document.getElementById('admin-pin-sched-enabled');
-      var intervalEl = document.getElementById('admin-pin-sched-interval');
-      var hourEl = document.getElementById('admin-pin-sched-hour');
-      var perDayEl = document.getElementById('admin-pin-sched-perday');
-      var hintEl = document.getElementById('admin-pin-schedule-hint');
-      var nextEl = document.getElementById('admin-pin-schedule-next');
-      var logEl = document.getElementById('admin-pin-publish-log');
-      if(enabledEl) enabledEl.checked = !!s.enabled;
-      if(intervalEl) intervalEl.value = String(s.intervalDays || 1);
-      if(hourEl) hourEl.value = String(s.hour != null ? s.hour : 9);
-      if(perDayEl) perDayEl.value = String(s.pinsPerDay != null ? s.pinsPerDay : 2);
-      if(hintEl) hintEl.textContent = data.scheduleHint || 'Programma la pubblicazione automatica dei pin in coda.';
-      if(logEl){
-        var todayN = qc.publishedToday || 0;
-        var goal = qc.pinsPerDay || s.pinsPerDay || 2;
-        var lines = [];
-        lines.push('Oggi: ' + todayN + ' / ' + goal + ' pin · Totale pubblicati via API: ' + (qc.published||0));
-        if(s.lastPublishedAt){
-          lines.push('Ultima pubblicazione: ' + s.lastPublishedAt + (s.lastPublishedId ? ' (id ' + s.lastPublishedId + ')' : ''));
-        } else {
-          lines.push('Nessuna pubblicazione riuscita finora via API.');
-        }
-        if(s.lastResult) lines.push('Ultimo esito cron/manuale: ' + s.lastResult);
-        if(s.lastError) lines.push('Ultimo errore: ' + s.lastError);
-        if((qc.error||0) > 0) lines.push('In coda ci sono ' + qc.error + ' pin in errore (usa Riprova errori dopo aver sbloccato l’API).');
-        logEl.textContent = lines.join('\n');
-        logEl.style.whiteSpace = 'pre-wrap';
-        logEl.style.color = s.lastError ? 'rgba(220,140,140,.95)' : 'rgba(236,230,216,.88)';
-      }
-      if(nextEl){
-        var bits = [];
-        var pending = (data.queue || []).find(function(q){ return q.status === 'pending'; });
-        if(pending) bits.push('Prossimo: “' + (pending.title || pending.image) + '”');
-        else bits.push('Nessun pin in coda.');
-        nextEl.textContent = bits.join(' · ');
-      }
-      var tbody = document.getElementById('admin-pin-tbody');
-      if(tbody){
-        var rows = (data.queue || []).map(function(q){
-          return '<tr><td style="font-size:11px">'+(q.image||'')+'</td><td>'+(q.boardName||'—')+'</td><td>'+(q.status||'')+'</td><td>'+(q.title||'')+'</td></tr>';
-        }).join('');
-        tbody.innerHTML = rows || '<tr><td colspan="4" style="color:var(--muted)">Coda vuota. Usa Carica catalogo completo.</td></tr>';
-      }
-      if(metaEl && activeTab === 'pinterest'){
-        metaEl.textContent = (data.connected ? 'Pinterest ok' : 'Pinterest non collegato') +
-          ' · pending ' + (qc.pending||0);
-      }
-    }
-    function loadPinterest(){
-      return adminFetch({ action: 'pinterest-status' }).then(function(res){
-        if(!res.ok){
-          if(res.error && /autorizzato|ADMIN_SECRET/i.test(res.error)){
-            setSecret('');
-            loginView.style.display = 'flex';
-            dashView.style.display = 'none';
-          }
-          showErr(res.error || 'Caricamento Pinterest fallito');
-          return res;
-        }
-        loginView.style.display = 'none';
-        dashView.style.display = 'block';
-        renderPinterest(res);
-        return res;
-      }).catch(function(){ showErr('Connessione Pinterest fallita'); });
-    }
     function refreshActive(){
       if(activeTab === 'blog') loadBlog();
-      else if(activeTab === 'pinterest') loadPinterest();
       else if(activeTab === 'settings') loadSettings();
       else if(activeTab === 'email') loadEmailStatus();
       else loadStats();
@@ -4821,95 +4627,6 @@
           if(fbStatusEl) fbStatusEl.textContent = err;
           showErr(err);
         });
-      });
-    }
-    var pinConnect = document.getElementById('admin-pin-connect');
-    if(pinConnect){
-      pinConnect.addEventListener('click', function(){
-        var secret = getSecret();
-        if(!secret){ showErr('Effettua il login admin'); return; }
-        window.open('/api/pinterest-oauth?secret=' + encodeURIComponent(secret), '_blank', 'noopener');
-      });
-    }
-    var pinDisconnect = document.getElementById('admin-pin-disconnect');
-    if(pinDisconnect){
-      pinDisconnect.addEventListener('click', function(){
-        if(!confirm('Scollegare Pinterest da Luxseetarot?')) return;
-        showErr('');
-        adminFetch({ action: 'pinterest-disconnect' }).then(function(res){
-          if(!res.ok){ showErr(res.error || 'Scollegamento fallito'); return; }
-          return loadPinterest();
-        }).catch(function(){ showErr('Scollegamento fallito'); });
-      });
-    }
-    var pinSchedSave = document.getElementById('admin-pin-sched-save');
-    if(pinSchedSave){
-      pinSchedSave.addEventListener('click', function(){
-        var enabledEl = document.getElementById('admin-pin-sched-enabled');
-        var intervalEl = document.getElementById('admin-pin-sched-interval');
-        var hourEl = document.getElementById('admin-pin-sched-hour');
-        var perDayEl = document.getElementById('admin-pin-sched-perday');
-        showErr('');
-        adminFetch({
-          action: 'pinterest-schedule-save',
-          schedule: {
-            enabled: !!(enabledEl && enabledEl.checked),
-            intervalDays: intervalEl ? parseInt(intervalEl.value, 10) : 1,
-            hour: hourEl ? parseInt(hourEl.value, 10) : 9,
-            pinsPerDay: perDayEl ? parseInt(perDayEl.value, 10) : 2,
-            minute: 0
-          }
-        }).then(function(res){
-          if(!res.ok){ showErr(res.error || 'Salvataggio programma fallito'); return; }
-          if(metaEl) metaEl.textContent = res.scheduleHint || 'Programma Pinterest salvato.';
-          return loadPinterest();
-        }).catch(function(){ showErr('Salvataggio programma fallito'); });
-      });
-    }
-    var pinRun = document.getElementById('admin-pin-run');
-    if(pinRun){
-      pinRun.addEventListener('click', function(){
-        if(!confirm('Pubblico ora il prossimo pin in coda su Pinterest?')) return;
-        showErr('');
-        adminFetch({ action: 'pinterest-run-now' }).then(function(res){
-          if(!res.ok){ showErr(res.error || 'Pubblicazione pin fallita'); return; }
-          if(res.skipped){
-            if(metaEl) metaEl.textContent = 'Nessun pin: ' + (res.reason || 'skip');
-          } else if(res.published){
-            if(metaEl) metaEl.textContent = 'Pin pubblicato: ' + ((res.pin && res.pin.id) || (res.item && res.item.title) || 'ok');
-          }
-          return loadPinterest();
-        }).catch(function(){ showErr('Pubblicazione pin fallita'); });
-      });
-    }
-    var pinRetry = document.getElementById('admin-pin-retry-errors');
-    if(pinRetry){
-      pinRetry.addEventListener('click', function(){
-        if(!confirm('Rimetto in coda tutti i pin in errore?')) return;
-        showErr('');
-        adminFetch({ action: 'pinterest-retry-errors' }).then(function(res){
-          if(!res.ok){ showErr(res.error || 'Riprova errori fallita'); return; }
-          if(metaEl) metaEl.textContent = 'Errori rimessi in coda: ' + (res.reset||0);
-          renderPinterest(res);
-        }).catch(function(){ showErr('Riprova errori fallita'); });
-      });
-    }
-    var pinSeed = document.getElementById('admin-pin-seed');
-    if(pinSeed){
-      pinSeed.addEventListener('click', function(){
-        if(!confirm('Caricare ~1590 pin in coda API (sostituisce i pending attuali)? I pin già pubblicati via Buffer restano esclusi.')) return;
-        showErr('');
-        adminFetch({ action: 'pinterest-queue-seed', replacePending: true }).then(function(res){
-          if(!res.ok){ showErr(res.error || 'Seed coda fallito'); return; }
-          var msg = 'Coda: +'+(res.added||0)+' pin (pending '+(res.pending||0)+').';
-          if(res.boardsMissing && res.boardsMissing.length){
-            msg += ' Bacheche non trovate: ' + res.boardsMissing.join(', ');
-            showErr(msg);
-          } else if(metaEl){
-            metaEl.textContent = msg;
-          }
-          renderPinterest(res);
-        }).catch(function(){ showErr('Seed coda fallito'); });
       });
     }
     var blogSave = document.getElementById('admin-blog-save');
