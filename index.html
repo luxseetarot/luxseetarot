@@ -195,7 +195,9 @@
 
   .brand{display:inline-flex;align-items:center;gap:14px;color:var(--gold-soft);font-family:'Cinzel',serif;letter-spacing:.5em;font-size:13px}
 
-  .brand svg{width:14px;height:14px;opacity:.8}
+  .brand svg{width:14px;height:14px;opacity:.8;display:block;flex-shrink:0}
+  body[data-landing] .brand{display:inline-flex;align-items:center;gap:14px}
+  body[data-landing] .brand svg{display:block !important;width:14px;height:14px;opacity:.8;flex-shrink:0}
 
   h1.title{font-family:'Cinzel',serif;font-weight:600;font-size:clamp(30px,5vw,48px);margin:18px 0 10px;color:var(--gold);letter-spacing:.06em}
 
@@ -230,15 +232,6 @@
     color:var(--landing-motif, var(--gold-soft));
   }
   .hero-motif svg{width:100%;height:100%;display:block}
-
-  .hero-free-badge{
-    display:none;margin:14px auto 0;max-width:36ch;padding:8px 14px;
-    font-family:'Cormorant Garamond',serif;font-style:italic;font-size:clamp(15px,2.1vw,18px);
-    line-height:1.35;color:rgba(236,230,216,.92);text-align:center;
-    border:1px solid rgba(212,175,106,.35);border-radius:999px;
-    background:rgba(212,175,106,.08);
-  }
-  body[data-landing]:not([data-landing="1"]) .hero-free-badge{display:inline-block}
 
   /* L1 — master (invariato) */
   body[data-landing="1"]{
@@ -285,9 +278,9 @@
   }
   body[data-landing="2"] .hero-benefit:last-child{border-right:none}
   body[data-landing="2"] .hero-benefit strong{
-    color:#c9a27a;letter-spacing:.2em;font-size:10px;margin-bottom:4px;
+    color:#c9a27a;letter-spacing:.16em;font-size:12px;margin-bottom:4px;
   }
-  body[data-landing="2"] .hero-benefit span{font-size:14px;color:rgba(190,170,165,.9)}
+  body[data-landing="2"] .hero-benefit span{font-size:15px;color:rgba(190,170,165,.9)}
   body[data-landing="2"] form.card-form{
     max-width:640px;border-radius:4px;border:1px solid rgba(201,162,122,.28);
     background:rgba(22,12,18,.72);box-shadow:0 40px 80px -40px rgba(0,0,0,.8);
@@ -299,7 +292,7 @@
   }
   body[data-landing="2"] #btn-start-reading{
     background:transparent;color:#f0dcc8;border:1px solid rgba(201,162,122,.65);
-    border-radius:2px;box-shadow:none;letter-spacing:.2em;font-size:13px;
+    border-radius:2px;box-shadow:none;letter-spacing:.14em;font-size:14px;
   }
   body[data-landing="2"] #btn-start-reading:hover{
     background:rgba(201,162,122,.12);box-shadow:none;transform:none;
@@ -326,7 +319,9 @@
   body[data-landing="3"] .subtitle{
     max-width:28ch;margin:18px auto 0;font-size:18px;color:rgba(170,180,200,.85);
   }
-  body[data-landing="3"] .hero-note{display:none}
+  body[data-landing="3"] .hero-note{
+    margin:14px auto 0;max-width:30ch;font-size:15px;color:rgba(160,170,190,.75);
+  }
   body[data-landing="3"] .hero-benefits{
     grid-template-columns:1fr;max-width:280px;gap:0;margin:28px auto 4px;
     position:relative;padding:8px 0;
@@ -340,7 +335,7 @@
     border:none;border-radius:0;background:transparent;padding:18px 8px;position:relative;z-index:1;
   }
   body[data-landing="3"] .hero-benefit strong{
-    font-size:10px;letter-spacing:.28em;color:#d4c4a0;margin-bottom:8px;
+    font-size:12px;letter-spacing:.2em;color:#d4c4a0;margin-bottom:8px;
   }
   body[data-landing="3"] .hero-benefit span{font-size:15px;color:rgba(160,170,190,.9)}
   body[data-landing="3"] form.card-form{
@@ -353,7 +348,7 @@
   body[data-landing="3"] .phase-tag{letter-spacing:.4em;font-size:11px;color:rgba(212,196,160,.55)}
   body[data-landing="3"] #btn-start-reading{
     border-radius:999px;background:linear-gradient(135deg,#e8dcc4,#a89060);
-    color:#12100a;letter-spacing:.18em;font-size:12px;box-shadow:0 8px 32px rgba(168,144,96,.35);
+    color:#12100a;letter-spacing:.14em;font-size:14px;box-shadow:0 8px 32px rgba(168,144,96,.35);
   }
 
   /* L4 — Noir / sipario: vignette laterali, tipografia aria, form “biglietto” */
@@ -384,12 +379,21 @@
     margin-top:20px;max-width:32ch;font-size:17px;color:rgba(140,135,150,.9);
   }
   body[data-landing="4"] .hero-note{
-    margin-top:14px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;
-    color:rgba(120,115,130,.7);font-style:normal;font-family:'Cinzel',serif;
+    margin-top:14px;font-size:15px;letter-spacing:.02em;text-transform:none;
+    color:rgba(140,135,150,.8);font-style:italic;
   }
   body[data-landing="4"] .hero-benefits{
-    display:none;
+    grid-template-columns:1fr;max-width:360px;gap:0;margin:20px auto 0;
   }
+  body[data-landing="4"] .hero-benefit{
+    border:none;border-radius:0;background:transparent;padding:12px 8px;
+    border-bottom:1px solid rgba(176,160,144,.15);
+  }
+  body[data-landing="4"] .hero-benefit:last-child{border-bottom:none}
+  body[data-landing="4"] .hero-benefit strong{
+    font-size:12px;letter-spacing:.2em;color:rgba(176,160,144,.9);margin-bottom:4px;
+  }
+  body[data-landing="4"] .hero-benefit span{font-size:15px;color:rgba(150,145,160,.88)}
   body[data-landing="4"] form.card-form{
     max-width:400px;margin-top:28px;border-radius:0;padding-top:40px;
     background:rgba(10,10,14,.9);border:1px solid rgba(176,160,144,.22);
@@ -400,7 +404,7 @@
   body[data-landing="4"] h2.subtitle-h{letter-spacing:.2em;font-size:16px;color:#c8c0b4}
   body[data-landing="4"] #btn-start-reading{
     background:#1a1816;color:#d8d0c4;border:1px solid rgba(176,160,144,.45);
-    border-radius:0;letter-spacing:.3em;font-size:11px;box-shadow:none;
+    border-radius:0;letter-spacing:.14em;font-size:14px;box-shadow:none;
   }
   body[data-landing="4"] #btn-start-reading:hover{
     background:rgba(176,160,144,.12);box-shadow:none;
@@ -423,10 +427,12 @@
     background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
   }
   body[data-landing="5"] .subtitle{
-    font-style:normal;font-family:'Cinzel',serif;font-size:14px;letter-spacing:.12em;
-    text-transform:uppercase;color:rgba(200,180,140,.75);max-width:40ch;margin-top:14px;
+    font-style:normal;font-size:17px;letter-spacing:.02em;line-height:1.45;
+    text-transform:none;color:rgba(200,180,140,.88);max-width:40ch;margin-top:14px;
   }
-  body[data-landing="5"] .hero-note{display:none}
+  body[data-landing="5"] .hero-note{
+    margin:12px auto 0;max-width:40ch;font-size:15px;color:rgba(180,160,120,.78);
+  }
   body[data-landing="5"] .hero-benefits{
     grid-template-columns:1fr;gap:10px;max-width:480px;margin:20px auto 0;
   }
@@ -456,7 +462,7 @@
   body[data-landing="5"] .phase-tag{color:#e0b85a}
   body[data-landing="5"] #btn-start-reading{
     background:linear-gradient(135deg,#f0d080,#b88828);color:#1a1205;
-    border-radius:8px;letter-spacing:.14em;font-size:13px;
+    border-radius:8px;letter-spacing:.12em;font-size:14px;
     box-shadow:0 10px 40px rgba(184,136,40,.4);
   }
 
@@ -473,15 +479,12 @@
     font-size:clamp(32px,6vw,48px);letter-spacing:.04em;color:#f2ebe0;
     border-bottom:1px solid rgba(212,175,106,.3);padding-bottom:18px;display:inline-block;
   }
-  body[data-landing="6"] .hero-free-badge{
-    border-radius:0;border:none;border-bottom:2px solid rgba(212,175,106,.55);
-    background:transparent;padding:10px 4px 8px;font-style:normal;font-family:'Cinzel',serif;
-    font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#d4af6a;
-  }
   body[data-landing="6"] .subtitle{
     margin-top:22px;font-size:18px;color:rgba(180,170,155,.9);max-width:34ch;
   }
-  body[data-landing="6"] .hero-note{display:none}
+  body[data-landing="6"] .hero-note{
+    margin:14px auto 0;max-width:34ch;font-size:15px;color:rgba(170,160,145,.78);
+  }
   body[data-landing="6"] .hero-benefits{
     grid-template-columns:1fr;max-width:420px;gap:6px;margin:18px auto 0;
   }
@@ -498,7 +501,7 @@
     background:rgba(16,14,12,.88);box-shadow:none;
   }
   body[data-landing="6"] #btn-start-reading{
-    border-radius:0;background:#ece6d8;color:#1a140c;letter-spacing:.2em;font-size:12px;box-shadow:none;
+    border-radius:0;background:#ece6d8;color:#1a140c;letter-spacing:.14em;font-size:14px;box-shadow:none;
   }
 
   /* L7 — Oracolo minimal: quasi vuoto, pochi segni */
@@ -512,32 +515,41 @@
     font-size:10px;letter-spacing:.7em;opacity:.45;margin-bottom:48px;
   }
   body[data-landing="7"] h1.title{
-    font-weight:400;font-size:clamp(26px,4.5vw,40px);letter-spacing:.2em;
+    font-weight:400;font-size:clamp(28px,5vw,40px);letter-spacing:.12em;
     text-transform:uppercase;color:#c8c4bc;
   }
-  body[data-landing="7"] .hero-free-badge{
-    margin-top:20px;border:none;background:transparent;padding:0;
-    font-size:16px;color:rgba(212,175,106,.85);
-  }
   body[data-landing="7"] .subtitle{
-    margin-top:28px;max-width:26ch;font-size:16px;color:rgba(130,128,140,.85);
+    margin-top:28px;max-width:30ch;font-size:17px;color:rgba(150,148,160,.9);
   }
-  body[data-landing="7"] .hero-note{display:none}
-  body[data-landing="7"] .hero-benefits{display:none}
+  body[data-landing="7"] .hero-note{
+    margin:16px auto 0;max-width:30ch;font-size:15px;color:rgba(150,148,160,.75);
+  }
+  body[data-landing="7"] .hero-benefits{
+    grid-template-columns:1fr;max-width:300px;gap:0;margin:20px auto 0;
+  }
+  body[data-landing="7"] .hero-benefit{
+    border:none;border-radius:0;background:transparent;padding:10px 4px;
+    border-bottom:1px solid rgba(212,175,106,.12);
+  }
+  body[data-landing="7"] .hero-benefit:last-child{border-bottom:none}
+  body[data-landing="7"] .hero-benefit strong{
+    font-size:11px;letter-spacing:.2em;color:rgba(212,175,106,.85);margin-bottom:4px;
+  }
+  body[data-landing="7"] .hero-benefit span{font-size:15px;color:rgba(170,168,180,.88)}
   body[data-landing="7"] form.card-form{
-    max-width:360px;margin-top:40px;padding:28px 24px;border-radius:0;
+    max-width:360px;margin-top:28px;padding:28px 24px;border-radius:0;
     border:none;border-top:1px solid rgba(212,175,106,.4);
     background:transparent;box-shadow:none;backdrop-filter:none;
   }
   body[data-landing="7"] .phase-tag{display:none}
   body[data-landing="7"] h2.subtitle-h{
-    font-size:13px;letter-spacing:.3em;color:rgba(180,175,165,.6);margin-bottom:28px;
+    font-size:15px;letter-spacing:.2em;color:rgba(180,175,165,.75);margin-bottom:28px;
   }
-  body[data-landing="7"] label{letter-spacing:.25em;font-size:11px}
+  body[data-landing="7"] label{letter-spacing:.18em;font-size:12px}
   body[data-landing="7"] #btn-start-reading{
     margin-top:8px;background:transparent;color:#d4af6a;
     border:1px solid rgba(212,175,106,.4);border-radius:0;
-    letter-spacing:.28em;font-size:11px;box-shadow:none;
+    letter-spacing:.16em;font-size:14px;box-shadow:none;
   }
 
   /* L8 — Costellazione: indigo, chip benefit, glow */
@@ -555,12 +567,8 @@
     font-size:clamp(30px,5.5vw,46px);color:#e8ecff;
     text-shadow:0 0 40px rgba(120,140,220,.35);
   }
-  body[data-landing="8"] .hero-free-badge{
-    border-color:rgba(140,160,220,.4);background:rgba(80,100,180,.15);
-    color:#c8d4ff;border-radius:12px;
-  }
   body[data-landing="8"] .subtitle{
-    color:rgba(160,170,210,.85);max-width:34ch;margin-top:16px;
+    color:rgba(160,170,210,.85);max-width:34ch;margin-top:16px;font-size:17px;
   }
   body[data-landing="8"] .hero-note{font-size:14px;color:rgba(140,150,190,.7)}
   body[data-landing="8"] .hero-benefits{
@@ -574,14 +582,14 @@
   body[data-landing="8"] .hero-benefit strong{
     display:inline;margin:0 6px 0 0;font-size:10px;letter-spacing:.12em;color:#a8b8f0;
   }
-  body[data-landing="8"] .hero-benefit span{display:inline;font-size:13px;color:rgba(190,200,230,.9)}
+  body[data-landing="8"] .hero-benefit span{display:inline;font-size:14px;color:rgba(190,200,230,.9)}
   body[data-landing="8"] form.card-form{
     border-radius:20px;border:1px solid rgba(140,160,220,.22);
     background:rgba(16,20,40,.75);box-shadow:0 20px 60px rgba(40,60,140,.3);
   }
   body[data-landing="8"] #btn-start-reading{
     border-radius:14px;background:linear-gradient(135deg,#c8d4ff,#7080c8);color:#0c1020;
-    letter-spacing:.16em;font-size:12px;box-shadow:0 8px 28px rgba(100,120,200,.35);
+    letter-spacing:.12em;font-size:14px;box-shadow:0 8px 28px rgba(100,120,200,.35);
   }
 
   /* L9 — Manoscritto: pergamena, caldo, ornamentale */
@@ -601,10 +609,6 @@
   body[data-landing="9"] .hero-motif{opacity:.5;color:#c4a574;height:52px}
   body[data-landing="9"] h1.title{
     font-size:clamp(28px,5vw,42px);color:#f0e4cc;font-weight:500;
-  }
-  body[data-landing="9"] .hero-free-badge{
-    border-radius:4px;border-color:rgba(180,140,80,.4);
-    background:rgba(60,45,25,.5);color:#e8d4a8;font-style:italic;
   }
   body[data-landing="9"] .subtitle{
     font-size:18px;color:rgba(200,180,140,.88);max-width:32ch;
@@ -636,7 +640,7 @@
   body[data-landing="9"] .phase-tag{color:#c4a574}
   body[data-landing="9"] #btn-start-reading{
     background:linear-gradient(135deg,#e8d4a8,#a87830);color:#1a1208;
-    border-radius:6px;letter-spacing:.15em;font-size:12px;
+    border-radius:6px;letter-spacing:.12em;font-size:14px;
   }
 
   /* L10 — Spotlight: cerchio di luce, CTA dominante */
@@ -651,16 +655,12 @@
   body[data-landing="10"] h1.title{
     font-size:clamp(36px,6.5vw,54px);letter-spacing:.02em;color:#f5edd8;
   }
-  body[data-landing="10"] .hero-free-badge{
-    margin-top:16px;padding:10px 20px;border-radius:8px;
-    background:rgba(212,175,106,.14);border-color:rgba(212,175,106,.45);
-    font-family:'Cinzel',serif;font-style:normal;font-size:13px;letter-spacing:.06em;
-    color:#e6c587;
-  }
   body[data-landing="10"] .subtitle{
-    margin-top:18px;max-width:30ch;font-size:17px;color:rgba(170,165,180,.85);
+    margin-top:18px;max-width:32ch;font-size:17px;color:rgba(170,165,180,.85);
   }
-  body[data-landing="10"] .hero-note{display:none}
+  body[data-landing="10"] .hero-note{
+    margin:12px auto 0;max-width:32ch;font-size:15px;color:rgba(170,165,180,.75);
+  }
   body[data-landing="10"] .hero-benefits{
     max-width:400px;grid-template-columns:1fr;gap:8px;margin:20px auto 0;
   }
@@ -685,20 +685,52 @@
     box-shadow:0 12px 40px rgba(184,136,40,.45);
   }
 
-  body[data-landing="2"] .hero-free-badge{
-    display:inline-block;margin:14px 0 0;text-align:left;border-radius:2px;
-    border-color:rgba(201,162,122,.4);color:#e8d4c0;
-  }
-  body[data-landing="3"] .hero-free-badge{
-    border-radius:999px;border-color:rgba(212,196,160,.35);color:#e8e0d0;
-  }
-  body[data-landing="4"] .hero-free-badge{
-    border-radius:0;letter-spacing:.1em;font-family:'Cinzel',serif;font-style:normal;
-    font-size:12px;text-transform:uppercase;color:#d8d0c4;
-  }
-  body[data-landing="5"] .hero-free-badge{
-    border-radius:8px;border-color:rgba(224,184,90,.4);color:#f0d080;
-    font-style:normal;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.06em;
+  /* Mobile: tipografia leggibile su tutte le landing ADS */
+  @media(max-width:519px){
+    body[data-landing]:not([data-landing="1"]) .brand{
+      font-size:13px !important;letter-spacing:.22em !important;
+    }
+    body[data-landing]:not([data-landing="1"]) h1.title{
+      font-size:clamp(30px,8.5vw,42px) !important;
+      letter-spacing:.02em !important;
+      line-height:1.15 !important;
+    }
+    body[data-landing="4"] h1.title{
+      letter-spacing:.08em !important;
+      font-size:clamp(28px,8vw,38px) !important;
+    }
+    body[data-landing="7"] h1.title{
+      letter-spacing:.06em !important;
+    }
+    body[data-landing]:not([data-landing="1"]) .subtitle{
+      font-size:18px !important;line-height:1.45 !important;max-width:38ch !important;
+    }
+    body[data-landing]:not([data-landing="1"]) .hero-note{
+      display:block !important;font-size:16px !important;line-height:1.4 !important;
+    }
+    body[data-landing]:not([data-landing="1"]) .hero-benefit strong{
+      font-size:13px !important;letter-spacing:.08em !important;
+    }
+    body[data-landing]:not([data-landing="1"]) .hero-benefit span{
+      font-size:16px !important;line-height:1.35 !important;
+    }
+    body[data-landing="5"] .hero-benefit strong{
+      font-size:22px !important;letter-spacing:0 !important;
+    }
+    body[data-landing]:not([data-landing="1"]) h2.subtitle-h{
+      font-size:17px !important;letter-spacing:.06em !important;
+    }
+    body[data-landing]:not([data-landing="1"]) #btn-start-reading{
+      font-size:15px !important;letter-spacing:.08em !important;
+      padding:16px 18px !important;line-height:1.3 !important;
+    }
+    body[data-landing]:not([data-landing="1"]) label{
+      font-size:13px !important;letter-spacing:.1em !important;
+    }
+    body[data-landing]:not([data-landing="1"]) input,
+    body[data-landing]:not([data-landing="1"]) textarea{
+      font-size:16px !important;
+    }
   }
 
   @media(max-width:519px){
@@ -1099,7 +1131,6 @@
     </div>
 
     <h1 class="title" id="hero-title">Tarocchi Gratis Online</h1>
-    <p class="hero-free-badge" id="hero-free-badge" hidden>Lettura completamente gratuita e personalizzata</p>
 
     <p class="subtitle" id="hero-subtitle">Estrai tre carte, fai una domanda e leggi subito l’anteprima — in privato, senza chiamata e senza appuntamento.</p>
     <p class="hero-note" id="hero-note">Testo chiaro da rileggere quando vuoi. Niente pressione al telefono.</p>
@@ -1816,8 +1847,6 @@
     10: '<svg viewBox="0 0 320 48" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="160" cy="24" rx="70" ry="16" stroke="currentColor" stroke-width="1" opacity=".5"/><circle cx="160" cy="24" r="4" fill="currentColor" opacity=".7"/></svg>'
   };
 
-  var LANDING_FREE_LINE = 'Lettura completamente gratuita e personalizzata';
-
   var LANDING_VARIANTS = {
     1: {
       label: 'Controllo — Tarocchi gratis',
@@ -1836,137 +1865,137 @@
     },
     2: {
       label: 'Editoriale — Amore',
-      blurb: 'Stile rivista: titolo grande, tono vino.',
-      title: 'Lui cosa prova, davvero?',
-      subtitle: 'Una lettura a tre carte sui sentimenti — anteprima subito, in silenzio, senza chiamate.',
-      note: 'Per chi vuole capire, non ascoltare un operatore.',
+      blurb: 'Funnel amore: desiderio + gratis + privato.',
+      title: 'Cosa prova davvero per te?',
+      subtitle: 'Ottieni ora una lettura gratuita e personalizzata a tre carte sui vostri sentimenti — anteprima subito, senza chiamate.',
+      note: 'Scrivi la domanda. In pochi minuti hai un testo chiaro, fatto sulla tua situazione.',
       formTitle: 'La tua domanda di cuore',
-      cta: 'LEGGI L’ANTEPRIMA',
-      docTitle: 'Cosa prova per te? | Tarocchi Amore | Luxseetarot',
+      cta: 'INIZIA LA LETTURA GRATUITA',
+      docTitle: 'Cosa prova per te? | Tarocchi Amore Gratis | Luxseetarot',
       benefits: [
-        { k: 'Sentimento', v: 'Cosa prova e dove siete' },
-        { k: 'Privato', v: 'Solo testo, nessuna voce' },
-        { k: 'Ora', v: 'Anteprima in minuti' }
+        { k: 'Gratis', v: 'Anteprima senza costo, su di voi' },
+        { k: 'Privata', v: 'Niente telefono, solo il tuo schermo' },
+        { k: 'Veloce', v: 'Risposta in pochi minuti' }
       ]
     },
     3: {
       label: 'Tempio — Chiarezza',
-      blurb: 'Asse verticale, atmosfera quieta.',
-      title: 'Una domanda. Tre carte.',
-      subtitle: 'Quando il dubbio non lascia quiete: anteprima chiara, senza attese né appuntamento.',
-      note: '',
-      formTitle: 'Porta la tua domanda',
-      cta: 'APRI LA LETTURA',
-      docTitle: 'Chiarezza con i Tarocchi | Luxseetarot',
+      blurb: 'Dubbio → chiarezza, gratis e su misura.',
+      title: 'Hai bisogno di chiarezza ora?',
+      subtitle: 'Fai la domanda che ti confonde: ricevi una lettura gratuita e personalizzata a tre carte, senza attese né appuntamento.',
+      note: 'Un testo chiaro da rileggere — non frasi vaghe al telefono.',
+      formTitle: 'Scrivi ciò che ti confonde',
+      cta: 'CHIEDI ALLE CARTE — GRATIS',
+      docTitle: 'Chiarezza con i Tarocchi Gratis | Luxseetarot',
       benefits: [
-        { k: 'Quiete', v: 'Niente pressione al telefono' },
-        { k: 'Chiarezza', v: 'Testo da rileggere' },
-        { k: 'Subito', v: 'Risposta in pochi minuti' }
+        { k: 'Gratis', v: 'Inizi senza pagare' },
+        { k: 'Su misura', v: 'Sulla tua domanda, non generica' },
+        { k: 'Subito', v: 'Anteprima in pochi minuti' }
       ]
     },
     4: {
       label: 'Noir — Privacy',
-      blurb: 'Sipario scuro, tipografia aria.',
-      title: 'Solo tu e le carte',
-      subtitle: 'Nessuna chiamata. Nessun operatore. Una lettura scritta, al tuo ritmo, sul tuo schermo.',
-      note: 'Privato · Silenzioso · Senza pressione',
+      blurb: 'Privacy-first, gratis e personale.',
+      title: 'Tarocchi senza chiamata',
+      subtitle: 'Una lettura gratuita e personalizzata, solo per te: tre carte, testo privato, zero operatori e zero pressione.',
+      note: 'Nessuno ti sente. Nessuno ti spinge. Solo carte e risposta scritta.',
       formTitle: 'Inizia in privato',
-      cta: 'ENTRA IN LETTURA',
-      docTitle: 'Tarocchi Privati Online | Luxseetarot',
+      cta: 'LEGGI L’ANTEPRIMA GRATUITA',
+      docTitle: 'Tarocchi Privati Online Gratis | Luxseetarot',
       benefits: [
-        { k: 'Silenzio', v: 'Zero chiamata' },
-        { k: 'Calma', v: 'Zero pressione' },
-        { k: 'Tuo', v: 'Testo da tenere' }
+        { k: 'Silenzio', v: 'Zero chiamata, zero voce estranea' },
+        { k: 'Gratis', v: 'Anteprima gratuita e personale' },
+        { k: 'Tua', v: 'Testo da tenere e rileggere' }
       ]
     },
     5: {
       label: 'Rituale — 3 passi',
-      blurb: 'Steps grandi, oro caldo.',
-      title: 'Tre carte. Poi leggi.',
-      subtitle: 'Il percorso è semplice. L’anteprima arriva in pochi minuti.',
-      note: '',
-      formTitle: 'Inizia il rituale',
-      cta: 'PASSO 1 — SCRIVI LA DOMANDA',
-      docTitle: '3 Carte Gratis | Luxseetarot',
+      blurb: 'Processo semplice + gratis personalizzata.',
+      title: '3 carte. Anteprima subito.',
+      subtitle: 'In tre passi ottieni una lettura gratuita e personalizzata: nome, domanda, carte — poi leggi l’anteprima.',
+      note: 'Niente account obbligatorio. Niente telefono. Solo il tuo percorso.',
+      formTitle: 'Inizia in due minuti',
+      cta: 'ESTRAI 3 CARTE GRATIS',
+      docTitle: '3 Carte Gratis | Anteprima Personalizzata | Luxseetarot',
       benefits: [
-        { k: '01', v: 'Nome e domanda' },
+        { k: '01', v: 'Scrivi nome e domanda' },
         { k: '02', v: 'Scegli tre carte' },
-        { k: '03', v: 'Leggi l’anteprima' }
+        { k: '03', v: 'Leggi la tua anteprima gratis' }
       ]
     },
     6: {
       label: 'Manifesto',
-      blurb: 'Charcoal, dichiarazione centrata.',
+      blurb: 'Urgenza soft + promessa gratis.',
       title: 'Le carte rispondono. Ora.',
-      subtitle: 'Fai la domanda che ti resta dentro. Ricevi un’anteprima scritta, senza telefono e senza coda.',
-      note: '',
+      subtitle: 'Porta la domanda che ti resta dentro e ricevi una lettura gratuita e personalizzata — scritta, senza coda e senza telefono.',
+      note: 'Inizia gratis. L’anteprima è sulla tua situazione, non un testo uguale per tutti.',
       formTitle: 'La tua domanda',
-      cta: 'INIZIA GRATIS',
-      docTitle: 'Lettura Tarocchi Gratis | Luxseetarot',
+      cta: 'INIZIA LA LETTURA GRATIS',
+      docTitle: 'Lettura Tarocchi Gratis Personalizzata | Luxseetarot',
       benefits: [
         { k: 'Gratis', v: 'Anteprima senza costo' },
-        { k: 'Tua', v: 'Sul tuo tema, non generica' },
+        { k: 'Personale', v: 'Costruita sulla tua domanda' },
         { k: 'Scritta', v: 'Da rileggere quando vuoi' }
       ]
     },
     7: {
       label: 'Oracolo minimal',
-      blurb: 'Quasi vuoto, pochi segni.',
-      title: 'Chiedi. Ascolta.',
-      subtitle: 'Tre carte. Un testo chiaro. Nient’altro.',
-      note: '',
-      formTitle: 'Domanda',
-      cta: 'CONTINUA',
-      docTitle: 'Oracolo Tarocchi | Luxseetarot',
+      blurb: 'Essenziale: chiedi → leggi gratis.',
+      title: 'Una domanda. Una risposta.',
+      subtitle: 'Tre carte e una lettura gratuita e personalizzata: testo chiaro, senza rumore, senza chiamata.',
+      note: 'Il minimo indispensabile per capire — e puoi farlo subito.',
+      formTitle: 'La tua domanda',
+      cta: 'INIZIA GRATIS',
+      docTitle: 'Oracolo Tarocchi Gratis | Luxseetarot',
       benefits: [
-        { k: 'A', v: 'Senza rumore' },
-        { k: 'B', v: 'Senza chiamata' },
-        { k: 'C', v: 'Senza attesa' }
+        { k: 'Gratis', v: 'Nessun costo per l’anteprima' },
+        { k: 'Chiara', v: 'Risposta scritta, non vaghezza' },
+        { k: 'Ora', v: 'Senza attese né appuntamenti' }
       ]
     },
     8: {
       label: 'Costellazione',
-      blurb: 'Indigo, chip e bagliore.',
-      title: 'Il cielo delle carte',
-      subtitle: 'Una lettura simbolica sul tuo dubbio — anteprima immediata, privata, sul tuo schermo.',
-      note: 'Niente appuntamenti. Niente operatori.',
-      formTitle: 'Scrivi alle stelle',
-      cta: 'ESTRAI LE CARTE',
-      docTitle: 'Lettura Simbolica | Luxseetarot',
+      blurb: 'Simbolico + immediato + gratis.',
+      title: 'Il dubbio ha una risposta',
+      subtitle: 'Apri ora una lettura gratuita e personalizzata: tre carte sul tuo tema, anteprima immediata e privata.',
+      note: 'Niente operatori. Niente appuntamenti. Solo il tuo testo.',
+      formTitle: 'Scrivi la tua domanda',
+      cta: 'SCOPRI L’ANTEPRIMA GRATIS',
+      docTitle: 'Lettura Simbolica Gratis | Luxseetarot',
       benefits: [
-        { k: '✦', v: 'Immediata' },
-        { k: '✦', v: 'Privata' },
-        { k: '✦', v: 'Su misura' }
+        { k: 'Immediata', v: 'Anteprima in pochi minuti' },
+        { k: 'Gratis', v: 'Lettura personalizzata senza costo' },
+        { k: 'Privata', v: 'Solo tu e lo schermo' }
       ]
     },
     9: {
       label: 'Manoscritto',
-      blurb: 'Pergamena, tono antico.',
-      title: 'Apri il tuo responso',
-      subtitle: 'Come un foglio privato: tre carte, una domanda, un testo che puoi tenere.',
-      note: 'Intrattenimento e riflessione — non un consulto medico o legale.',
+      blurb: 'Conservazione del testo + gratis.',
+      title: 'Un responso solo per te',
+      subtitle: 'Come un foglio privato: ottieni una lettura gratuita e personalizzata a tre carte, da tenere e rileggere.',
+      note: 'Scrivi la domanda. Le carte rispondono con un testo sul tuo caso.',
       formTitle: 'Intestazione della lettura',
-      cta: 'SCRIVI E APRI',
-      docTitle: 'Responso Tarocchi | Luxseetarot',
+      cta: 'APRI LA LETTURA GRATUITA',
+      docTitle: 'Responso Tarocchi Gratis | Luxseetarot',
       benefits: [
-        { k: 'I', v: 'Nome e domanda' },
-        { k: 'II', v: 'Tre carte scelte da te' },
-        { k: 'III', v: 'Testo da conservare' }
+        { k: 'Personale', v: 'Sulla tua domanda, non copia-incolla' },
+        { k: 'Gratis', v: 'Anteprima senza pagare' },
+        { k: 'Tua', v: 'Testo da conservare' }
       ]
     },
     10: {
       label: 'Spotlight',
-      blurb: 'Cerchio di luce, CTA forte.',
+      blurb: 'CTA forte, conversione immediata.',
       title: 'La tua lettura, adesso',
-      subtitle: 'Inizia in un minuto. Anteprima chiara, pensata sulla tua domanda.',
-      note: '',
+      subtitle: 'Inizia in un minuto: lettura gratuita e personalizzata, anteprima chiara sulla tua domanda — senza account e senza chiamata.',
+      note: 'Il primo passo è gratis. Il resto lo scegli tu, dopo.',
       formTitle: 'Inizia qui',
-      cta: 'LEGGI SUBITO — GRATIS',
-      docTitle: 'Lettura Immediata | Luxseetarot',
+      cta: 'INIZIA SUBITO — GRATIS',
+      docTitle: 'Lettura Tarocchi Immediata Gratis | Luxseetarot',
       benefits: [
-        { k: '', v: 'Nessun account obbligatorio' },
-        { k: '', v: 'Nessuna chiamata' },
-        { k: '', v: 'Risposta in pochi minuti' }
+        { k: 'Gratis', v: 'Anteprima personalizzata senza costo' },
+        { k: 'Veloce', v: 'Risposta in pochi minuti' },
+        { k: 'Semplice', v: 'Nessun account obbligatorio' }
       ]
     }
   };
@@ -2004,23 +2033,12 @@
       motifEl.style.display = motif ? 'block' : 'none';
     }
     var titleEl = document.getElementById('hero-title');
-    var freeBadge = document.getElementById('hero-free-badge');
     var subEl = document.getElementById('hero-subtitle');
     var noteEl = document.getElementById('hero-note');
     var formTitleEl = document.getElementById('hero-form-title');
     var ctaEl = document.getElementById('btn-start-reading');
     var benefitsEl = document.getElementById('hero-benefits');
     if(titleEl) titleEl.textContent = L.title;
-    if(freeBadge){
-      if(id === 1){
-        freeBadge.hidden = true;
-        freeBadge.style.display = 'none';
-      } else {
-        freeBadge.hidden = false;
-        freeBadge.style.display = '';
-        freeBadge.textContent = LANDING_FREE_LINE;
-      }
-    }
     if(subEl) subEl.textContent = L.subtitle;
     if(noteEl){
       noteEl.textContent = L.note || '';
