@@ -1,4 +1,4 @@
-/** Impostazioni commerciali + modello GPT (Upstash Redis o memoria). */
+/** Impostazioni commerciali + modello GPT + Meta Pixel (Upstash Redis o memoria). */
 
 import { funnelStorageMode } from './funnel.js';
 
@@ -16,6 +16,18 @@ const ALLOWED_GPT_MODELS = [
   'gpt-5',
 ];
 
+const META_PIXEL_PAGE_KEYS = [
+  'tarocchi-gratis.html',
+  'tarocchi-amore.html',
+  'tarocchi-lavoro.html',
+  'tarocchi-futuro.html',
+  'blog.html',
+  'blog',
+  'chi-siamo.html',
+  'contatti.html',
+  'privacy.html',
+];
+
 let memSettings = null;
 
 function clampInt(n, min, max, fallback) {
@@ -26,6 +38,54 @@ function clampInt(n, min, max, fallback) {
 
 const ALLOWED_LANDING_VARIANTS = [1, 2, 3, 4, 5];
 
+function sanitizePixelId(raw) {
+  const digits = String(raw == null ? '' : raw).replace(/\D/g, '');
+  if (digits.length >= 10 && digits.length <= 20) return digits;
+  return '';
+}
+
+function defaultMetaPixel() {
+  return {
+    enabled: false,
+    defaultId: '',
+    home: '',
+    landings: { '1': '', '2': '', '3': '', '4': '', '5': '' },
+    pages: META_PIXEL_PAGE_KEYS.reduce((acc, k) => {
+      acc[k] = '';
+      return acc;
+    }, {}),
+    trackFunnelEvents: true,
+  };
+}
+
+export function metaPixelPageKeys() {
+  return META_PIXEL_PAGE_KEYS.slice();
+}
+
+function sanitizeMetaPixel(raw = {}) {
+  const base = defaultMetaPixel();
+  const src = raw && typeof raw === 'object' ? raw : {};
+  const landingsIn = src.landings && typeof src.landings === 'object' ? src.landings : {};
+  const pagesIn = src.pages && typeof src.pages === 'object' ? src.pages : {};
+  const landings = {};
+  ALLOWED_LANDING_VARIANTS.forEach((n) => {
+    const key = String(n);
+    landings[key] = sanitizePixelId(landingsIn[key] != null ? landingsIn[key] : landingsIn[n]);
+  });
+  const pages = {};
+  META_PIXEL_PAGE_KEYS.forEach((k) => {
+    pages[k] = sanitizePixelId(pagesIn[k]);
+  });
+  return {
+    enabled: src.enabled === true || src.enabled === 'true' || src.enabled === 1 || src.enabled === '1',
+    defaultId: sanitizePixelId(src.defaultId),
+    home: sanitizePixelId(src.home),
+    landings,
+    pages,
+    trackFunnelEvents: src.trackFunnelEvents !== false && src.trackFunnelEvents !== 'false' && src.trackFunnelEvents !== 0,
+  };
+}
+
 export function defaultSiteSettings() {
   return {
     fullPriceCents: 490,
@@ -34,6 +94,7 @@ export function defaultSiteSettings() {
     gptModel: 'gpt-4.1-nano',
     /** Landing homepage attiva (1–5). Gli URL /l1…/l5 forzano sempre la rispettiva variante. */
     landingVariant: 1,
+    metaPixel: defaultMetaPixel(),
     updatedAt: null,
   };
 }
@@ -56,6 +117,7 @@ export function sanitizeSiteSettings(raw = {}) {
     packCredits: clampInt(raw.packCredits, 2, 50, base.packCredits),
     gptModel: ALLOWED_GPT_MODELS.includes(model) ? model : base.gptModel,
     landingVariant: ALLOWED_LANDING_VARIANTS.includes(landing) ? landing : base.landingVariant,
+    metaPixel: sanitizeMetaPixel(raw.metaPixel != null ? raw.metaPixel : base.metaPixel),
     updatedAt: raw.updatedAt ? String(raw.updatedAt) : null,
   };
 }
@@ -101,9 +163,12 @@ export async function getSiteSettings() {
 
 export async function saveSiteSettings(input = {}) {
   const prev = await getSiteSettings();
+  const merged = { ...prev };
+  Object.keys(input || {}).forEach((k) => {
+    if (input[k] !== undefined) merged[k] = input[k];
+  });
   const next = sanitizeSiteSettings({
-    ...prev,
-    ...input,
+    ...merged,
     updatedAt: new Date().toISOString(),
   });
 
@@ -143,6 +208,12 @@ export async function getPublicPricing() {
     packCredits: s.packCredits,
     landingVariant: s.landingVariant,
   };
+}
+
+/** Config Meta Pixel pubblica (solo ID, niente secret). */
+export async function getPublicMetaPixel() {
+  const s = await getSiteSettings();
+  return s.metaPixel || defaultMetaPixel();
 }
 
 export async function getGptModel() {

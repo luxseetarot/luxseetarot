@@ -1,0 +1,161 @@
+/**
+ * Meta (Facebook) Pixel loader — legge /api/config e inizializza fbq.
+ * Su index.html risolve l’ID dalla landing (/ oppure /l1…/l5).
+ * Sulle altre pagine usa pages[path] || defaultId.
+ */
+(function () {
+  'use strict';
+
+  var cfg = null;
+  var activeId = '';
+  var inited = false;
+  var pageViewSent = false;
+
+  function pathKey() {
+    var p = (location.pathname || '/').replace(/\/+$/, '') || '/';
+    if (p === '/' || p === '/index.html') return 'home';
+    var m = p.match(/^\/l([1-5])$/i);
+    if (m) return 'landing:' + m[1];
+    if (/^\/blog(\/|$)/i.test(p)) return 'blog';
+    var file = p.replace(/^\//, '');
+    return file || 'home';
+  }
+
+  function resolveId(pixelCfg, landingVariant) {
+    if (!pixelCfg || !pixelCfg.enabled) return '';
+    var key = pathKey();
+    var landings = pixelCfg.landings || {};
+    var pages = pixelCfg.pages || {};
+    var def = pixelCfg.defaultId || '';
+    if (key === 'home') {
+      return pixelCfg.home || def || '';
+    }
+    if (key.indexOf('landing:') === 0) {
+      var n = key.split(':')[1];
+      return (landings[n] || def || '');
+    }
+    if (key === 'blog') {
+      return pages.blog || pages['blog.html'] || def || '';
+    }
+    return pages[key] || def || '';
+  }
+
+  function ensureFbq() {
+    if (window.fbq) return;
+    !(function (f, b, e, v, n, t, s) {
+      if (f.fbq) return;
+      n = f.fbq = function () {
+        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+      };
+      if (!f._fbq) f._fbq = n;
+      n.push = n;
+      n.loaded = true;
+      n.version = '2.0';
+      n.queue = [];
+      t = b.createElement(e);
+      t.async = true;
+      t.src = v;
+      s = b.getElementsByTagName(e)[0];
+      s.parentNode.insertBefore(t, s);
+    })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
+  }
+
+  function initWithId(id) {
+    id = String(id || '').replace(/\D/g, '');
+    if (!id) return false;
+    ensureFbq();
+    if (activeId === id && inited) return true;
+    try {
+      window.fbq('init', id);
+      activeId = id;
+      inited = true;
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function track() {
+    if (!inited || !window.fbq) return;
+    try {
+      window.fbq.apply(null, arguments);
+    } catch (e) {}
+  }
+
+  function sendPageView() {
+    if (pageViewSent) return;
+    if (!initWithId(activeId)) return;
+    track('track', 'PageView');
+    pageViewSent = true;
+  }
+
+  function applyConfig(pixelCfg, landingVariant) {
+    cfg = pixelCfg || null;
+    var id = resolveId(cfg, landingVariant);
+    activeId = id;
+    if (!id) return;
+    if (initWithId(id)) sendPageView();
+  }
+
+  function boot() {
+    fetch('/api/config')
+      .then(function (r) {
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data || !data.ok) return;
+        var pixel = data.metaPixel || null;
+        var landing = data.landingVariant || 1;
+        if (window.__luxLandingVariant) landing = window.__luxLandingVariant;
+        applyConfig(pixel, landing);
+        try {
+          window.dispatchEvent(new CustomEvent('lux-meta-pixel-ready', { detail: { id: activeId, cfg: cfg } }));
+        } catch (e) {}
+      })
+      .catch(function () {});
+  }
+
+  window.LuxMetaPixel = {
+    getId: function () {
+      return activeId;
+    },
+    getConfig: function () {
+      return cfg;
+    },
+    track: function (eventName, params) {
+      if (!cfg || !cfg.enabled) return;
+      if (cfg.trackFunnelEvents === false) return;
+      if (!activeId && cfg) activeId = resolveId(cfg);
+      if (!initWithId(activeId)) return;
+      if (params) track('track', eventName, params);
+      else track('track', eventName);
+    },
+    trackCustom: function (eventName, params) {
+      if (!cfg || !cfg.enabled) return;
+      if (cfg.trackFunnelEvents === false) return;
+      if (!activeId && cfg) activeId = resolveId(cfg);
+      if (!initWithId(activeId)) return;
+      if (params) track('trackCustom', eventName, params);
+      else track('trackCustom', eventName);
+    },
+    setLandingVariant: function (n) {
+      window.__luxLandingVariant = n;
+      if (!cfg) return;
+      var key = pathKey();
+      if (key !== 'home') return;
+      var id = resolveId(cfg, n);
+      if (id && id !== activeId) {
+        pageViewSent = false;
+        activeId = id;
+        if (initWithId(id)) sendPageView();
+      }
+    },
+    refresh: boot,
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();

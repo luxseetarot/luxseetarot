@@ -942,6 +942,7 @@
         <button type="button" class="active" id="admin-tab-funnel" data-admin-tab="funnel">Funnel</button>
         <button type="button" id="admin-tab-blog" data-admin-tab="blog">Blog</button>
         <button type="button" id="admin-tab-settings" data-admin-tab="settings">Prezzi / AI</button>
+        <button type="button" id="admin-tab-pixel" data-admin-tab="pixel">Pixel FB</button>
         <button type="button" id="admin-tab-email" data-admin-tab="email">Email</button>
       </div>
       <div class="admin-actions">
@@ -1084,6 +1085,62 @@
           <p id="admin-settings-hint" style="margin:12px 0 0;font-size:12px;color:rgba(212,175,106,.8);line-height:1.45"></p>
           <div class="admin-blog-editor-actions" style="margin-top:14px">
             <button type="button" class="gold-btn" id="admin-settings-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA IMPOSTAZIONI</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="admin-pixel-pane" style="display:none">
+        <div class="admin-blog-editor show">
+          <div class="phase-tag" style="margin-bottom:10px">META PIXEL (FACEBOOK)</div>
+          <p style="margin:0 0 14px;font-size:13px;color:var(--muted);line-height:1.5">Inserisci gli ID numerici del pixel. Lascia vuoto un campo per usare il pixel predefinito. Le landing ADS usano /l1…/l5; la home usa /.</p>
+          <label style="display:flex;align-items:center;gap:8px;margin:0 0 12px;color:var(--fg);font-size:12px;letter-spacing:.04em">
+            <input type="checkbox" id="admin-pixel-enabled" />
+            Attiva Meta Pixel sul sito
+          </label>
+          <label for="admin-pixel-default">Pixel predefinito (fallback)</label>
+          <input type="text" id="admin-pixel-default" inputmode="numeric" maxlength="20" placeholder="es. 123456789012345" autocomplete="off" />
+          <label style="display:flex;align-items:center;gap:8px;margin:14px 0 12px;color:var(--fg);font-size:12px;letter-spacing:.04em">
+            <input type="checkbox" id="admin-pixel-funnel-events" checked />
+            Traccia eventi funnel (Lead, ViewContent, InitiateCheckout, Purchase)
+          </label>
+
+          <div class="phase-tag" style="margin:18px 0 10px">LANDING / HOME</div>
+          <p style="margin:0 0 10px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Un pixel diverso per campagna ADS. Home = visitatori su <code style="color:var(--gold)">/</code>.</p>
+          <label for="admin-pixel-home">Home (/)</label>
+          <input type="text" id="admin-pixel-home" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-l1">Landing L1 (/l1)</label>
+          <input type="text" id="admin-pixel-l1" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-l2">Landing L2 (/l2)</label>
+          <input type="text" id="admin-pixel-l2" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-l3">Landing L3 (/l3)</label>
+          <input type="text" id="admin-pixel-l3" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-l4">Landing L4 (/l4)</label>
+          <input type="text" id="admin-pixel-l4" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-l5">Landing L5 (/l5)</label>
+          <input type="text" id="admin-pixel-l5" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+
+          <div class="phase-tag" style="margin:18px 0 10px">PAGINE FUNNEL / SEO</div>
+          <p style="margin:0 0 10px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Pagine satellite che portano traffico al funnel. Articoli blog usano il campo Blog.</p>
+          <label for="admin-pixel-page-tarocchi-gratis">Tarocchi gratis</label>
+          <input type="text" id="admin-pixel-page-tarocchi-gratis" data-pixel-page="tarocchi-gratis.html" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-page-tarocchi-amore">Tarocchi amore</label>
+          <input type="text" id="admin-pixel-page-tarocchi-amore" data-pixel-page="tarocchi-amore.html" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-page-tarocchi-lavoro">Tarocchi lavoro</label>
+          <input type="text" id="admin-pixel-page-tarocchi-lavoro" data-pixel-page="tarocchi-lavoro.html" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-page-tarocchi-futuro">Tarocchi futuro</label>
+          <input type="text" id="admin-pixel-page-tarocchi-futuro" data-pixel-page="tarocchi-futuro.html" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-page-blog">Blog (indice + articoli)</label>
+          <input type="text" id="admin-pixel-page-blog" data-pixel-page="blog" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-page-chi-siamo">Chi siamo</label>
+          <input type="text" id="admin-pixel-page-chi-siamo" data-pixel-page="chi-siamo.html" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-page-contatti">Contatti</label>
+          <input type="text" id="admin-pixel-page-contatti" data-pixel-page="contatti.html" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+          <label for="admin-pixel-page-privacy">Privacy</label>
+          <input type="text" id="admin-pixel-page-privacy" data-pixel-page="privacy.html" inputmode="numeric" maxlength="20" placeholder="vuoto = predefinito" autocomplete="off" />
+
+          <p id="admin-pixel-hint" style="margin:12px 0 0;font-size:12px;color:rgba(212,175,106,.8);line-height:1.45"></p>
+          <div class="admin-blog-editor-actions" style="margin-top:14px">
+            <button type="button" class="gold-btn" id="admin-pixel-save" style="width:auto;padding:10px 14px;font-size:11px">SALVA PIXEL</button>
           </div>
         </div>
       </div>
@@ -1506,6 +1563,13 @@
     var L = LANDING_VARIANTS[id] || LANDING_VARIANTS[1];
     state.landingVariant = id;
     try { document.body.setAttribute('data-landing', String(id)); } catch(e){}
+    try {
+      if(window.LuxMetaPixel && typeof window.LuxMetaPixel.setLandingVariant === 'function'){
+        window.LuxMetaPixel.setLandingVariant(id);
+      } else {
+        window.__luxLandingVariant = id;
+      }
+    } catch(e){}
     var motifEl = document.getElementById('hero-motif');
     if(motifEl){
       var motif = LANDING_MOTIFS[id] || '';
@@ -2892,6 +2956,13 @@
         followUp: state.pendingFollowUp || null
       }));
     }
+    trackMeta('InitiateCheckout', {
+      content_name: product === 'pack' ? 'pack' : 'full',
+      currency: 'EUR',
+      value: product === 'pack'
+        ? ((getPricing().packPriceCents || 0) / 100)
+        : ((getPricing().fullPriceCents || 0) / 100)
+    });
 
     function postCheckout(turnstileToken){
       return fetch('/api/create-checkout', {
@@ -3112,6 +3183,14 @@
         showToast('Pagamento ok. Se non trovi l\'email di conferma, controlla spam o usa Reinvia email.');
       }
       showPayBridge(res.product || 'full');
+      try {
+        var cents = res.product === 'pack' ? (getPricing().packPriceCents || 0) : (getPricing().fullPriceCents || 0);
+        trackMeta('Purchase', {
+          content_name: res.product === 'pack' ? 'pack' : 'full',
+          currency: 'EUR',
+          value: cents / 100
+        });
+      } catch(e){}
 
       var pending = null;
       try { pending = JSON.parse(sessionStorage.getItem('luxsee_pending') || 'null'); } catch(e){}
@@ -3189,6 +3268,21 @@
 
   var veil = document.getElementById('veil');
 
+  function trackMeta(eventName, params){
+    try {
+      if(window.LuxMetaPixel && typeof window.LuxMetaPixel.track === 'function'){
+        window.LuxMetaPixel.track(eventName, params || undefined);
+      }
+    } catch(e){}
+  }
+  function trackMetaCustom(eventName, params){
+    try {
+      if(window.LuxMetaPixel && typeof window.LuxMetaPixel.trackCustom === 'function'){
+        window.LuxMetaPixel.trackCustom(eventName, params || undefined);
+      }
+    } catch(e){}
+  }
+
   function showPhase(id, afterVisible){
 
     veil.classList.add('on');
@@ -3206,6 +3300,8 @@
       el.classList.add('active');
       document.body.classList.toggle('phase-away', id !== 'phase-input');
       refreshCreditsUI();
+      if(id === 'phase-select') trackMetaCustom('FunnelCardSelect', { content_name: 'phase-select' });
+      if(id === 'phase-reveal') trackMeta('ViewContent', { content_name: 'phase-reveal', content_category: 'tarot_reading' });
 
       window.scrollTo({top:0,behavior:'smooth'});
 
@@ -3268,6 +3364,7 @@
 
     state.form = { name:name, birthDate:'', email:'', question:q, marketing: false };
     state.turnstileToken = ts;
+    trackMeta('Lead', { content_name: 'start_reading', content_category: 'tarot_funnel' });
 
     state.deck = shuffle(DECK);
 
@@ -3810,6 +3907,7 @@
     var funnelPane = document.getElementById('admin-funnel-pane');
     var blogPane = document.getElementById('admin-blog-pane');
     var settingsPane = document.getElementById('admin-settings-pane');
+    var pixelPane = document.getElementById('admin-pixel-pane');
     var emailPane = document.getElementById('admin-email-pane');
     var resetAllBtn = document.getElementById('admin-reset-all');
     var taps = 0;
@@ -3852,28 +3950,34 @@
     function setTab(tab){
       activeTab = tab === 'blog' ? 'blog'
         : (tab === 'settings' ? 'settings'
-        : (tab === 'email' ? 'email' : 'funnel'));
+        : (tab === 'pixel' ? 'pixel'
+        : (tab === 'email' ? 'email' : 'funnel')));
       var tabFunnel = document.getElementById('admin-tab-funnel');
       var tabBlog = document.getElementById('admin-tab-blog');
       var tabSettings = document.getElementById('admin-tab-settings');
+      var tabPixel = document.getElementById('admin-tab-pixel');
       var tabEmail = document.getElementById('admin-tab-email');
       if(tabFunnel) tabFunnel.classList.toggle('active', activeTab === 'funnel');
       if(tabBlog) tabBlog.classList.toggle('active', activeTab === 'blog');
       if(tabSettings) tabSettings.classList.toggle('active', activeTab === 'settings');
+      if(tabPixel) tabPixel.classList.toggle('active', activeTab === 'pixel');
       if(tabEmail) tabEmail.classList.toggle('active', activeTab === 'email');
       if(funnelPane) funnelPane.style.display = activeTab === 'funnel' ? 'block' : 'none';
       if(blogPane) blogPane.style.display = activeTab === 'blog' ? 'block' : 'none';
       if(settingsPane) settingsPane.style.display = activeTab === 'settings' ? 'block' : 'none';
+      if(pixelPane) pixelPane.style.display = activeTab === 'pixel' ? 'block' : 'none';
       if(emailPane) emailPane.style.display = activeTab === 'email' ? 'block' : 'none';
       if(resetAllBtn) resetAllBtn.style.display = activeTab === 'funnel' ? '' : 'none';
       if(titleEl){
         titleEl.textContent = activeTab === 'blog' ? 'Blog articoli'
           : (activeTab === 'settings' ? 'Prezzi e AI'
-          : (activeTab === 'email' ? 'Email Brevo' : 'Funnel letture'));
+          : (activeTab === 'pixel' ? 'Meta Pixel'
+          : (activeTab === 'email' ? 'Email Brevo' : 'Funnel letture')));
       }
       if(getSecret()){
         if(activeTab === 'blog') loadBlog();
         else if(activeTab === 'settings') loadSettings();
+        else if(activeTab === 'pixel') loadPixelSettings();
         else if(activeTab === 'email') loadEmailStatus();
         else loadStats();
       }
@@ -4286,8 +4390,86 @@
     function refreshActive(){
       if(activeTab === 'blog') loadBlog();
       else if(activeTab === 'settings') loadSettings();
+      else if(activeTab === 'pixel') loadPixelSettings();
       else if(activeTab === 'email') loadEmailStatus();
       else loadStats();
+    }
+
+    function renderPixelSettings(data){
+      var s = (data && data.settings) || {};
+      var mp = s.metaPixel || {};
+      var landings = mp.landings || {};
+      var pages = mp.pages || {};
+      var enabledEl = document.getElementById('admin-pixel-enabled');
+      var funnelEl = document.getElementById('admin-pixel-funnel-events');
+      var defEl = document.getElementById('admin-pixel-default');
+      var homeEl = document.getElementById('admin-pixel-home');
+      var hintEl = document.getElementById('admin-pixel-hint');
+      if(enabledEl) enabledEl.checked = !!mp.enabled;
+      if(funnelEl) funnelEl.checked = mp.trackFunnelEvents !== false;
+      if(defEl) defEl.value = mp.defaultId || '';
+      if(homeEl) homeEl.value = mp.home || '';
+      [1,2,3,4,5].forEach(function(n){
+        var el = document.getElementById('admin-pixel-l' + n);
+        if(el) el.value = landings[String(n)] || '';
+      });
+      var pageInputs = document.querySelectorAll('[data-pixel-page]');
+      for(var i = 0; i < pageInputs.length; i++){
+        var inp = pageInputs[i];
+        var key = inp.getAttribute('data-pixel-page');
+        inp.value = (key === 'blog')
+          ? (pages.blog || pages['blog.html'] || '')
+          : (pages[key] || '');
+      }
+      if(hintEl){
+        hintEl.textContent = s.updatedAt
+          ? 'Ultimo salvataggio impostazioni: ' + fmtIso(s.updatedAt)
+          : 'Nessun pixel salvato ancora.';
+      }
+      if(metaEl && activeTab === 'pixel'){
+        metaEl.textContent = mp.enabled
+          ? ('Pixel attivo' + (mp.defaultId ? ' · default ' + mp.defaultId : ''))
+          : 'Pixel disattivato';
+      }
+    }
+
+    function collectMetaPixelFromForm(){
+      var pages = {};
+      var pageInputs = document.querySelectorAll('[data-pixel-page]');
+      for(var i = 0; i < pageInputs.length; i++){
+        var inp = pageInputs[i];
+        var key = inp.getAttribute('data-pixel-page');
+        pages[key] = String(inp.value || '').trim();
+      }
+      if(pages.blog) pages['blog.html'] = pages.blog;
+      return {
+        enabled: !!(document.getElementById('admin-pixel-enabled') && document.getElementById('admin-pixel-enabled').checked),
+        trackFunnelEvents: !!(document.getElementById('admin-pixel-funnel-events') && document.getElementById('admin-pixel-funnel-events').checked),
+        defaultId: (document.getElementById('admin-pixel-default') && document.getElementById('admin-pixel-default').value) || '',
+        home: (document.getElementById('admin-pixel-home') && document.getElementById('admin-pixel-home').value) || '',
+        landings: {
+          '1': (document.getElementById('admin-pixel-l1') && document.getElementById('admin-pixel-l1').value) || '',
+          '2': (document.getElementById('admin-pixel-l2') && document.getElementById('admin-pixel-l2').value) || '',
+          '3': (document.getElementById('admin-pixel-l3') && document.getElementById('admin-pixel-l3').value) || '',
+          '4': (document.getElementById('admin-pixel-l4') && document.getElementById('admin-pixel-l4').value) || '',
+          '5': (document.getElementById('admin-pixel-l5') && document.getElementById('admin-pixel-l5').value) || ''
+        },
+        pages: pages
+      };
+    }
+
+    function loadPixelSettings(){
+      showErr('');
+      return adminFetch({ action: 'settings-get' }).then(function(res){
+        if(!res.ok){
+          showErr(res.error || 'Caricamento pixel fallito');
+          return res;
+        }
+        loginView.style.display = 'none';
+        dashView.style.display = 'block';
+        renderPixelSettings(res);
+        return res;
+      }).catch(function(){ showErr('Caricamento pixel fallito'); });
     }
 
     function renderSettings(data){
@@ -4476,6 +4658,25 @@
           }
           if(metaEl) metaEl.textContent = 'Impostazioni salvate.';
         }).catch(function(){ showErr('Salvataggio fallito'); });
+      });
+    }
+    var pixelSaveBtn = document.getElementById('admin-pixel-save');
+    if(pixelSaveBtn){
+      pixelSaveBtn.addEventListener('click', function(){
+        showErr('');
+        adminFetch({
+          action: 'settings-save',
+          settings: { metaPixel: collectMetaPixelFromForm() }
+        }).then(function(res){
+          if(!res.ok){ showErr(res.error || 'Salvataggio pixel fallito'); return; }
+          renderPixelSettings(res);
+          if(metaEl) metaEl.textContent = 'Pixel salvato.';
+          try {
+            if(window.LuxMetaPixel && typeof window.LuxMetaPixel.refresh === 'function'){
+              window.LuxMetaPixel.refresh();
+            }
+          } catch(e){}
+        }).catch(function(){ showErr('Salvataggio pixel fallito'); });
       });
     }
     var urlsPane = document.getElementById('admin-landing-urls');
@@ -4686,6 +4887,7 @@
 
 </script>
 
+<script src="/js/meta-pixel.js" defer></script>
 <script src="/js/tab-title.js" defer></script>
 <script src="/js/exit-intent.js" defer></script>
 </body>

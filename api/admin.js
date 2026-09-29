@@ -226,13 +226,14 @@ export default async function handler(req, res) {
 
     if (action === 'settings-save') {
       const payload = (req.body && req.body.settings) || req.body || {};
-      const result = await saveSiteSettings({
-        fullPriceCents: payload.fullPriceCents,
-        packPriceCents: payload.packPriceCents,
-        packCredits: payload.packCredits,
-        gptModel: payload.gptModel,
-        landingVariant: payload.landingVariant,
-      });
+      const patch = {};
+      if (payload.fullPriceCents !== undefined) patch.fullPriceCents = payload.fullPriceCents;
+      if (payload.packPriceCents !== undefined) patch.packPriceCents = payload.packPriceCents;
+      if (payload.packCredits !== undefined) patch.packCredits = payload.packCredits;
+      if (payload.gptModel !== undefined) patch.gptModel = payload.gptModel;
+      if (payload.landingVariant !== undefined) patch.landingVariant = payload.landingVariant;
+      if (payload.metaPixel !== undefined) patch.metaPixel = payload.metaPixel;
+      const result = await saveSiteSettings(patch);
       return res.status(200).json({
         ok: true,
         settings: result.settings,
