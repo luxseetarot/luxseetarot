@@ -29,31 +29,31 @@ function articleStyles() {
   a{color:rgba(212,175,106,.85);text-decoration:none}
   a:hover{color:var(--gold)}
   .wrap{max-width:720px;margin:0 auto;padding:48px 22px 64px}
-  .brand{display:flex;align-items:center;justify-content:center;gap:12px;font-family:'Cinzel',serif;letter-spacing:.28em;font-size:14px;color:var(--gold);text-align:center;margin-bottom:18px}
-  .brand svg{width:14px;height:14px;opacity:.85;flex-shrink:0;display:block}
+  .brand{display:flex;align-items:center;justify-content:center;gap:12px;font-family:'Cinzel',serif;letter-spacing:.28em;font-size:16px;color:var(--gold);text-align:center;margin-bottom:18px}
+  .brand svg{width:16px;height:16px;opacity:.85;flex-shrink:0;display:block}
   .brand a{color:inherit}
-  .crumbs{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.08em;text-transform:uppercase;text-align:center;color:rgba(154,145,168,.8);margin:0 0 22px}
+  .crumbs{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.08em;text-transform:uppercase;text-align:center;color:rgba(154,145,168,.8);margin:0 0 22px}
   .crumbs a{color:rgba(212,175,106,.75)}
-  .preview-banner{text-align:center;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:#0b0a14;background:rgba(212,175,106,.88);padding:10px 14px;border-radius:8px;margin:0 0 22px}
-  h1{font-family:'Cinzel',serif;font-weight:500;font-size:clamp(22px,4vw,30px);letter-spacing:.08em;text-align:center;margin:0 0 12px;color:var(--gold);line-height:1.3}
-  .desc{text-align:center;font-size:19px;line-height:1.65;color:rgba(154,145,168,.98);margin:0 0 10px}
+  .preview-banner{text-align:center;font-family:'Cinzel',serif;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:#0b0a14;background:rgba(212,175,106,.88);padding:10px 14px;border-radius:8px;margin:0 0 22px}
+  h1{font-family:'Cinzel',serif;font-weight:500;font-size:clamp(24px,4vw,32px);letter-spacing:.08em;text-align:center;margin:0 0 12px;color:var(--gold);line-height:1.3}
+  .desc{text-align:center;font-size:21px;line-height:1.65;color:rgba(154,145,168,.98);margin:0 0 10px}
   .cover{display:block;width:100%;max-height:220px;aspect-ratio:12/5;object-fit:cover;object-position:center 40%;border-radius:4px;margin:8px 0 22px;border:1px solid rgba(212,175,106,.18)}
   @media (max-width:560px){.cover{max-height:160px}}
-  .article{font-size:19px;line-height:1.75;color:rgba(154,145,168,.98)}
-  .article h2{font-family:'Cinzel',serif;font-weight:500;font-size:16px;letter-spacing:.1em;color:rgba(232,213,163,.92);margin:32px 0 12px}
-  .article h3{font-family:'Cinzel',serif;font-weight:500;font-size:14px;letter-spacing:.08em;color:rgba(232,213,163,.85);margin:24px 0 10px}
+  .article{font-size:21px;line-height:1.75;color:rgba(154,145,168,.98)}
+  .article h2{font-family:'Cinzel',serif;font-weight:500;font-size:18px;letter-spacing:.1em;color:rgba(232,213,163,.92);margin:32px 0 12px}
+  .article h3{font-family:'Cinzel',serif;font-weight:500;font-size:16px;letter-spacing:.08em;color:rgba(232,213,163,.85);margin:24px 0 10px}
   .article p{margin:0 0 14px}
   .article ul,.article ol{margin:0 0 16px;padding-left:1.2em}
   .article li{margin:0 0 8px}
   .article strong{color:rgba(236,230,216,.92);font-weight:500}
   .faq{margin:40px 0 0;padding-top:24px;border-top:1px solid rgba(212,175,106,.14)}
-  .faq h2{font-family:'Cinzel',serif;font-weight:500;font-size:16px;letter-spacing:.1em;color:rgba(232,213,163,.92);margin:0 0 16px}
+  .faq h2{font-family:'Cinzel',serif;font-weight:500;font-size:18px;letter-spacing:.1em;color:rgba(232,213,163,.92);margin:0 0 16px}
   .faq details{margin:0 0 12px;padding:12px 0;border-bottom:1px solid rgba(212,175,106,.1)}
-  .faq summary{cursor:pointer;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.06em;color:rgba(236,230,216,.9)}
-  .faq p{font-size:18px;line-height:1.65;color:rgba(154,145,168,.98);margin:10px 0 0}
-  .cta{display:block;text-align:center;margin:40px 0 8px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase}
-  .footer-nav{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;margin:28px 0 12px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase}
-  footer{text-align:center;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(154,145,168,.55);padding:0 22px 40px}
+  .faq summary{cursor:pointer;font-family:'Cinzel',serif;font-size:15px;letter-spacing:.06em;color:rgba(236,230,216,.9)}
+  .faq p{font-size:20px;line-height:1.65;color:rgba(154,145,168,.98);margin:10px 0 0}
+  .cta{display:block;text-align:center;margin:40px 0 8px;font-family:'Cinzel',serif;font-size:14px;letter-spacing:.16em;text-transform:uppercase}
+  .footer-nav{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;margin:28px 0 12px;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
+  footer{text-align:center;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:rgba(154,145,168,.55);padding:0 22px 40px}
 `.trim();
 }
 
