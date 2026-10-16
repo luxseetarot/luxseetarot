@@ -11,3 +11,8 @@ pinterest-pins/*.png
 luxseetarot-pinterest-avatar.png
 luxseetarot-profile.png
 
+# Strumenti esterni non necessari per il sito (funzionano in locale)
+pinterest-pins/
+buffer-queue-tool/
+--dry/
+
