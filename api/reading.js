@@ -271,15 +271,18 @@ export default async function handler(req, res) {
 
     // Se variant=curiosity e modalità teaser, prova a parsare JSON
     if (!isFull && paywallVariant === 'curiosity') {
+      console.log('Curiosity mode detected, attempting JSON parse. Raw response:', reading.substring(0, 200));
       try {
         parsedSections = JSON.parse(reading);
+        console.log('JSON parsed successfully:', Object.keys(parsedSections));
         // Verifica che abbia le chiavi richieste
         const requiredKeys = ['apertura', 'passato', 'presente', 'futuro', 'chiusura'];
         if (!requiredKeys.every(k => k in parsedSections)) {
+          console.log('Missing required keys, keys found:', Object.keys(parsedSections));
           throw new Error('Missing required keys');
         }
       } catch (e) {
-        console.error('JSON parsing failed for curiosity teaser, retrying with classic prompt:', e);
+        console.error('JSON parsing failed for curiosity teaser, retrying with classic prompt:', e.message);
         // Retry con prompt classico
         const classicPrompt = buildClassicPrompt(false, false, null);
         const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -300,7 +303,9 @@ export default async function handler(req, res) {
         if (retryResponse.ok) {
           reading = retryData.choices[0].message.content.trim();
           parsedSections = null;
+          console.log('Retry with classic prompt succeeded');
         } else {
+          console.error('Retry also failed:', retryData);
           return res.status(500).json({ ok: false, error: 'Errore nella generazione dell\'anteprima.' });
         }
       }
