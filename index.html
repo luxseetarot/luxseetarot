@@ -2312,10 +2312,21 @@
   function resendPurchaseEmail(){
     var sessionId = getLastPurchaseSessionId();
     var u = getUnlock();
+    var btn = document.getElementById('btn-resend-email');
+    var originalText = btn ? btn.textContent : 'REINVIA EMAIL DI RECUPERO';
+
     if(!sessionId && !(u && u.unlockToken)){
       showToast('Nessun acquisto recente da questo browser. Controlla spam o scrivici.');
       return;
     }
+
+    // Disabilita pulsante e mostra caricamento
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = 'REINVIO IN CORSO...';
+      btn.style.opacity = '0.7';
+    }
+
     showToast('Reinvio email in corso...');
     fetch('/api/verify-session', {
       method:'POST',
@@ -2328,11 +2339,35 @@
       })
     }).then(function(r){ return r.json(); }).then(function(res){
       if(res.ok){
-        showToast('Email reinviata' + (res.email ? (' a ' + res.email) : '') + '. Controlla anche spam.');
+        showToast('✓ Email reinviata' + (res.email ? (' a ' + res.email) : '') + '. Controlla anche spam.');
+        if(btn){
+          btn.textContent = '✓ EMAIL INVIATA';
+          btn.style.opacity = '1';
+          btn.style.background = 'rgba(255,215,0,0.2)';
+          btn.style.borderColor = 'rgba(255,215,0,0.5)';
+          setTimeout(function(){
+            btn.disabled = false;
+            btn.textContent = originalText;
+            btn.style.background = '';
+            btn.style.borderColor = '';
+          }, 5000);
+        }
         return;
       }
-      showToast(res.error || 'Reinvio email non riuscito.');
-    }).catch(function(){ showToast('Reinvio email non riuscito.'); });
+      showToast('✗ ' + (res.error || 'Reinvio email non riuscito.'));
+      if(btn){
+        btn.disabled = false;
+        btn.textContent = originalText;
+        btn.style.opacity = '1';
+      }
+    }).catch(function(){
+      showToast('✗ Reinvio email non riuscito.');
+      if(btn){
+        btn.disabled = false;
+        btn.textContent = originalText;
+        btn.style.opacity = '1';
+      }
+    });
   }
   function getSavedReading(){
     try { return JSON.parse(localStorage.getItem(READING_KEY) || 'null'); } catch(e){ return null; }
