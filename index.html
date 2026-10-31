@@ -4131,8 +4131,10 @@
     html += '<p><strong>Futuro</strong><br/>' + escapeHtml(sections.futuro || '') + '</p>';
     html += '<p>' + escapeHtml(sections.chiusura || '') + '</p>';
 
-    readingEl.innerHTML = html;
-    console.log('Reading HTML set');
+    // Usa typewriter per l'effetto digitazione
+    typewriter(html, readingEl, function(){
+      console.log('Typewriter completed');
+    });
 
     // Mostra sezioni bloccate
     var lockedSections = document.createElement('div');
