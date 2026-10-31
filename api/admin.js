@@ -232,6 +232,7 @@ export default async function handler(req, res) {
       if (payload.packCredits !== undefined) patch.packCredits = payload.packCredits;
       if (payload.gptModel !== undefined) patch.gptModel = payload.gptModel;
       if (payload.landingVariant !== undefined) patch.landingVariant = payload.landingVariant;
+      if (payload.paywallVariant !== undefined) patch.paywallVariant = payload.paywallVariant;
       if (payload.metaPixel !== undefined) patch.metaPixel = payload.metaPixel;
       const result = await saveSiteSettings(patch);
       return res.status(200).json({

@@ -2,12 +2,23 @@
 import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe, signCheckoutPass } from './_lib/unlock.js';
 import { verifyTurnstileToken } from './_lib/turnstile.js';
 import { recordTeaser } from './_lib/funnel.js';
-import { getGptModel } from './_lib/site-settings.js';
+import { getGptModel, getSiteSettings, FULL_READING_SECTIONS } from './_lib/site-settings.js';
 import { sendPurchaseConfirmation } from './_lib/purchase-email.js';
 
-function buildSystemPrompt(mode, { deepen = false } = {}) {
+function buildSystemPrompt(mode, { deepen = false, paywallVariant = 'classic' } = {}) {
   const isFull = mode === 'full';
-  return `
+  const isCuriosity = !isFull && paywallVariant === 'curiosity';
+
+  if (isCuriosity) {
+    return buildCuriosityPrompt();
+  }
+
+  return buildClassicPrompt(isFull, deepen);
+}
+
+function buildClassicPrompt(isFull, deepen, teaserContext = null) {
+  const sectionsList = FULL_READING_SECTIONS.join(', ');
+  let prompt = `
 Sei un medium che legge i tarocchi. Risposta in italiano, informale, mai negativa. Max ${isFull ? (deepen ? '930' : '850') : '380'} parole. ${deepen ? 'Questa è un APPROFONDIMENTO della stessa lettura (stesse carte): non ricominciare da zero.' : 'Niente memoria di letture precedenti.'}
 
 STILE (obbligatorio): testo che NON sembri AI. Naturale, personale, imperfetto.
@@ -28,6 +39,17 @@ FORMATO:
 - Non scrivere la parola "conclusione".
 - Chiudi con conforto, ispirazione, gratitudine; invita a riflettere o a un piccolo passo; ringrazia. Tono empatico, rassicurante, spirituale ma accessibile; fluido, caldo, poetico ma naturale.
 
+`;
+
+  if (isFull && teaserContext) {
+    prompt += `
+CONTESTO DALL'ANTEPRIMA (non contraddire, sviluppa):
+${teaserContext}
+
+`;
+  }
+
+  prompt += `
 MODALITÀ ${isFull ? 'COMPLETA (PREMIUM)' : 'TEASER GRATUITO'}:
 ${isFull
   ? `- Lettura a pagamento: deve sentirsi chiaramente più ricca e rituale dell'anteprima gratuita.
@@ -35,6 +57,8 @@ ${isFull
 - Struttura OBBLIGATORIA in tre sezioni (Passato, Presente, Futuro). Prima di ogni sezione metti una riga da sola con SOLO il nome della carta tra doppi asterischi, con maiuscole normali italiane, esattamente così:
 **La Luna**
 (poi a capo il testo della sezione). Usa i nomi delle carte forniti, senza inventarne altri.
+- Dopo le tre sezioni, include OBBLIGATORIAMENTE queste sezioni aggiuntive in questo ordine esatto, con questi titoli:
+${FULL_READING_SECTIONS.map(s => `- ${s}`).join('\n')}
 - Nel testo metti in **grassetto** le parole e i concetti davvero importanti (emozioni chiave, scelte, tempi, avvertimenti dolci, prossimi passi). Circa 10-16 grassetti in tutta la lettura.
 - OBBLIGATORIO sul grassetto: usa **parola** in minuscolo/maiuscole normali (es. **chiarezza**, **scelta del cuore**). VIETATO evidenziare con TUTTO MAIUSCOLO. Mai scrivere EMOZIONE o CHIAREZZA in maiuscolo per enfasi: solo **grassetto**.
 - Dai risposte più chiare e un prossimo passo concreto (riflessione, non certezza assoluta).
@@ -45,7 +69,8 @@ ${deepen
 - Integra le nuove domande nella lettura: rispondi in modo concreto a ciò che chiede ora, restando coerente con le carte e con il filo della lettura precedente.
 - Non ripetere tutta la lettura precedente: riprendi solo ciò che serve, poi sviluppa le nuove richieste.
 - Mantieni la struttura Passato / Presente / Futuro con i titoli carta, ma puoi dare più peso alle sezioni utili alle nuove domande.`
-  : ''}`
+  : ''}
+- Una sola nota di cornice ("lettura simbolica, non una promessa") elegante, non ripetuta.`
   : `- Anteprima gratuita: stile più semplice e leggero della versione a pagamento.
 - Lunghezza: circa 320-380 parole (mai oltre ~380).
 - NON usare il grassetto (**parola**). Nessun titolo carta per carta. Flusso continuo, senza sezioni rituali.
@@ -54,6 +79,39 @@ ${deepen
 - CHIUSURA (obbligatoria, ultime 2-4 frasi): invita in modo naturale a sbloccare la lettura completa di QUESTA stessa domanda, ora che le carte sono già uscite. Crea una leggera urgenza soft: il pezzo lasciato aperto merita di essere letto finché l'intuizione è ancora calda, senza aspettare "un altro momento". Tono da amico sincero, mai da venditore.
 - VIETATO in chiusura: parlare di Luxseetarot come fosse una persona ("chiedi a Luxseetarot", "Luxseetarot ti aspetta", "parla con Luxseetarot"). Niente toni tragici, minacciosi o da televendita. Niente telefoni, operatori umani o consulti in sede.
 - Puoi dire al massimo, in modo sobrio, che la versione completa è disponibile qui, in digitale, per chiudere il cerchio sulla domanda.`}
+`.trim();
+  return prompt;
+}
+
+function buildCuriosityPrompt() {
+  const sectionsJson = JSON.stringify(FULL_READING_SECTIONS);
+  return `
+Sei un medium che legge i tarocchi. Risposta in italiano, informale, mai negativa.
+
+STILE (obbligatorio): testo che NON sembri AI. Naturale, personale, imperfetto.
+- Voce calda e sobria. Al massimo UN intercalare colloquiale in tutto il testo; niente "eh", "no?", "ci mancherebbe".
+- Frasi di lunghezza variabile; qualche ripetizione, inciso.
+- Lessico semplice ma espressivo.
+- MAI il trattino lungo (—). Usa virgole, parentesi o punti.
+
+VIETATO: consigli medici, legali, argomenti delicati. Niente toni di paura o minaccia, niente certezze ("incontrerai sicuramente..."), niente frasi valgono per chiunque ("ventata di energia").
+
+FORMATO: RESTITUISCI SOLO JSON VERO, niente altro testo fuori. Il JSON deve avere esattamente queste chiavi:
+{
+  "apertura": "1-2 frasi che riprendono le parole della domanda e dicono onestamente che le carte non danno un sì/no secco ma mostrano un percorso",
+  "passato": "2-3 frasi di interpretazione completa, specifiche per la domanda e per il significato simbolico di QUELLA carta, che facciano sentire la persona letta",
+  "presente": "1-2 frasi che terminano su una tensione lasciata aperta (frase completa)",
+  "futuro": "1-2 frasi che dicono solo che la carta ha un significato preciso accanto alle altre due, senza interpretarla",
+  "chiusura": "una frase che lascia aperta la domanda ('per capire X serve la lettura completa'), senza risolverla"
+}
+
+REGOLE:
+- Lunghezza totale 110-150 parole (somma di tutte le sezioni).
+- Nessuna conclusione né riepilogo ("Insomma...", "In sintesi...").
+- Ogni frase deve citare la domanda o il simbolismo della carta. Niente frasi generiche.
+- Niente disclaimer ripetuti nel testo (c'è già in pagina).
+- Niente paura, niente certezze.
+- Il JSON deve essere valido: usa virgolette doppie, escape necessari, niente virgole in fondo alle liste.
 `.trim();
 }
 
@@ -80,6 +138,7 @@ export default async function handler(req, res) {
       deepen = false,
       followUp = '',
       previousReading = '',
+      teaserContext = null,
     } = req.body || {};
     const apiKey = process.env.OPENAI_API_KEY;
     if (!apiKey) return res.status(500).json({ ok: false, error: 'Chiave API non configurata.' });
@@ -93,6 +152,9 @@ export default async function handler(req, res) {
     if (isDeepen && extra.length < 5) {
       return res.status(400).json({ ok: false, error: 'Aggiungi almeno una domanda o un dettaglio da integrare.' });
     }
+
+    const settings = await getSiteSettings();
+    const paywallVariant = settings.paywallVariant || 'classic';
 
     if (isFull) {
       if (!checkRateLimit(ip, { max: 40, windowMs: 60 * 60 * 1000, bucket: 'full-hour' })) {
@@ -156,7 +218,7 @@ export default async function handler(req, res) {
       }
     }
 
-    const systemPrompt = buildSystemPrompt(isFull ? 'full' : 'teaser', { deepen: isDeepen });
+    const systemPrompt = buildSystemPrompt(isFull ? 'full' : 'teaser', { deepen: isDeepen, paywallVariant, teaserContext });
     const birth = birthDate || 'non indicata';
     const prev = String(previousReading || '').replace(/\*\*/g, '').trim().slice(0, 1800);
     let userContent = `Consultante: ${name}. Nato/a il: ${birth}. Argomento/domanda: ${question}. Carte (Passato, Presente, Futuro): ${cards.join(', ')}.`;
@@ -205,8 +267,49 @@ export default async function handler(req, res) {
     }
 
     let reading = data.choices[0].message.content.trim();
-    reading = reading.replace(/—/g, ',');
-    reading = reading.replace(/\n{3,}/g, '\n\n');
+    let parsedSections = null;
+
+    // Se variant=curiosity e modalità teaser, prova a parsare JSON
+    if (!isFull && paywallVariant === 'curiosity') {
+      try {
+        parsedSections = JSON.parse(reading);
+        // Verifica che abbia le chiavi richieste
+        const requiredKeys = ['apertura', 'passato', 'presente', 'futuro', 'chiusura'];
+        if (!requiredKeys.every(k => k in parsedSections)) {
+          throw new Error('Missing required keys');
+        }
+      } catch (e) {
+        console.error('JSON parsing failed for curiosity teaser, retrying with classic prompt:', e);
+        // Retry con prompt classico
+        const classicPrompt = buildClassicPrompt(false, false, null);
+        const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: 'system', content: classicPrompt },
+              { role: 'user', content: userContent },
+            ],
+          }),
+        });
+        const retryData = await retryResponse.json();
+        if (retryResponse.ok) {
+          reading = retryData.choices[0].message.content.trim();
+          parsedSections = null;
+        } else {
+          return res.status(500).json({ ok: false, error: 'Errore nella generazione dell\'anteprima.' });
+        }
+      }
+    }
+
+    if (!parsedSections) {
+      reading = reading.replace(/—/g, ',');
+      reading = reading.replace(/\n{3,}/g, '\n\n');
+    }
 
     // Dopo il teaser il token Turnstile è già stato consumato: emetti un pass per l'acquisto.
     let checkoutPass = null;
@@ -219,6 +322,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       reading,
+      parsedSections,
       mode: isFull ? 'full' : 'teaser',
       remainingCredits,
       unlockToken: nextToken,

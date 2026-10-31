@@ -14,6 +14,7 @@ export default async function handler(req, res) {
     turnstileSiteKey: (process.env.CF_TURNSTILE_SITE_KEY || '').trim(),
     pricing,
     landingVariant: pricing.landingVariant || 1,
+    paywallVariant: pricing.paywallVariant || 'classic',
     metaPixel,
   });
 }

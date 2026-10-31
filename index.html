@@ -1086,6 +1086,19 @@
 
   .cta-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;margin:0 0 22px;color:var(--fg)}
 
+  .locked-sections{margin:28px 0 20px}
+  .locked-sections-title{font-family:'Cinzel',serif;letter-spacing:.18em;font-size:13px;color:var(--gold-soft);margin:0 0 16px;text-transform:uppercase}
+  .locked-section{margin:0 0 12px;padding:12px;border:1px solid rgba(212,175,106,.15);border-radius:10px;background:rgba(11,10,20,.35)}
+  .locked-section-header{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+  .locked-section-icon{font-size:14px;opacity:.7}
+  .locked-section-title{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--fg);font-style:italic}
+  .locked-section-skeleton{display:flex;flex-direction:column;gap:6px}
+  .skeleton-line{height:10px;background:linear-gradient(90deg,rgba(212,175,106,.1),rgba(212,175,106,.2),rgba(212,175,106,.1));background-size:200% 100%;border-radius:4px;animation:skeleton-pulse 1.5s ease-in-out infinite}
+  .skeleton-line:first-child{width:85%}
+  .skeleton-line:last-child{width:60%}
+  @keyframes skeleton-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .cta-secure-note{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);margin:12px 0 0;letter-spacing:.04em}
+
   .restart{display:block;margin:22px auto 0;background:none;border:none;color:var(--muted);font-size:13px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;transition:color .2s}
 
   .restart:hover{color:var(--gold)}
@@ -1509,6 +1522,13 @@
           <input type="number" id="admin-set-pack-price" min="0.50" max="1000" step="0.10" inputmode="decimal" />
           <label for="admin-set-pack-credits">Numero letture nel pack</label>
           <input type="number" id="admin-set-pack-credits" min="2" max="50" step="1" />
+          <div class="phase-tag" style="margin:18px 0 10px">PAYWALL</div>
+          <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Variante del paywall anteprima.</p>
+          <label for="admin-set-paywall-variant">Variante</label>
+          <select id="admin-set-paywall-variant" aria-label="Variante paywall">
+            <option value="classic">Classic (comportamento attuale)</option>
+            <option value="curiosity">Curiosity (nuova anteprima a sezioni)</option>
+          </select>
           <div class="phase-tag" style="margin:18px 0 10px">MODELLO GPT</div>
           <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Usato per anteprima e lettura completa. Cambia solo modelli disponibili sul tuo account OpenAI.</p>
           <label for="admin-set-gpt-model">Modello</label>
@@ -1852,8 +1872,16 @@
     checkoutTurnstileToken:null, checkoutTurnstileWidgetId:null, turnstileSiteKey:null,
     pricing:{ fullPriceCents:490, packPriceCents:990, packCredits:5 },
     landingVariant:1, landingFromUrl:false,
-    checkoutPass:null, pendingFollowUp:null, freeLimitReached:false
+    checkoutPass:null, pendingFollowUp:null, freeLimitReached:false,
+    paywallVariant:'classic', teaserSections:null
   };
+
+  var FULL_READING_SECTIONS = [
+    'Cosa dicono le tre carte insieme',
+    'La risposta simbolica alla tua domanda: cosa ti avvicina e cosa ti frena',
+    'Un passo concreto per le prossime settimane',
+    'Il segnale da riconoscere',
+  ];
 
   var LANDING_VARIANTS = {
     1: {
@@ -2240,8 +2268,10 @@
       state.pricing = {
         fullPriceCents: Number(cfg.pricing.fullPriceCents) || 490,
         packPriceCents: Number(cfg.pricing.packPriceCents) || 990,
-        packCredits: Number(cfg.pricing.packCredits) || 5
+        packCredits: Number(cfg.pricing.packCredits) || 5,
+        paywallVariant: String(cfg.pricing.paywallVariant || 'classic')
       };
+      state.paywallVariant = state.pricing.paywallVariant;
       applyPricingUI();
     }
     var landingDefault = (cfg && (cfg.landingVariant != null ? cfg.landingVariant : (cfg.pricing && cfg.pricing.landingVariant))) || 1;
@@ -3503,7 +3533,8 @@
         turnstileToken: mode === 'full' ? null : getTurnstileToken(),
         deepen: !!options.deepen,
         followUp: options.followUp || '',
-        previousReading: options.previousReading || ''
+        previousReading: options.previousReading || '',
+        teaserContext: (mode === 'full' && state.teaserSections) ? JSON.stringify(state.teaserSections) : null
       })
     }).then(function(r){ return r.json(); }).then(function(res){
       var wait = mode === 'full' ? 1200 : 3600;
@@ -3516,7 +3547,10 @@
             // Prima salva il testo in state, poi aggiorna crediti/storage:
             // così setUnlock può sincronizzare subito la lettura sul server.
             if(res.mode === 'full') state.fullText = res.reading;
-            else state.teaserText = res.reading;
+            else {
+              state.teaserText = res.reading;
+              state.teaserSections = res.parsedSections || null;
+            }
             if(res.checkoutPass) state.checkoutPass = res.checkoutPass;
             state.mode = res.mode === 'full' ? 'full' : 'teaser';
             if(options.deepen) state.pendingFollowUp = null;
@@ -3536,32 +3570,38 @@
             }
             saveReadingDraft();
             setReadingMode(state.mode);
-            var html = renderMarkdown(res.reading, state.mode);
-            typewriter(html, readingEl, function(){
-              if(res.mode === 'full'){
-                ctaEl.classList.remove('show');
-                if(ctaFullEl) ctaFullEl.classList.add('show');
-                if(res.emailSent){
-                  showToast('Lettura completa pronta. Ti abbiamo inviato un\'email per riaprirla quando vuoi.');
-                } else if(res.emailError){
-                  showToast('Lettura pronta. Email non inviata: ' + String(res.emailError).slice(0, 120));
+
+            // Se variant=curiosity e abbiamo sezioni JSON, mostriamo UI speciale
+            if(state.paywallVariant === 'curiosity' && res.parsedSections && !isFull){
+              renderCuriosityTeaser(res.parsedSections);
+            } else {
+              var html = renderMarkdown(res.reading, state.mode);
+              typewriter(html, readingEl, function(){
+                if(res.mode === 'full'){
+                  ctaEl.classList.remove('show');
+                  if(ctaFullEl) ctaFullEl.classList.add('show');
+                  if(res.emailSent){
+                    showToast('Lettura completa pronta. Ti abbiamo inviato un\'email per riaprirla quando vuoi.');
+                  } else if(res.emailError){
+                    showToast('Lettura pronta. Email non inviata: ' + String(res.emailError).slice(0, 120));
+                  } else {
+                    showToast('Ecco la lettura completa. Usa il pulsante per scaricare il PDF.');
+                  }
                 } else {
-                  showToast('Ecco la lettura completa. Usa il pulsante per scaricare il PDF.');
+                  if(ctaFullEl) ctaFullEl.classList.remove('show');
+                  ctaEl.classList.add('show');
+                  var ctaTitleOk = ctaEl.querySelector('.cta-title');
+                  if(ctaTitleOk) ctaTitleOk.textContent = 'VUOI LA LETTURA INTERA?';
+                  // Con checkoutPass non serve un secondo widget; mostralo solo se manca
+                  if(!state.checkoutPass) ensureCheckoutTurnstile();
+                  else {
+                    var wrap = document.getElementById('turnstile-checkout-wrap');
+                    if(wrap) wrap.style.display = 'none';
+                  }
                 }
-              } else {
-                if(ctaFullEl) ctaFullEl.classList.remove('show');
-                ctaEl.classList.add('show');
-                var ctaTitleOk = ctaEl.querySelector('.cta-title');
-                if(ctaTitleOk) ctaTitleOk.textContent = 'VUOI LA LETTURA INTERA?';
-                // Con checkoutPass non serve un secondo widget; mostralo solo se manca
-                if(!state.checkoutPass) ensureCheckoutTurnstile();
-                else {
-                  var wrap = document.getElementById('turnstile-checkout-wrap');
-                  if(wrap) wrap.style.display = 'none';
-                }
-              }
-              refreshCreditsUI();
-            });
+                refreshCreditsUI();
+              });
+            }
           } else {
             var errMsg = res.error || 'Le carte non rispondono ora.';
             var hitFreeLimit = res.code === 'free_limit' || /limite di .*letture gratuite/i.test(errMsg);
@@ -4078,6 +4118,73 @@
       '</div>'
     );
   }
+  function renderCuriosityTeaser(sections){
+    if(!sections) return;
+    var html = '';
+    html += '<p>' + escapeHtml(sections.apertura || '') + '</p>';
+    html += '<p><strong>Passato</strong><br/>' + escapeHtml(sections.passato || '') + '</p>';
+    html += '<p><strong>Presente</strong><br/>' + escapeHtml(sections.presente || '') + '</p>';
+    html += '<p><strong>Futuro</strong><br/>' + escapeHtml(sections.futuro || '') + '</p>';
+    html += '<p>' + escapeHtml(sections.chiusura || '') + '</p>';
+
+    readingEl.innerHTML = html;
+
+    // Mostra sezioni bloccate
+    var lockedSections = document.createElement('div');
+    lockedSections.className = 'locked-sections';
+    lockedSections.innerHTML = '<div class="locked-sections-title">Nella lettura completa</div>';
+    FULL_READING_SECTIONS.forEach(function(title){
+      lockedSections.innerHTML += ''+
+        '<div class="locked-section">'+
+          '<div class="locked-section-header">'+
+            '<span class="locked-section-icon" aria-label="Contenuto bloccato">🔒</span>'+
+            '<span class="locked-section-title">'+escapeHtml(title)+'</span>'+
+          '</div>'+
+          '<div class="locked-section-skeleton">'+
+            '<div class="skeleton-line"></div>'+
+            '<div class="skeleton-line"></div>'+
+          '</div>'+
+        '</div>';
+    });
+    readingEl.appendChild(lockedSections);
+
+    // Aggiorna UI paywall
+    var ctaTitle = ctaEl.querySelector('.cta-title');
+    var ctaText = document.getElementById('cta-teaser-text');
+    var unlockFull = document.getElementById('btn-unlock-full');
+    var unlockPack = document.getElementById('btn-unlock-pack');
+    var packHint = document.getElementById('cta-pack-hint');
+
+    // Rimuovi eventuale secure-note precedente
+    var oldSecureNote = ctaEl.querySelector('.cta-secure-note');
+    if(oldSecureNote) oldSecureNote.remove();
+
+    if(ctaTitle) ctaTitle.textContent = 'Cosa dicono le tre carte insieme';
+    if(ctaText) ctaText.style.display = 'none';
+    if(packHint) packHint.style.display = 'none';
+
+    var p = getPricing();
+    var u = getUnlock();
+    var hasCredits = u && u.unlockToken && Number(u.credits) > 0;
+
+    if(hasCredits){
+      if(unlockFull) unlockFull.textContent = 'Usa 1 credito per leggere la lettura completa';
+      if(unlockPack) unlockPack.style.display = 'none';
+    } else {
+      if(unlockFull) unlockFull.textContent = 'Leggi cosa dicono le tre carte insieme · ' + formatPriceEuro(p.fullPriceCents);
+      if(unlockPack) unlockPack.textContent = p.packCredits + ' letture a ' + formatPriceEuro(p.packPriceCents) + ' (' + formatPriceEuro(Math.floor(p.packPriceCents / p.packCredits)) + ' a lettura)';
+    }
+
+    // Sotto CTA
+    var secureNote = document.createElement('p');
+    secureNote.className = 'cta-secure-note';
+    secureNote.textContent = 'Pagamento sicuro con Stripe · Pagamento una tantum, nessun abbonamento';
+    ctaEl.appendChild(secureNote);
+
+    ctaEl.classList.add('show');
+    refreshCreditsUI();
+  }
+
   function renderMarkdown(text, mode){
     var isFull = mode === 'full';
     var seen = {};
@@ -4906,11 +5013,13 @@
       var fullEl = document.getElementById('admin-set-full-price');
       var packEl = document.getElementById('admin-set-pack-price');
       var creditsEl = document.getElementById('admin-set-pack-credits');
+      var paywallVariantEl = document.getElementById('admin-set-paywall-variant');
       var modelEl = document.getElementById('admin-set-gpt-model');
       var urlsWrap = document.getElementById('admin-landing-urls');
       if(fullEl) fullEl.value = centsToEuroInput(s.fullPriceCents != null ? s.fullPriceCents : 490);
       if(packEl) packEl.value = centsToEuroInput(s.packPriceCents != null ? s.packPriceCents : 990);
       if(creditsEl) creditsEl.value = String(s.packCredits != null ? s.packCredits : 5);
+      if(paywallVariantEl) paywallVariantEl.value = String(s.paywallVariant || 'classic');
       if(modelEl){
         var current = s.gptModel || 'gpt-4.1-nano';
         var opts = models.slice();
@@ -5043,8 +5152,10 @@
         var fullCents = euroInputToCents(document.getElementById('admin-set-full-price') && document.getElementById('admin-set-full-price').value);
         var packCents = euroInputToCents(document.getElementById('admin-set-pack-price') && document.getElementById('admin-set-pack-price').value);
         var creditsEl = document.getElementById('admin-set-pack-credits');
+        var paywallVariantEl = document.getElementById('admin-set-paywall-variant');
         var modelEl = document.getElementById('admin-set-gpt-model');
         var packCredits = creditsEl ? parseInt(creditsEl.value, 10) : 5;
+        var paywallVariant = paywallVariantEl ? String(paywallVariantEl.value).trim() : 'classic';
         if(fullCents == null || fullCents < 50){
           showErr('Prezzo lettura singola non valido (minimo €0,50).');
           return;
@@ -5064,6 +5175,7 @@
             fullPriceCents: fullCents,
             packPriceCents: packCents,
             packCredits: packCredits,
+            paywallVariant: paywallVariant,
             gptModel: modelEl ? modelEl.value : 'gpt-4.1-nano',
             landingVariant: adminLandingVariant
           }
@@ -5072,10 +5184,12 @@
           renderSettings(res);
           if(res.settings){
             state.pricing = {
-              fullPriceCents: res.settings.fullPriceCents,
-              packPriceCents: res.settings.packPriceCents,
-              packCredits: res.settings.packCredits
+              fullPriceCents: Number(res.settings.fullPriceCents) || 490,
+              packPriceCents: Number(res.settings.packPriceCents) || 990,
+              packCredits: Number(res.settings.packCredits) || 5,
+              paywallVariant: String(res.settings.paywallVariant || 'classic')
             };
+            state.paywallVariant = state.pricing.paywallVariant;
             applyPricingUI();
           }
           if(metaEl) metaEl.textContent = 'Impostazioni salvate.';

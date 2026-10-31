@@ -4,6 +4,14 @@ import { funnelStorageMode } from './funnel.js';
 
 const SETTINGS_KEY = 'lux:site:settings';
 
+/** Costante condivisa per le sezioni della lettura completa. Usata nel prompt e nell'UI. */
+export const FULL_READING_SECTIONS = [
+  'Cosa dicono le tre carte insieme',
+  'La risposta simbolica alla tua domanda: cosa ti avvicina e cosa ti frena',
+  'Un passo concreto per le prossime settimane',
+  'Il segnale da riconoscere',
+];
+
 const ALLOWED_GPT_MODELS = [
   'gpt-4.1-nano',
   'gpt-4.1-mini',
@@ -57,6 +65,8 @@ export function defaultSiteSettings() {
     gptModel: 'gpt-4.1-nano',
     /** Landing homepage attiva (1–10). Gli URL /l1…/l10 forzano sempre la rispettiva variante. */
     landingVariant: 1,
+    /** Variante paywall: 'classic' (comportamento attuale) o 'curiosity' (nuova anteprima a sezioni). */
+    paywallVariant: 'classic',
     metaPixel: defaultMetaPixel(),
     updatedAt: null,
   };
@@ -74,12 +84,15 @@ export function sanitizeSiteSettings(raw = {}) {
   const base = defaultSiteSettings();
   const model = String(raw.gptModel || base.gptModel).trim();
   const landing = clampInt(raw.landingVariant, 1, 10, base.landingVariant);
+  const variant = String(raw.paywallVariant || base.paywallVariant).trim();
+  const validVariants = ['classic', 'curiosity'];
   return {
     fullPriceCents: clampInt(raw.fullPriceCents, 50, 50000, base.fullPriceCents),
     packPriceCents: clampInt(raw.packPriceCents, 50, 100000, base.packPriceCents),
     packCredits: clampInt(raw.packCredits, 2, 50, base.packCredits),
     gptModel: ALLOWED_GPT_MODELS.includes(model) ? model : base.gptModel,
     landingVariant: ALLOWED_LANDING_VARIANTS.includes(landing) ? landing : base.landingVariant,
+    paywallVariant: validVariants.includes(variant) ? variant : base.paywallVariant,
     metaPixel: sanitizeMetaPixel(raw.metaPixel != null ? raw.metaPixel : base.metaPixel),
     updatedAt: raw.updatedAt ? String(raw.updatedAt) : null,
   };
@@ -170,6 +183,7 @@ export async function getPublicPricing() {
     packPriceCents: s.packPriceCents,
     packCredits: s.packCredits,
     landingVariant: s.landingVariant,
+    paywallVariant: s.paywallVariant,
   };
 }
 
