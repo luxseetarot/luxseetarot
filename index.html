@@ -3572,7 +3572,9 @@
             setReadingMode(state.mode);
 
             // Se variant=curiosity e abbiamo sezioni JSON, mostriamo UI speciale
+            console.log('Frontend: paywallVariant=' + state.paywallVariant + ', parsedSections=' + !!res.parsedSections + ', isFull=' + isFull);
             if(state.paywallVariant === 'curiosity' && res.parsedSections && !isFull){
+              console.log('Rendering curiosity teaser with sections:', res.parsedSections);
               renderCuriosityTeaser(res.parsedSections);
             } else {
               var html = renderMarkdown(res.reading, state.mode);
@@ -4119,6 +4121,7 @@
     );
   }
   function renderCuriosityTeaser(sections){
+    console.log('renderCuriosityTeaser called with sections:', sections);
     if(!sections) return;
     var html = '';
     html += '<p>' + escapeHtml(sections.apertura || '') + '</p>';
@@ -4128,6 +4131,7 @@
     html += '<p>' + escapeHtml(sections.chiusura || '') + '</p>';
 
     readingEl.innerHTML = html;
+    console.log('Reading HTML set');
 
     // Mostra sezioni bloccate
     var lockedSections = document.createElement('div');
