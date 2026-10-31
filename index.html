@@ -3572,6 +3572,7 @@
             setReadingMode(state.mode);
 
             // Se variant=curiosity e abbiamo sezioni JSON, mostriamo UI speciale
+            var isFull = (res.mode === 'full');
             console.log('Frontend: paywallVariant=' + state.paywallVariant + ', parsedSections=' + !!res.parsedSections + ', isFull=' + isFull);
             if(state.paywallVariant === 'curiosity' && res.parsedSections && !isFull){
               console.log('Rendering curiosity teaser with sections:', res.parsedSections);
