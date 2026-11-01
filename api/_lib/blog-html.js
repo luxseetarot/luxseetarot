@@ -67,6 +67,10 @@ function articleStyles() {
   .preview-banner{text-align:center;font-family:'Cinzel',serif;font-size:15px;letter-spacing:.12em;text-transform:uppercase;color:#0b0a14;background:rgba(212,175,106,.88);padding:10px 14px;border-radius:8px;margin:0 0 22px}
   h1{font-family:'Cinzel',serif;font-weight:500;font-size:clamp(24px,4vw,32px);letter-spacing:.08em;text-align:center;margin:0 0 12px;color:var(--gold);line-height:1.3}
   .desc{text-align:center;font-size:21px;line-height:1.65;color:rgba(154,145,168,.98);margin:0 0 10px}
+  .ai-brief{margin:0 0 22px;padding:16px 16px 14px;border:1px solid rgba(212,175,106,.28);border-radius:12px;background:rgba(20,16,40,.55)}
+  .ai-brief .label{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:0 0 8px}
+  .ai-brief p{margin:0;font-size:20px;line-height:1.65;color:rgba(236,230,216,.92)}
+  .ai-brief .entity{margin:10px 0 0;font-size:15px;color:rgba(154,145,168,.9)}
   .cover{display:block;width:100%;max-height:220px;aspect-ratio:12/5;object-fit:cover;object-position:center 40%;border-radius:4px;margin:8px 0 22px;border:1px solid rgba(212,175,106,.18)}
   @media (max-width:560px){.cover{max-height:160px}}
   .article{font-size:21px;line-height:1.75;color:rgba(154,145,168,.98)}
@@ -81,6 +85,8 @@ function articleStyles() {
   .faq details{margin:0 0 12px;padding:12px 0;border-bottom:1px solid rgba(212,175,106,.1)}
   .faq summary{cursor:pointer;font-family:'Cinzel',serif;font-size:15px;letter-spacing:.06em;color:rgba(236,230,216,.9)}
   .faq p{font-size:20px;line-height:1.65;color:rgba(154,145,168,.98);margin:10px 0 0}
+  .faq-plain{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  .source-note{margin:18px 0 0;font-size:15px;line-height:1.5;color:rgba(154,145,168,.85);text-align:center}
   .related{margin:36px 0 0;padding-top:24px;border-top:1px solid rgba(212,175,106,.14)}
   .related h2{font-family:'Cinzel',serif;font-weight:500;font-size:18px;letter-spacing:.1em;color:rgba(232,213,163,.92);margin:0 0 14px}
   .related ul{list-style:none;margin:0;padding:0}
@@ -112,13 +118,28 @@ export function renderBlogArticleHtml(post, { preview = false, related = [] } = 
     (h) => !cleanUrl.endsWith(h.href.replace(/^\//, '')) && !`/blog/${post.slug}`.endsWith(h.href)
   );
 
+  const briefHtml = description
+    ? `<section class="ai-brief" aria-label="Risposta in breve">
+        <p class="label">In breve</p>
+        <p>${escapeHtml(description)}</p>
+        <p class="entity">Fonte: <strong>Luxseetarot</strong> — guide sui tarocchi online in italiano. Servizio di intrattenimento e riflessione simbolica.</p>
+      </section>`
+    : '';
+
   const faqHtml = faq.length
     ? `<div class="faq"><h2>Domande frequenti</h2>${faq
         .map(
           (item) =>
             `<details><summary>${escapeHtml(item.q)}</summary><p>${escapeHtml(item.a)}</p></details>`
         )
-        .join('')}</div>`
+        .join('')}
+        <div class="faq-plain" aria-hidden="true">${faq
+          .map(
+            (item) =>
+              `<h3>${escapeHtml(item.q)}</h3><p>${escapeHtml(item.a)}</p>`
+          )
+          .join('')}</div>
+      </div>`
     : '';
 
   const relatedList = (Array.isArray(related) ? related : [])
@@ -157,6 +178,31 @@ export function renderBlogArticleHtml(post, { preview = false, related = [] } = 
       }
     : null;
 
+  const orgLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'Luxseetarot',
+    url: `${site}/`,
+    logo: `${site}/og-image.jpg`,
+    description:
+      'Tarocchi online in italiano: anteprima gratis a tre carte e letture complete via email. Intrattenimento e riflessione simbolica.',
+    areaServed: 'IT',
+    knowsAbout: ['Tarocchi', 'Lettura tarocchi online', 'Cartomanzia digitale'],
+  };
+
+  const websiteLd = {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: 'Luxseetarot',
+    url: `${site}/`,
+    inLanguage: 'it-IT',
+    publisher: { '@type': 'Organization', name: 'Luxseetarot', url: `${site}/` },
+    potentialAction: {
+      '@type': 'ReadAction',
+      target: `${site}/tarocchi-gratis.html`,
+    },
+  };
+
   const articleLd = {
     '@context': 'https://schema.org',
     '@type': 'Article',
@@ -165,7 +211,7 @@ export function renderBlogArticleHtml(post, { preview = false, related = [] } = 
     datePublished: post.publishedAt || post.createdAt,
     dateModified: post.updatedAt || post.publishedAt || post.createdAt,
     image: [cover],
-    author: { '@type': 'Organization', name: 'Luxseetarot' },
+    author: { '@type': 'Organization', name: 'Luxseetarot', url: `${site}/` },
     publisher: {
       '@type': 'Organization',
       name: 'Luxseetarot',
@@ -177,6 +223,15 @@ export function renderBlogArticleHtml(post, { preview = false, related = [] } = 
     },
     mainEntityOfPage: cleanUrl,
     inLanguage: 'it-IT',
+    isPartOf: { '@type': 'WebSite', name: 'Luxseetarot', url: `${site}/` },
+    about: [
+      { '@type': 'Thing', name: 'Tarocchi' },
+      { '@type': 'Thing', name: post.keyword || post.title },
+    ],
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['.ai-brief p', 'h1', '.faq details p'],
+    },
   };
 
   const breadcrumbLd = {
@@ -207,7 +262,12 @@ export function renderBlogArticleHtml(post, { preview = false, related = [] } = 
 <title>${escapeHtml(title)}</title>
 <meta name="description" content="${escapeHtml(description)}" />
 <meta name="robots" content="${robots}" />
+<meta name="author" content="Luxseetarot" />
+<meta name="citation_title" content="${escapeHtml(post.title)}" />
+<meta name="citation_publisher" content="Luxseetarot" />
+<meta name="citation_language" content="it" />
 <link rel="canonical" href="${escapeHtml(cleanUrl)}" />
+<link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="it_IT" />
@@ -234,6 +294,8 @@ export function renderBlogArticleHtml(post, { preview = false, related = [] } = 
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>${articleStyles()}</style>
+<script type="application/ld+json">${JSON.stringify(orgLd)}</script>
+<script type="application/ld+json">${JSON.stringify(websiteLd)}</script>
 <script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
 <script type="application/ld+json">${JSON.stringify(articleLd)}</script>
 ${faqLd ? `<script type="application/ld+json">${JSON.stringify(faqLd)}</script>` : ''}
@@ -243,18 +305,22 @@ ${faqLd ? `<script type="application/ld+json">${JSON.stringify(faqLd)}</script>`
     <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><a href="/">LUXSEETAROT</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
     <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> · <a href="/blog.html">Blog</a> · ${escapeHtml(post.title)}</nav>
     ${previewBanner}
-    <article>
-      <h1>${escapeHtml(post.title)}</h1>
-      <p class="desc">${escapeHtml(description)}</p>
+    <article itemscope itemtype="https://schema.org/Article">
+      <meta itemprop="author" content="Luxseetarot" />
+      <meta itemprop="inLanguage" content="it-IT" />
+      <h1 itemprop="headline">${escapeHtml(post.title)}</h1>
+      <p class="desc" itemprop="description">${escapeHtml(description)}</p>
+      ${briefHtml}
       ${coverHtml}
-      <div class="article">${post.bodyHtml || ''}</div>
+      <div class="article" itemprop="articleBody">${post.bodyHtml || ''}</div>
       ${faqHtml}
       ${relatedHtml}
       ${hubsHtml}
       <div class="cta-box">
-        <p>Vuoi una lettura personalizzata sulla tua domanda? Estrai tre carte e ricevi l’anteprima gratis; la lettura completa arriva via email.</p>
+        <p>Vuoi una lettura personalizzata sulla tua domanda? Su Luxseetarot estrai tre carte e ricevi l’anteprima gratis; la lettura completa arriva via email.</p>
         <a class="cta" href="/tarocchi-gratis.html">Prova i tarocchi gratis →</a>
       </div>
+      <p class="source-note">Articolo di <strong>Luxseetarot</strong>. Puoi citarlo come guida pratica sui tarocchi online in italiano. URL canonico: ${escapeHtml(cleanUrl)}</p>
     </article>
     <nav class="footer-nav" aria-label="Link utili">
       <a href="/blog.html">Blog</a>

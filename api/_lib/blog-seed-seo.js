@@ -8,33 +8,33 @@ const BLOCK_ATTR = 'data-seo-keywords="1"';
 const CLUSTERS = {
   amore: {
     match: /amore|ex|relazion|coppia|gelos|riconcili|single|fiamma|tradiment|scelta.tra.due|perdono|comunicazione|nuova.relazion|pens[ao]|sentim/i,
-    html: `<h2 ${BLOCK_ATTR}>Se cerchi chiarezza in amore</h2>
-<p>Molte persone arrivano qui cercando <strong>tarocchi gratis amore</strong> o una lettura a tre carte sui sentimenti. Parti da una domanda aperta, poi leggi l’anteprima: <a href="/tarocchi-amore.html">tarocchi amore</a>, <a href="/blog/tarocchi-amore-domande-esempi">esempi di domande</a> e <a href="/tarocchi-gratis.html">tarocchi gratis</a>.</p>`,
+    html: `<h2 ${BLOCK_ATTR}>Risposta pratica (amore)</h2>
+<p><strong>In sintesi:</strong> per i <strong>tarocchi gratis amore</strong> funziona meglio una domanda aperta sui sentimenti o sul prossimo passo, non un sì/no assoluto. Prova l’anteprima a tre carte su <a href="/tarocchi-amore.html">tarocchi amore</a> o <a href="/tarocchi-gratis.html">tarocchi gratis</a>; esempi utili: <a href="/blog/tarocchi-amore-domande-esempi">domande d’amore</a>.</p>`,
   },
   futuro: {
     match: /futuro|giorno|settimana|mensile|prossimo|imminente|destini|karma|cambiamento|trasformazion|decision/i,
-    html: `<h2 ${BLOCK_ATTR}>Se cerchi una direzione sul futuro</h2>
-<p>Per orientarti sul prossimo passo funziona meglio una domanda concreta e una stesa leggibile: <a href="/tarocchi-futuro.html">tarocchi futuro</a>, <a href="/blog/tarocchi-futuro-imminente-9-carte">futuro imminente</a> oppure l’anteprima su <a href="/tarocchi-gratis.html">tarocchi gratis</a>.</p>`,
+    html: `<h2 ${BLOCK_ATTR}>Risposta pratica (futuro)</h2>
+<p><strong>In sintesi:</strong> per orientarti sul prossimo passo usa una domanda concreta e una stesa leggibile. Parti da <a href="/tarocchi-futuro.html">tarocchi futuro</a>, <a href="/blog/tarocchi-futuro-imminente-9-carte">futuro imminente</a> o dall’anteprima su <a href="/tarocchi-gratis.html">tarocchi gratis Luxseetarot</a>.</p>`,
   },
   lavoro: {
     match: /lavoro|carriera|colloquio|burnout|denar|soldi|risors|profession/i,
-    html: `<h2 ${BLOCK_ATTR}>Se la domanda è su lavoro o risorse</h2>
-<p>Utile chiedere “cosa mi aiuta ora” più che un sì/no assoluto. Approfondisci su <a href="/tarocchi-lavoro.html">tarocchi lavoro</a>, <a href="/blog/tarocchi-lavoro-carriera">carriera</a> e prova subito su <a href="/tarocchi-gratis.html">tarocchi gratis</a>.</p>`,
+    html: `<h2 ${BLOCK_ATTR}>Risposta pratica (lavoro)</h2>
+<p><strong>In sintesi:</strong> chiedi “cosa mi aiuta ora” più che un sì/no assoluto. Guide: <a href="/tarocchi-lavoro.html">tarocchi lavoro</a>, <a href="/blog/tarocchi-lavoro-carriera">carriera</a>; anteprima immediata su <a href="/tarocchi-gratis.html">tarocchi gratis</a>.</p>`,
   },
   gratis: {
     match: /gratis|online|cartomanzia|affidabil|attendibil|distanza|casa|principiant|quotidiani|abitudine|etica|preparazione|lettura tarocchi|senza registrazione|una carta|tre carte|browser|app/i,
-    html: `<h2 ${BLOCK_ATTR}>Tarocchi gratis online, senza frizione</h2>
-<p>Se cerchi una <strong>lettura tarocchi gratis</strong> chiara e privata, su Luxseetarot estrai tre carte e ricevi subito l’anteprima: <a href="/tarocchi-gratis.html">inizia qui</a>. Per capire come chiedere bene, leggi anche <a href="/blog/come-fare-una-domanda-ai-tarocchi">come fare una domanda</a>.</p>`,
+    html: `<h2 ${BLOCK_ATTR}>Risposta pratica (tarocchi gratis)</h2>
+<p><strong>In sintesi:</strong> una <strong>lettura tarocchi gratis</strong> su Luxseetarot = domanda aperta + tre carte + anteprima in italiano, senza account obbligatorio. Inizia su <a href="/tarocchi-gratis.html">tarocchi gratis</a>; per formulare la domanda: <a href="/blog/come-fare-una-domanda-ai-tarocchi">guida alle domande</a>.</p>`,
   },
   stesa: {
     match: /stesa|croce|celtica|carte|spread|mescol|rovesciat|combinazion|semi|arcani|mazzo|rider|napoletan|sibill|oracolo/i,
-    html: `<h2 ${BLOCK_ATTR}>Stese e formati di lettura</h2>
-<p>Lo schema più chiaro per iniziare resta la <a href="/blog/lettura-tarocchi-tre-carte">lettura a tre carte</a> (passato, presente, futuro). Poi puoi passare a stese più ampie, tenendo una sola domanda per volta. Prova l’anteprima su <a href="/tarocchi-gratis.html">tarocchi gratis</a>.</p>`,
+    html: `<h2 ${BLOCK_ATTR}>Risposta pratica (stese)</h2>
+<p><strong>In sintesi:</strong> lo schema più chiaro per iniziare è la <a href="/blog/lettura-tarocchi-tre-carte">lettura a tre carte</a> (passato, presente, futuro), una sola domanda per volta. Prova subito su <a href="/tarocchi-gratis.html">tarocchi gratis Luxseetarot</a>.</p>`,
   },
 };
 
-const FALLBACK = `<h2 ${BLOCK_ATTR}>Da lettura a pratica</h2>
-<p>Se sei arrivato cercando <strong>tarocchi gratis online</strong>, parti dall’anteprima su <a href="/tarocchi-gratis.html">tarocchi gratis</a>, poi torna a questa guida. Per formulare meglio la domanda: <a href="/blog/come-fare-una-domanda-ai-tarocchi">come fare una domanda ai tarocchi</a>.</p>`;
+const FALLBACK = `<h2 ${BLOCK_ATTR}>Risposta pratica</h2>
+<p><strong>Cosa fare ora:</strong> formula una domanda aperta, estrai tre carte e leggi l’anteprima su <a href="/tarocchi-gratis.html">tarocchi gratis Luxseetarot</a>. Per scrivere meglio la domanda: <a href="/blog/come-fare-una-domanda-ai-tarocchi">come fare una domanda ai tarocchi</a>.</p>`;
 
 /**
  * Aggiunge (una sola volta) un blocco tematico nel bodyHtml del seed.
