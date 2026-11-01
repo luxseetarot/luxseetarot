@@ -1098,7 +1098,9 @@
     width:22px;height:22px;flex:0 0 auto;color:var(--gold);opacity:.95;display:inline-flex;align-items:center;justify-content:center;
   }
   .locked-section-icon svg{width:18px;height:18px;display:block}
-  .locked-section-title{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.04em;color:rgba(236,230,216,.95);font-style:normal}
+  .locked-section-copy{display:flex;flex-direction:column;gap:4px;min-width:0;text-align:left}
+  .locked-section-title{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.06em;color:var(--gold);font-style:normal;text-transform:uppercase}
+  .locked-section-hook{font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.35;color:rgba(236,230,216,.92)}
   .locked-section-skeleton{display:flex;flex-direction:column;gap:7px;filter:blur(2.5px);opacity:.55;user-select:none;pointer-events:none}
   .skeleton-line{height:11px;background:linear-gradient(90deg,rgba(212,175,106,.12),rgba(212,175,106,.28),rgba(212,175,106,.12));background-size:200% 100%;border-radius:4px;animation:skeleton-pulse 1.5s ease-in-out infinite}
   .skeleton-line:nth-child(1){width:92%}
@@ -1890,11 +1892,15 @@
     'Un passo concreto per le prossime settimane',
     'Il segnale da riconoscere',
   ];
-  /** Sezioni mostrate con lucchetto sotto l’anteprima curiosity (oltre al Passato gratis). */
+  /** Lucchetti curiosity: titolo corto + gancio persuasivo. */
   var CURIOSITY_LOCKED_SECTIONS = [
-    'Presente — cosa sta succedendo ora',
-    'Futuro — dove porta questa dinamica',
-  ].concat(FULL_READING_SECTIONS);
+    { title: 'Presente', hook: 'Cosa sta succedendo ora — e cosa non ti stanno dicendo' },
+    { title: 'Futuro', hook: 'Dove porta questa dinamica se continui così' },
+    { title: 'Le tre carte insieme', hook: 'Il messaggio che compare solo mettendole una accanto all’altra' },
+    { title: 'Cosa ti avvicina e cosa ti frena', hook: 'La risposta simbolica alla tua domanda, senza giri di parole' },
+    { title: 'Il tuo prossimo passo', hook: 'Una mossa concreta per le prossime settimane' },
+    { title: 'Il segnale da non ignorare', hook: 'Il dettaglio che ti fa capire se sei sulla strada giusta' }
+  ];
   var LOCK_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 
   var LANDING_VARIANTS = {
@@ -2740,7 +2746,10 @@
     state.checkoutPass = null;
     ctaEl.classList.remove('show');
     var ctaTitleReset = ctaEl.querySelector('.cta-title');
-    if(ctaTitleReset) ctaTitleReset.textContent = 'VUOI LA LETTURA INTERA?';
+    if(ctaTitleReset){
+      ctaTitleReset.style.display = '';
+      ctaTitleReset.textContent = 'VUOI LA LETTURA INTERA?';
+    }
     var ctaTextReset = document.getElementById('cta-teaser-text');
     if(ctaTextReset){
       ctaTextReset.style.display = '';
@@ -3658,7 +3667,9 @@
                   if(ctaFullEl) ctaFullEl.classList.remove('show');
                   ctaEl.classList.add('show');
                   var ctaTitleOk = ctaEl.querySelector('.cta-title');
-                  if(ctaTitleOk) ctaTitleOk.textContent = 'VUOI LA LETTURA INTERA?';
+                  var ctaTextOk = document.getElementById('cta-teaser-text');
+                  if(ctaTitleOk) ctaTitleOk.style.display = 'none';
+                  if(ctaTextOk) ctaTextOk.style.display = 'none';
                   // Con checkoutPass non serve un secondo widget; mostralo solo se manca
                   if(!state.checkoutPass) ensureCheckoutTurnstile();
                   else {
@@ -4188,13 +4199,18 @@
   function buildLockedSectionsEl(){
     var lockedSections = document.createElement('div');
     lockedSections.className = 'locked-sections';
-    lockedSections.innerHTML = '<div class="locked-sections-title">Ancora bloccato nella lettura completa</div>';
-    CURIOSITY_LOCKED_SECTIONS.forEach(function(title){
+    lockedSections.innerHTML = '<div class="locked-sections-title">Cosa sblocchi subito</div>';
+    CURIOSITY_LOCKED_SECTIONS.forEach(function(item){
+      var title = typeof item === 'string' ? item : (item.title || '');
+      var hook = typeof item === 'string' ? '' : (item.hook || '');
       lockedSections.innerHTML += ''+
         '<div class="locked-section">'+
           '<div class="locked-section-header">'+
             '<span class="locked-section-icon" aria-label="Contenuto bloccato">'+LOCK_ICON_SVG+'</span>'+
-            '<span class="locked-section-title">'+escapeHtml(title)+'</span>'+
+            '<span class="locked-section-copy">'+
+              '<span class="locked-section-title">'+escapeHtml(title)+'</span>'+
+              (hook ? '<span class="locked-section-hook">'+escapeHtml(hook)+'</span>' : '')+
+            '</span>'+
           '</div>'+
           '<div class="locked-section-skeleton" aria-hidden="true">'+
             '<div class="skeleton-line"></div>'+
@@ -4214,12 +4230,13 @@
     var oldSecureNote = ctaEl.querySelector('.cta-secure-note');
     if(oldSecureNote) oldSecureNote.remove();
 
-    if(ctaTitle) ctaTitle.textContent = 'Sblocca Presente, Futuro e la risposta completa';
-    if(ctaText){
-      ctaText.style.display = '';
-      ctaText.textContent = 'Hai visto solo un pezzo del Passato. Nella lettura completa trovi Presente, Futuro, cosa dicono le tre carte insieme e un passo concreto sulla tua domanda — testo da rileggere e PDF.';
+    // Niente titolo/testo sopra il pulsante oro: parlano i lucchetti + CTA
+    if(ctaTitle) ctaTitle.style.display = 'none';
+    if(ctaText) ctaText.style.display = 'none';
+    if(packHint){
+      packHint.style.display = '';
+      packHint.textContent = 'Il pack conviene se vuoi approfondire più volte sulla stessa o su nuove domande.';
     }
-    if(packHint) packHint.style.display = '';
 
     var p = getPricing();
     var u = getUnlock();
