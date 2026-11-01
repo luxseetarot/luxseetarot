@@ -66,7 +66,7 @@ export function defaultSiteSettings() {
     /** Landing homepage attiva (1–10). Gli URL /l1…/l10 forzano sempre la rispettiva variante. */
     landingVariant: 1,
     /** Variante paywall: 'classic' (comportamento attuale) o 'curiosity' (nuova anteprima a sezioni). */
-    paywallVariant: 'classic',
+    paywallVariant: (process.env.PAYWALL_VARIANT || 'classic').trim(),
     metaPixel: defaultMetaPixel(),
     updatedAt: null,
   };

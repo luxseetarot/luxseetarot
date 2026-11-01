@@ -5,7 +5,7 @@ import { recordTeaser } from './_lib/funnel.js';
 import { getGptModel, getSiteSettings, FULL_READING_SECTIONS } from './_lib/site-settings.js';
 import { sendPurchaseConfirmation } from './_lib/purchase-email.js';
 
-function buildSystemPrompt(mode, { deepen = false, paywallVariant = 'classic' } = {}) {
+function buildSystemPrompt(mode, { deepen = false, paywallVariant = 'classic', teaserContext = null } = {}) {
   const isFull = mode === 'full';
   const isCuriosity = !isFull && paywallVariant === 'curiosity';
 
@@ -13,7 +13,7 @@ function buildSystemPrompt(mode, { deepen = false, paywallVariant = 'classic' } 
     return buildCuriosityPrompt();
   }
 
-  return buildClassicPrompt(isFull, deepen);
+  return buildClassicPrompt(isFull, deepen, teaserContext);
 }
 
 function buildClassicPrompt(isFull, deepen, teaserContext = null) {
@@ -45,6 +45,13 @@ FORMATO:
     prompt += `
 CONTESTO DALL'ANTEPRIMA (non contraddire, sviluppa):
 ${teaserContext}
+
+ISTRUZIONI SPECIFICHE per sviluppare l'anteprima:
+- L'anteprima sopra ha 5 sezioni JSON (apertura, passato, presente, futuro, chiusura).
+- Interpreta la carta del futuro (che nell'anteprima non è stata interpretata).
+- Sciogli la chiusura aperta dell'anteprima (la domanda lasciata in sospeso).
+- Rispondi alla domanda in termini simbolici e sfumati, senza predizioni certe.
+- Mantieni coerenza con l'anteprima: non contraddire, solo sviluppa.
 
 `;
   }

@@ -1085,6 +1085,7 @@
   .cta-title{font-family:'Cinzel',serif;letter-spacing:.25em;font-size:14px;color:var(--gold-soft);margin-bottom:10px}
 
   .cta-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;margin:0 0 22px;color:var(--fg)}
+  .cta-price{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);margin:4px 0 0;text-align:center}
 
   .locked-sections{margin:28px 0 20px}
   .locked-sections-title{font-family:'Cinzel',serif;letter-spacing:.18em;font-size:13px;color:var(--gold-soft);margin:0 0 16px;text-transform:uppercase}
@@ -1288,7 +1289,7 @@
 
         <div class="cta-title">VUOI LA LETTURA INTERA?</div>
 
-        <p class="cta-text" id="cta-teaser-text">L’anteprima ti ha dato il filo. Nella versione completa trovi la lettura intera sulla tua domanda, in un testo che puoi rileggere e salvare in PDF — senza fissare una chiamata.</p>
+        <p class="cta-text" id="cta-teaser-text">L’anteprima ti ha dato il filo. Nella versione completa trovi la lettura intera sulla tua domanda, in un testo che puoi rileggere e salvare — senza fissare una chiamata.</p>
 
         <div id="turnstile-checkout-wrap" class="turnstile-wrap" aria-label="Verifica anti-bot per l'acquisto" style="display:none"></div>
 
@@ -1296,10 +1297,12 @@
           <button type="button" class="gold-btn" id="btn-use-credit" style="display:none">USA 1 CREDITO PER LA VERSIONE COMPLETA</button>
           <button type="button" class="credits-pill" id="credits-pill" title="Clicca per gestire i crediti" style="display:none"></button>
           <button type="button" class="ghost-btn" id="btn-new-question-teaser" style="display:none">FAI UNA NUOVA DOMANDA</button>
-          <button type="button" class="gold-btn" id="btn-unlock-full">SBLOCCA LETTURA COMPLETA — €4,90</button>
+          <button type="button" class="gold-btn" id="btn-unlock-full">Leggi cosa dicono le tre carte insieme</button>
+          <div class="cta-price" id="cta-price"></div>
           <button type="button" class="ghost-btn" id="btn-unlock-pack">PACK 5 LETTURE — €9,90</button>
         </div>
         <p class="cta-pack-hint" id="cta-pack-hint">Il pack conviene se vuoi approfondire più volte sulla stessa o su nuove domande.</p>
+        <p class="cta-security">Pagamento sicuro con Stripe · Pagamento una tantum, nessun abbonamento</p>
 
       </div>
 
@@ -2251,12 +2254,15 @@
     var fullLabel = formatPriceEuro(p.fullPriceCents);
     var packLabel = formatPriceEuro(p.packPriceCents);
     var packCredits = p.packCredits || 5;
+    var packPerReading = formatPriceEuro(Math.round(p.packPriceCents / packCredits));
     var unlockFull = document.getElementById('btn-unlock-full');
     var unlockPack = document.getElementById('btn-unlock-pack');
     var upsellPack = document.getElementById('btn-upsell-pack');
-    if(unlockFull) unlockFull.textContent = 'SBLOCCA LETTURA COMPLETA — ' + fullLabel;
-    if(unlockPack) unlockPack.textContent = 'PACK ' + packCredits + ' LETTURE — ' + packLabel;
+    var ctaPrice = document.getElementById('cta-price');
+    if(unlockFull) unlockFull.textContent = 'Leggi cosa dicono le tre carte insieme';
+    if(unlockPack) unlockPack.textContent = packCredits + ' letture a ' + packLabel + ' (' + packPerReading + ' a lettura)';
     if(upsellPack) upsellPack.textContent = 'PACK ' + packCredits + ' LETTURE — ' + packLabel;
+    if(ctaPrice) ctaPrice.textContent = 'Lettura completa · ' + fullLabel;
     refreshCreditsUI();
   }
   fetch('/api/config').then(function(r){ return r.json(); }).then(function(cfg){
@@ -2559,7 +2565,7 @@
         var pr = getPricing();
         teaserText.textContent = state.freeLimitReached
           ? 'Hai usato le 4 anteprime gratuite di questo mese. Sblocca la lettura completa (' + formatPriceEuro(pr.fullPriceCents) + ') oppure il pack da ' + pr.packCredits + ' letture (' + formatPriceEuro(pr.packPriceCents) + ').'
-          : 'L’anteprima ti ha dato il filo. Nella versione completa trovi la lettura intera sulla tua domanda, in un testo che puoi rileggere e salvare in PDF — senza fissare una chiamata.';
+          : 'L’anteprima ti ha dato il filo. Nella versione completa trovi la lettura intera sulla tua domanda, in un testo che puoi rileggere e salvare — senza fissare una chiamata.';
       }
       var packHint = document.getElementById('cta-pack-hint');
       if(packHint){
@@ -4213,15 +4219,9 @@
       if(unlockFull) unlockFull.textContent = 'Usa 1 credito per leggere la lettura completa';
       if(unlockPack) unlockPack.style.display = 'none';
     } else {
-      if(unlockFull) unlockFull.textContent = 'Leggi cosa dicono le tre carte insieme · ' + formatPriceEuro(p.fullPriceCents);
-      if(unlockPack) unlockPack.textContent = p.packCredits + ' letture a ' + formatPriceEuro(p.packPriceCents) + ' (' + formatPriceEuro(Math.floor(p.packPriceCents / p.packCredits)) + ' a lettura)';
+      if(unlockFull) unlockFull.textContent = 'Leggi cosa dicono le tre carte insieme';
+      if(unlockPack) unlockPack.textContent = p.packCredits + ' letture a ' + packLabel + ' (' + packPerReading + ' a lettura)';
     }
-
-    // Sotto CTA
-    var secureNote = document.createElement('p');
-    secureNote.className = 'cta-secure-note';
-    secureNote.textContent = 'Pagamento sicuro con Stripe · Pagamento una tantum, nessun abbonamento';
-    ctaEl.appendChild(secureNote);
 
     ctaEl.classList.add('show');
     refreshCreditsUI();
