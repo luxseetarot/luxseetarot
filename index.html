@@ -986,9 +986,9 @@
     position:fixed;right:0;bottom:0;width:28px;height:28px;z-index:120;
     opacity:0;cursor:default;background:transparent;border:0;padding:0;
   }
-  #admin-panel.pay-bridge{z-index:12000;align-items:center;justify-content:center;padding:16px}
+  #admin-panel.pay-bridge{z-index:12000;align-items:flex-start;justify-content:center;padding:12px;overflow:auto}
   .admin-shell{
-    width:min(920px,100%);max-height:calc(100vh - 32px);overflow:auto;text-align:left;margin:0 auto;
+    width:min(1280px,98vw);max-height:calc(100vh - 24px);overflow:auto;text-align:left;margin:0 auto;
     background:linear-gradient(160deg,rgba(28,22,56,.97),rgba(8,6,18,.98));
     border:1px solid var(--gold-soft);border-radius:18px;padding:18px 18px 22px;
     box-shadow:0 20px 60px rgba(0,0,0,.45);
@@ -1010,9 +1010,10 @@
   }
   .admin-kpi b{display:block;font-family:'Cinzel',serif;color:var(--gold);font-size:20px;margin-bottom:4px}
   .admin-kpi span{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);letter-spacing:.04em}
-  .admin-table-wrap{overflow:auto;border:1px solid var(--gold-faint);border-radius:12px;margin:0 0 16px}
-  .admin-table{width:100%;border-collapse:collapse;font-family:'Inter',sans-serif;font-size:12px;color:var(--fg)}
+  .admin-table-wrap{overflow:auto;-webkit-overflow-scrolling:touch;border:1px solid var(--gold-faint);border-radius:12px;margin:0 0 16px}
+  .admin-table{width:max-content;min-width:100%;border-collapse:collapse;font-family:'Inter',sans-serif;font-size:12px;color:var(--fg)}
   .admin-table th,.admin-table td{padding:8px 10px;border-bottom:1px solid rgba(212,175,106,.12);text-align:left;white-space:nowrap}
+  .admin-table th:last-child,.admin-table td:last-child{position:sticky;right:0;background:rgba(18,14,36,.96);z-index:1;box-shadow:-8px 0 12px rgba(0,0,0,.25)}
   .admin-table th{color:var(--gold);font-weight:600;background:rgba(212,175,106,.06)}
   .admin-table tr:hover td{background:rgba(212,175,106,.04)}
   .admin-table button{
@@ -1284,7 +1285,6 @@
         <div class="cta-actions">
           <button type="button" class="ghost-btn" id="btn-deepen-full">APPROFONDISCI ANCORA LA LETTURA</button>
           <button type="button" class="ghost-btn" id="btn-new-question-full">FAI UNA NUOVA DOMANDA</button>
-          <button type="button" class="ghost-btn" id="btn-resend-email" style="display:none">REINVIA EMAIL CON LA LETTURA</button>
           <button type="button" class="ghost-btn" id="btn-upsell-pack">PACK 5 LETTURE — €9,90</button>
         </div>
         <button type="button" class="credits-pill credits-pill--footer" id="credits-pill-full" title="Clicca per gestire i crediti" style="display:none"></button>
@@ -2324,66 +2324,6 @@
     if(fromUnlock) return fromUnlock;
     try { return localStorage.getItem(LAST_SESSION_KEY) || ''; } catch(e){ return ''; }
   }
-  function resendPurchaseEmail(){
-    var sessionId = getLastPurchaseSessionId();
-    var u = getUnlock();
-    var btn = document.getElementById('btn-resend-email');
-    var originalText = btn ? btn.textContent : 'REINVIA EMAIL DI RECUPERO';
-
-    if(!sessionId && !(u && u.unlockToken)){
-      showToast('Nessun acquisto recente da questo browser. Controlla spam o scrivici.');
-      return;
-    }
-
-    // Disabilita pulsante e mostra caricamento
-    if(btn){
-      btn.disabled = true;
-      btn.textContent = 'REINVIO IN CORSO...';
-      btn.style.opacity = '0.7';
-    }
-
-    showToast('Reinvio email in corso...');
-    fetch('/api/verify-session', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        sessionId: sessionId || '',
-        unlockToken: (u && u.unlockToken) || '',
-        resendEmail: true,
-        sendEmail: false
-      })
-    }).then(function(r){ return r.json(); }).then(function(res){
-      if(res.ok){
-        showToast('✓ Email reinviata' + (res.email ? (' a ' + res.email) : '') + '. Controlla anche spam.');
-        if(btn){
-          btn.textContent = '✓ EMAIL INVIATA';
-          btn.style.opacity = '1';
-          btn.style.background = 'rgba(255,215,0,0.2)';
-          btn.style.borderColor = 'rgba(255,215,0,0.5)';
-          setTimeout(function(){
-            btn.disabled = false;
-            btn.textContent = originalText;
-            btn.style.background = '';
-            btn.style.borderColor = '';
-          }, 5000);
-        }
-        return;
-      }
-      showToast('✗ ' + (res.error || 'Reinvio email non riuscito.'));
-      if(btn){
-        btn.disabled = false;
-        btn.textContent = originalText;
-        btn.style.opacity = '1';
-      }
-    }).catch(function(){
-      showToast('✗ Reinvio email non riuscito.');
-      if(btn){
-        btn.disabled = false;
-        btn.textContent = originalText;
-        btn.style.opacity = '1';
-      }
-    });
-  }
   function getSavedReading(){
     try { return JSON.parse(localStorage.getItem(READING_KEY) || 'null'); } catch(e){ return null; }
   }
@@ -2519,18 +2459,13 @@
     }
 
     var checkoutWrap = document.getElementById('turnstile-checkout-wrap');
-    // Dopo lettura completa: approfondisci + nuova domanda (+ reinvio email)
+    // Dopo lettura completa: approfondisci + nuova domanda
     if(newFullBtn) newFullBtn.style.display = 'inline-flex';
     if(deepenBtn){
       deepenBtn.style.display = 'inline-flex';
       deepenBtn.textContent = hasCredits
         ? 'APPROFONDISCI ANCORA LA LETTURA'
         : 'APPROFONDISCI ANCORA — PACK ' + formatPriceEuro(getPricing().packPriceCents);
-    }
-    var resendBtn = document.getElementById('btn-resend-email');
-    if(resendBtn){
-      var canResend = !!getLastPurchaseSessionId();
-      resendBtn.style.display = (fullOpen && canResend) ? 'inline-flex' : 'none';
     }
     if(fullTextEl){
       fullTextEl.textContent = hasCredits
@@ -3810,8 +3745,6 @@
   document.getElementById('btn-unlock-pack').addEventListener('click', function(){ startCheckout('pack'); });
   document.getElementById('btn-upsell-pack').addEventListener('click', function(){ startCheckout('pack'); });
   document.getElementById('btn-deepen-full').addEventListener('click', deepenFullReading);
-  var resendEmailBtn = document.getElementById('btn-resend-email');
-  if(resendEmailBtn) resendEmailBtn.addEventListener('click', resendPurchaseEmail);
   document.getElementById('btn-deepen-confirm').addEventListener('click', confirmDeepenReading);
   document.getElementById('btn-checkout-email-confirm').addEventListener('click', confirmCheckoutEmail);
   document.getElementById('btn-checkout-email-cancel').addEventListener('click', hideCheckoutEmailPanel);
