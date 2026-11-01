@@ -56,6 +56,7 @@ export async function sendCreditsEmail({
   const site = (process.env.SITE_URL || 'https://www.luxseetarot.com').replace(/\/$/, '');
   const continueUrl = `${site}/?recover=${encodeURIComponent(sessionId)}&intent=continue`;
   const newUrl = `${site}/?recover=${encodeURIComponent(sessionId)}&intent=new`;
+  const deepenUrl = `${site}/?recover=${encodeURIComponent(sessionId)}&intent=deepen`;
   const left = Math.max(0, Number(remaining) || 0);
   const total = Math.max(1, Number(max) || 0);
   const walletMode = product === 'pack' && left > 0;
@@ -96,11 +97,12 @@ export async function sendCreditsEmail({
       ${qLine}
       ${cardsLine}
       ${readingHtml || '<p>La lettura è disponibile nella tua casella: se non la vedi sotto, controlla anche lo spam.</p>'}
-      <p>Vuoi un’altra consultazione?</p>
+      <p>Vuoi <strong style="color:#d4af6a">approfondire</strong> ancora questa lettura con nuove domande?</p>
+      <p>Per farlo serve un nuovo acquisto: una <strong style="color:#d4af6a">lettura singola</strong>, oppure il <strong style="color:#d4af6a">pack da 5 letture</strong> (più conveniente se vuoi continuare più volte).</p>
       <p style="margin:22px 0">
-        ${ctaButton(newUrl, 'Nuova lettura', true)}
+        ${ctaButton(deepenUrl, 'Approfondisci lettura', true)}
       </p>
-      <p style="color:#9a91a8;font-size:12px;word-break:break-all">${newUrl}</p>
+      <p style="color:#9a91a8;font-size:12px;word-break:break-all">${deepenUrl}</p>
     `;
   }
 

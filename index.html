@@ -1342,6 +1342,20 @@
   </div>
 </div>
 
+<div id="deepen-upsell" class="pay-bridge" aria-live="polite">
+  <div class="pay-bridge-inner">
+    <div class="phase-tag">APPROFONDISCI</div>
+    <h2>Approfondisci la lettura</h2>
+    <p id="deepen-upsell-text">Per aggiungere nuove domande sulla lettura che hai ricevuto serve un nuovo acquisto: una lettura singola, oppure il pack (più conveniente se vuoi continuare più volte).</p>
+    <p class="credit-choice-note" id="deepen-upsell-note"></p>
+    <div class="credit-choice-actions">
+      <button type="button" class="ghost-btn" id="btn-deepen-buy-full">LETTURA SINGOLA</button>
+      <button type="button" class="gold-btn" id="btn-deepen-buy-pack">PACK 5 LETTURE — PIÙ CONVENIENTE</button>
+      <button type="button" class="ghost-btn" id="btn-deepen-upsell-cancel">ANNULLA</button>
+    </div>
+  </div>
+</div>
+
 <div id="deepen-panel" class="pay-bridge" aria-live="polite">
   <div class="pay-bridge-inner deepen-panel-inner">
     <div class="phase-tag">APPROFONDIMENTO</div>
@@ -2272,6 +2286,14 @@
     if(unlockFull) unlockFull.textContent = 'SBLOCCA LETTURA COMPLETA — ' + fullLabel;
     if(unlockPack) unlockPack.textContent = 'PACK ' + packCredits + ' LETTURE — ' + packLabel;
     if(upsellPack) upsellPack.textContent = 'PACK ' + packCredits + ' LETTURE — ' + packLabel;
+    var deepenBuyFull = document.getElementById('btn-deepen-buy-full');
+    var deepenBuyPack = document.getElementById('btn-deepen-buy-pack');
+    var deepenNote = document.getElementById('deepen-upsell-note');
+    if(deepenBuyFull) deepenBuyFull.textContent = 'LETTURA SINGOLA — ' + fullLabel;
+    if(deepenBuyPack) deepenBuyPack.textContent = 'PACK ' + packCredits + ' LETTURE — ' + packLabel + ' (PIÙ CONVENIENTE)';
+    if(deepenNote){
+      deepenNote.textContent = 'La lettura singola costa ' + fullLabel + '. Il pack da ' + packCredits + ' letture costa ' + packLabel + ' e conviene se vuoi approfondire più volte.';
+    }
     refreshCreditsUI();
   }
   fetch('/api/config').then(function(r){ return r.json(); }).then(function(cfg){
@@ -2574,6 +2596,20 @@
     if(panel) panel.classList.remove('show');
     refreshCreditsUI();
   }
+  function showDeepenUpsell(opts){
+    opts = opts || {};
+    applyPricingUI();
+    hideCreditChoice();
+    hideDeepenPanel();
+    var panel = document.getElementById('deepen-upsell');
+    if(!panel) return;
+    panel.classList.add('show');
+    if(opts.toast) showToast(opts.toast);
+  }
+  function hideDeepenUpsell(){
+    var panel = document.getElementById('deepen-upsell');
+    if(panel) panel.classList.remove('show');
+  }
   function maybeGateCreditsHome(){
     var params = new URLSearchParams(window.location.search);
     // Checkout / recover gestiscono da soli il flusso
@@ -2797,8 +2833,9 @@
       return;
     }
     hideDeepenPanel();
-    showToast('Per approfondire ancora puoi prendere il pack da 5 letture.');
-    startCheckout('pack');
+    showDeepenUpsell({
+      toast: 'Per approfondire serve un nuovo acquisto: lettura singola o pack più conveniente.'
+    });
   }
   function startCheckout(product){
     var pendingProduct = product || 'full';
@@ -3746,6 +3783,18 @@
   document.getElementById('btn-upsell-pack').addEventListener('click', function(){ startCheckout('pack'); });
   document.getElementById('btn-deepen-full').addEventListener('click', deepenFullReading);
   document.getElementById('btn-deepen-confirm').addEventListener('click', confirmDeepenReading);
+  var deepenBuyFullBtn = document.getElementById('btn-deepen-buy-full');
+  var deepenBuyPackBtn = document.getElementById('btn-deepen-buy-pack');
+  var deepenUpsellCancel = document.getElementById('btn-deepen-upsell-cancel');
+  if(deepenBuyFullBtn) deepenBuyFullBtn.addEventListener('click', function(){
+    hideDeepenUpsell();
+    startCheckout('full');
+  });
+  if(deepenBuyPackBtn) deepenBuyPackBtn.addEventListener('click', function(){
+    hideDeepenUpsell();
+    startCheckout('pack');
+  });
+  if(deepenUpsellCancel) deepenUpsellCancel.addEventListener('click', hideDeepenUpsell);
   document.getElementById('btn-checkout-email-confirm').addEventListener('click', confirmCheckoutEmail);
   document.getElementById('btn-checkout-email-cancel').addEventListener('click', hideCheckoutEmailPanel);
   var checkoutEmailInput = document.getElementById('checkout-email');
@@ -3818,6 +3867,19 @@
         showToast(res.credits > 0
           ? 'Puoi iniziare una nuova lettura con i crediti rimanenti.'
           : 'Inizia una nuova lettura quando vuoi.');
+        return;
+      }
+      if(intent === 'deepen'){
+        if(res.credits > 0 && hasSavedReadingToContinue()){
+          continueSameReading({ openDeepen: true });
+          return;
+        }
+        if(hasSavedReadingToContinue()){
+          continueSameReading();
+        }
+        showDeepenUpsell({
+          toast: 'Per approfondire scegli una lettura singola o il pack più conveniente.'
+        });
         return;
       }
       if(intent === 'continue'){
