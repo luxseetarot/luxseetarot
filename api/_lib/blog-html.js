@@ -9,16 +9,46 @@ function escapeHtml(s) {
 }
 
 function siteOrigin() {
-  const raw = (process.env.SITE_URL || 'https://www.luxseetarot.com').trim();
-  return raw.replace(/\/$/, '') || 'https://www.luxseetarot.com';
+  let raw = (process.env.SITE_URL || 'https://www.luxseetarot.com').trim();
+  raw = raw.replace(/\/$/, '') || 'https://www.luxseetarot.com';
+  if (raw === 'https://luxseetarot.com' || raw === 'http://luxseetarot.com') {
+    raw = 'https://www.luxseetarot.com';
+  }
+  return raw;
 }
 
 function absUrl(pathOrUrl) {
   const site = siteOrigin();
   const p = String(pathOrUrl || '').trim();
   if (!p) return `${site}/og-image.jpg`;
-  if (/^https?:\/\//i.test(p)) return p.split('?')[0] + (p.includes('?') ? p.slice(p.indexOf('?')) : '');
+  if (/^https?:\/\//i.test(p)) return p;
   return site + (p.startsWith('/') ? p : `/${p}`);
+}
+
+function detectCluster(post) {
+  const hay = `${post.slug || ''} ${post.keyword || ''} ${post.title || ''} ${post.description || ''}`;
+  if (/amore|ex|relazion|coppia|single|fiamma|tradiment|gelos/i.test(hay)) return 'amore';
+  if (/lavoro|carriera|soldi|denar|colloquio|burnout/i.test(hay)) return 'lavoro';
+  if (/futuro|destino|imminente|prossimo|karma/i.test(hay)) return 'futuro';
+  return 'gratis';
+}
+
+function moneyLinksForCluster(cluster) {
+  const common = [
+    { href: '/tarocchi-gratis.html', label: 'Tarocchi gratis' },
+    { href: '/blog/come-fare-una-domanda-ai-tarocchi', label: 'Come fare una domanda' },
+    { href: '/blog/lettura-tarocchi-tre-carte', label: 'Lettura a tre carte' },
+  ];
+  if (cluster === 'amore') {
+    return [{ href: '/tarocchi-amore.html', label: 'Tarocchi amore' }, ...common];
+  }
+  if (cluster === 'lavoro') {
+    return [{ href: '/tarocchi-lavoro.html', label: 'Tarocchi lavoro' }, ...common];
+  }
+  if (cluster === 'futuro') {
+    return [{ href: '/tarocchi-futuro.html', label: 'Tarocchi futuro' }, ...common];
+  }
+  return common;
 }
 
 function articleStyles() {
@@ -51,20 +81,36 @@ function articleStyles() {
   .faq details{margin:0 0 12px;padding:12px 0;border-bottom:1px solid rgba(212,175,106,.1)}
   .faq summary{cursor:pointer;font-family:'Cinzel',serif;font-size:15px;letter-spacing:.06em;color:rgba(236,230,216,.9)}
   .faq p{font-size:20px;line-height:1.65;color:rgba(154,145,168,.98);margin:10px 0 0}
-  .cta{display:block;text-align:center;margin:40px 0 8px;font-family:'Cinzel',serif;font-size:14px;letter-spacing:.16em;text-transform:uppercase}
+  .related{margin:36px 0 0;padding-top:24px;border-top:1px solid rgba(212,175,106,.14)}
+  .related h2{font-family:'Cinzel',serif;font-weight:500;font-size:18px;letter-spacing:.1em;color:rgba(232,213,163,.92);margin:0 0 14px}
+  .related ul{list-style:none;margin:0;padding:0}
+  .related li{margin:0 0 12px;padding:0 0 12px;border-bottom:1px solid rgba(212,175,106,.1)}
+  .related li:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+  .related a{font-family:'Cinzel',serif;font-size:16px;letter-spacing:.04em;color:rgba(232,213,163,.95)}
+  .related p{margin:6px 0 0;font-size:18px;line-height:1.5;color:rgba(154,145,168,.9)}
+  .hubs{margin:28px 0 0;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .hubs a{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.1em;text-transform:uppercase;padding:8px 12px;border:1px solid rgba(212,175,106,.35);border-radius:999px;color:rgba(232,213,163,.9)}
+  .cta-box{margin:40px 0 8px;padding:22px 18px;border:1px solid rgba(212,175,106,.28);border-radius:14px;background:rgba(20,16,40,.45);text-align:center}
+  .cta-box p{margin:0 0 14px;font-size:19px;line-height:1.55;color:rgba(154,145,168,.95)}
+  .cta{display:inline-block;font-family:'Cinzel',serif;font-size:14px;letter-spacing:.16em;text-transform:uppercase;color:#1a1208;background:linear-gradient(135deg,#e6c587,#b88a3e);padding:12px 18px;border-radius:10px}
   .footer-nav{display:flex;flex-wrap:wrap;gap:10px 16px;justify-content:center;margin:28px 0 12px;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase}
   footer{text-align:center;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.18em;text-transform:uppercase;color:rgba(154,145,168,.55);padding:0 22px 40px}
 `.trim();
 }
 
-export function renderBlogArticleHtml(post, { preview = false } = {}) {
+export function renderBlogArticleHtml(post, { preview = false, related = [] } = {}) {
   const site = siteOrigin();
   const cleanUrl = `${site}/blog/${encodeURIComponent(post.slug)}`;
   const title = `${post.title} | Luxseetarot`;
   const description = post.description || '';
-  const cover = post.coverImage ? absUrl(post.coverImage) : `${site}/og-image.jpg`;
+  const coverPath = post.coverImage || '/og-image.jpg';
+  const cover = absUrl(coverPath);
   const robots = preview || post.status !== 'published' ? 'noindex,nofollow' : 'index,follow';
   const faq = Array.isArray(post.faq) ? post.faq : [];
+  const cluster = detectCluster(post);
+  const hubs = moneyLinksForCluster(cluster).filter(
+    (h) => !cleanUrl.endsWith(h.href.replace(/^\//, '')) && !`/blog/${post.slug}`.endsWith(h.href)
+  );
 
   const faqHtml = faq.length
     ? `<div class="faq"><h2>Domande frequenti</h2>${faq
@@ -73,6 +119,30 @@ export function renderBlogArticleHtml(post, { preview = false } = {}) {
             `<details><summary>${escapeHtml(item.q)}</summary><p>${escapeHtml(item.a)}</p></details>`
         )
         .join('')}</div>`
+    : '';
+
+  const relatedList = (Array.isArray(related) ? related : [])
+    .filter((r) => r && r.slug && r.slug !== post.slug)
+    .slice(0, 5);
+  const relatedHtml = relatedList.length
+    ? `<aside class="related"><h2>Approfondisci anche</h2><ul>${relatedList
+        .map(
+          (r) =>
+            `<li><a href="/blog/${escapeHtml(r.slug)}">${escapeHtml(r.title || r.slug)}</a>${
+              r.description
+                ? `<p>${escapeHtml(String(r.description).slice(0, 140))}${
+                    String(r.description).length > 140 ? '…' : ''
+                  }</p>`
+                : ''
+            }</li>`
+        )
+        .join('')}</ul></aside>`
+    : '';
+
+  const hubsHtml = hubs.length
+    ? `<nav class="hubs" aria-label="Guide correlate">${hubs
+        .map((h) => `<a href="${escapeHtml(h.href)}">${escapeHtml(h.label)}</a>`)
+        .join('')}</nav>`
     : '';
 
   const faqLd = faq.length
@@ -100,8 +170,13 @@ export function renderBlogArticleHtml(post, { preview = false } = {}) {
       '@type': 'Organization',
       name: 'Luxseetarot',
       url: `${site}/`,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${site}/og-image.jpg`,
+      },
     },
     mainEntityOfPage: cleanUrl,
+    inLanguage: 'it-IT',
   };
 
   const breadcrumbLd = {
@@ -114,8 +189,10 @@ export function renderBlogArticleHtml(post, { preview = false } = {}) {
     ],
   };
 
-  const coverHtml = post.coverImage
-    ? `<img class="cover" src="${escapeHtml(post.coverImage)}" alt="${escapeHtml(post.coverAlt || post.title)}" width="1400" height="583" decoding="async" />`
+  const coverHtml = coverPath
+    ? `<img class="cover" src="${escapeHtml(coverPath)}" alt="${escapeHtml(
+        post.coverAlt || post.title
+      )}" width="1200" height="500" decoding="async" fetchpriority="high" />`
     : '';
 
   const previewBanner = preview
@@ -134,14 +211,18 @@ export function renderBlogArticleHtml(post, { preview = false } = {}) {
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <meta property="og:type" content="article" />
 <meta property="og:locale" content="it_IT" />
+<meta property="og:site_name" content="Luxseetarot" />
 <meta property="og:title" content="${escapeHtml(title)}" />
 <meta property="og:description" content="${escapeHtml(description)}" />
 <meta property="og:url" content="${escapeHtml(cleanUrl)}" />
 <meta property="og:image" content="${escapeHtml(cover)}" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta name="twitter:title" content="${escapeHtml(title)}" />
 <meta name="twitter:description" content="${escapeHtml(description)}" />
 <meta name="twitter:image" content="${escapeHtml(cover)}" />
+<meta property="article:section" content="Tarocchi" />
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2MZ9MQ7RGE"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -168,12 +249,19 @@ ${faqLd ? `<script type="application/ld+json">${JSON.stringify(faqLd)}</script>`
       ${coverHtml}
       <div class="article">${post.bodyHtml || ''}</div>
       ${faqHtml}
-      <a class="cta" href="/tarocchi-gratis.html">Prova i tarocchi gratis →</a>
+      ${relatedHtml}
+      ${hubsHtml}
+      <div class="cta-box">
+        <p>Vuoi una lettura personalizzata sulla tua domanda? Estrai tre carte e ricevi l’anteprima gratis; la lettura completa arriva via email.</p>
+        <a class="cta" href="/tarocchi-gratis.html">Prova i tarocchi gratis →</a>
+      </div>
     </article>
     <nav class="footer-nav" aria-label="Link utili">
       <a href="/blog.html">Blog</a>
       <a href="/tarocchi-gratis.html">Gratis</a>
       <a href="/tarocchi-amore.html">Amore</a>
+      <a href="/tarocchi-lavoro.html">Lavoro</a>
+      <a href="/tarocchi-futuro.html">Futuro</a>
       <a href="/contatti.html">Contatti</a>
       <a href="/privacy.html">Privacy</a>
     </nav>
@@ -194,20 +282,18 @@ export function renderBlogNotFoundHtml() {
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Articolo non disponibile | Luxseetarot</title>
-<meta name="robots" content="noindex,nofollow" />
+<meta name="robots" content="noindex,follow" />
 <link rel="canonical" href="${site}/blog.html" />
 <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <style>${articleStyles()}</style>
 </head>
 <body>
   <main class="wrap">
-    <div class="brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><a href="/">LUXSEETAROT</a><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></div>
-    <h1>Articolo non disponibile</h1>
-    <p class="desc">Questo contenuto non è pubblico oppure non esiste.</p>
+    <div class="brand"><a href="/">LUXSEETAROT</a></div>
+    <h1>Articolo non trovato</h1>
+    <p class="desc">Questa guida non è disponibile. Torna al blog o inizia una lettura gratis.</p>
     <a class="cta" href="/blog.html">← Torna al blog</a>
   </main>
-  <footer>Luxseetarot © 2026</footer>
-  <script src="/js/meta-pixel.js" defer></script>
   <script src="/js/tab-title.js" defer></script>
 </body>
 </html>`;

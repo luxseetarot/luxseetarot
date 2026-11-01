@@ -1,4 +1,4 @@
-import { getPost, setPostStatus, slugify } from './_lib/blog.js';
+import { getPost, setPostStatus, slugify, listRelatedPosts } from './_lib/blog.js';
 import { getSeedArticlesB } from './_lib/blog-seed-articles-b.js';
 import { renderBlogArticleHtml, renderBlogNotFoundHtml } from './_lib/blog-html.js';
 
@@ -71,8 +71,15 @@ export default async function handler(req, res) {
       });
     }
 
-    // Pubblicato: HTML completo indicizzabile (niente trasformazione manuale)
-    return sendHtml(res, 200, renderBlogArticleHtml(post, { preview: false }), {
+    let related = [];
+    try {
+      related = await listRelatedPosts(post, 5);
+    } catch (relErr) {
+      console.error('related posts error:', relErr);
+    }
+
+    // Pubblicato: HTML completo indicizzabile
+    return sendHtml(res, 200, renderBlogArticleHtml(post, { preview: false, related }), {
       cache: 'public, s-maxage=120, stale-while-revalidate=600',
     });
   } catch (err) {

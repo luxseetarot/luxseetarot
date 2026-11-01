@@ -10,6 +10,7 @@ import { getSeedArticlesF } from './blog-seed-articles-f.js';
 import { getSeedArticlesG } from './blog-seed-articles-g.js';
 import { facebookConfigured, shareBlogPostOnFacebook } from './facebook.js';
 import { withSeoKeywords } from './blog-seed-seo.js';
+import { defaultCoverForSlug } from './blog-covers.js';
 
 const INDEX_KEY = 'lux:blog:index';
 const PUBLISHED_KEY = 'lux:blog:published';
@@ -234,6 +235,75 @@ export async function listPublishedPosts() {
     await redisPipeline(posts.map((p) => ['SADD', PUBLISHED_KEY, p.slug]));
   }
   return posts;
+}
+
+/** Solo slug + date: per sitemap (evita timeout caricando i body). */
+export async function listPublishedSitemapEntries() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (funnelStorageMode() === 'redis') {
+    const publishedSlugs = ((await redisCommand(['SMEMBERS', PUBLISHED_KEY])) || [])
+      .map(String)
+      .map((s) => slugify(s))
+      .filter(Boolean);
+    if (publishedSlugs.length) {
+      return publishedSlugs
+        .map((slug) => {
+          const seed = seedSeoBySlug().get(slug);
+          const last = String(seed?.updatedAt || seed?.publishedAt || today).slice(0, 10);
+          return { slug, lastmod: last };
+        })
+        .sort((a, b) => a.slug.localeCompare(b.slug));
+    }
+  }
+  const posts = await listPublishedPosts();
+  return posts.map((p) => ({
+    slug: p.slug,
+    lastmod: String(p.updatedAt || p.publishedAt || today).slice(0, 10),
+  }));
+}
+
+/** Articoli correlati (solo pubblicati) per interlinking. */
+export async function listRelatedPosts(post, limit = 5) {
+  if (!post || !post.slug) return [];
+  let published = new Set();
+  if (funnelStorageMode() === 'redis') {
+    published = new Set(
+      ((await redisCommand(['SMEMBERS', PUBLISHED_KEY])) || []).map(String).map(slugify).filter(Boolean)
+    );
+  }
+  if (!published.size) {
+    const all = await listPublishedPosts();
+    published = new Set(all.map((p) => p.slug));
+  }
+
+  const hay = `${post.slug || ''} ${post.keyword || ''} ${post.title || ''} ${post.description || ''}`.toLowerCase();
+  const tokens = hay
+    .split(/[^a-zàèéìòù0-9]+/i)
+    .map((t) => t.trim())
+    .filter((t) => t.length >= 4);
+
+  const scored = [];
+  for (const seed of catalogArticles()) {
+    if (!seed?.slug || seed.slug === post.slug || !published.has(seed.slug)) continue;
+    const other = `${seed.slug} ${seed.keyword || ''} ${seed.title || ''}`.toLowerCase();
+    let score = 0;
+    for (const t of tokens) {
+      if (other.includes(t)) score += 1;
+    }
+    if (/amore|ex|relazion|coppia|single/.test(hay) && /amore|ex|relazion|coppia|single/.test(other)) score += 3;
+    if (/lavoro|carriera|soldi|denar/.test(hay) && /lavoro|carriera|soldi|denar/.test(other)) score += 3;
+    if (/futuro|destino|imminente/.test(hay) && /futuro|destino|imminente/.test(other)) score += 3;
+    if (/gratis|online|tre.carte|domanda/.test(hay) && /gratis|online|tre.carte|domanda/.test(other)) score += 2;
+    if (score <= 0) continue;
+    scored.push({
+      score,
+      slug: seed.slug,
+      title: seed.title || seed.slug,
+      description: seed.description || '',
+    });
+  }
+  scored.sort((a, b) => b.score - a.score || a.slug.localeCompare(b.slug));
+  return scored.slice(0, Math.max(1, Math.min(8, limit)));
 }
 
 export async function savePost(input) {
@@ -491,7 +561,12 @@ function seedSeoBySlug() {
 function applySeedSeo(post) {
   if (!post || !post.slug) return post;
   const seed = seedSeoBySlug().get(post.slug);
-  if (!seed) return post;
+  if (!seed) {
+    const cover = post.coverImage || defaultCoverForSlug(post.slug);
+    return cover && cover !== post.coverImage ? { ...post, coverImage: cover } : post;
+  }
+  const coverImage =
+    seed.coverImage || post.coverImage || defaultCoverForSlug(post.slug) || '';
   return {
     ...post,
     title: seed.title || post.title,
@@ -499,8 +574,8 @@ function applySeedSeo(post) {
     keyword: seed.keyword || post.keyword,
     bodyHtml: seed.bodyHtml || post.bodyHtml,
     faq: Array.isArray(seed.faq) && seed.faq.length ? seed.faq : post.faq,
-    coverImage: seed.coverImage || post.coverImage || '',
-    coverAlt: seed.coverAlt || post.coverAlt || '',
+    coverImage,
+    coverAlt: seed.coverAlt || post.coverAlt || seed.title || post.title || '',
   };
 }
 

@@ -1,7 +1,9 @@
 ﻿User-agent: *
 Allow: /
 Disallow: /api/
+Allow: /api/sitemap
 Disallow: /admin
 Disallow: /blog/articolo.html
 
 Sitemap: https://www.luxseetarot.com/sitemap.xml
+Sitemap: https://www.luxseetarot.com/api/sitemap
