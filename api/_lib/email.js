@@ -1,4 +1,43 @@
-﻿export async function sendCreditsEmail({ to, name, remaining, max, sessionId, product }) {
+﻿function escapeHtml(s) {
+  return String(s || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function readingToEmailHtml(fullText) {
+  const raw = String(fullText || '').trim();
+  if (!raw) return '';
+  const clipped = raw.length > 14000 ? `${raw.slice(0, 14000)}\n\n[…]` : raw;
+  const body = escapeHtml(clipped)
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#d4af6a">$1</strong>')
+    .replace(/\n{2,}/g, '</p><p style="margin:0 0 14px;line-height:1.65;color:#ece6d8">')
+    .replace(/\n/g, '<br/>');
+  return `<div style="margin:24px 0;padding:18px 16px;border:1px solid rgba(212,175,106,.28);border-radius:12px;background:rgba(20,16,40,.55)">
+      <p style="margin:0 0 12px;letter-spacing:.18em;font-size:11px;color:#d4af6a;text-transform:uppercase">La tua lettura</p>
+      <p style="margin:0 0 14px;line-height:1.65;color:#ece6d8">${body}</p>
+    </div>`;
+}
+
+function ctaButton(href, label, primary) {
+  const bg = primary
+    ? 'background:linear-gradient(135deg,#e6c587,#b88a3e);color:#1a1208;'
+    : 'background:transparent;color:#d4af6a;border:1px solid rgba(212,175,106,.55);';
+  return `<a href="${href}" style="display:inline-block;${bg}text-decoration:none;padding:12px 18px;border-radius:10px;font-weight:700;letter-spacing:.04em;margin:0 8px 10px 0">${label}</a>`;
+}
+
+export async function sendCreditsEmail({
+  to,
+  name,
+  remaining,
+  max,
+  sessionId,
+  product,
+  fullText = '',
+  question = '',
+  cards = [],
+}) {
   const apiKey =
     (process.env.BREVO_API_KEY || process.env.BREVO_API_KEY_V3 || '').trim();
   const fromEmail =
@@ -15,45 +54,53 @@
   }
 
   const site = (process.env.SITE_URL || 'https://www.luxseetarot.com').replace(/\/$/, '');
-  const recoverUrl = `${site}/?recover=${encodeURIComponent(sessionId)}`;
+  const continueUrl = `${site}/?recover=${encodeURIComponent(sessionId)}&intent=continue`;
+  const newUrl = `${site}/?recover=${encodeURIComponent(sessionId)}&intent=new`;
   const left = Math.max(0, Number(remaining) || 0);
   const total = Math.max(1, Number(max) || 0);
-  // Pack con crediti residui = wallet.
-  // Lettura singola: conferma acquisto + link di recupero (anche se il credito è ancora 1).
   const walletMode = product === 'pack' && left > 0;
+  const readingHtml = readingToEmailHtml(fullText);
+  const qLine = question
+    ? `<p style="color:#9a91a8;font-size:14px;line-height:1.5"><strong style="color:#d4af6a">Domanda:</strong> ${escapeHtml(question)}</p>`
+    : '';
+  const cardsLine = Array.isArray(cards) && cards.length
+    ? `<p style="color:#9a91a8;font-size:14px;line-height:1.5"><strong style="color:#d4af6a">Carte:</strong> ${escapeHtml(cards.join(' · '))}</p>`
+    : '';
 
   let title;
   let subject;
   let htmlBody;
 
   if (walletMode) {
-    title = 'I tuoi crediti Luxseetarot';
-    subject = `${title} — ${left}/${total} crediti`;
+    title = 'La tua lettura Luxseetarot';
+    subject = `La tua lettura — ${left}/${total} crediti rimanenti`;
     htmlBody = `
-      <p>Ciao ${name || ''},</p>
-      <p>Il tuo pack è attivo. Crediti letture complete rimanenti: <strong style="color:#d4af6a">${left}</strong> su ${total}.</p>
-      <p>Il saldo crediti resta sempre visibile sul sito: nella pagina iniziale, sotto l'informativa, e dopo ogni lettura completa, sotto i tasti. Non ti invieremo altre email di aggiornamento.</p>
-      <p>Apri questo link per scegliere se <strong>approfondire la stessa domanda</strong> oppure <strong>farne una nuova</strong>:</p>
+      <p>Ciao ${escapeHtml(name || '')},</p>
+      <p>Ecco la lettura completa. Crediti pack rimanenti: <strong style="color:#d4af6a">${left}</strong> su ${total}.</p>
+      ${qLine}
+      ${cardsLine}
+      ${readingHtml || '<p>La lettura è pronta sul sito.</p>'}
+      <p>Con i crediti rimanenti puoi continuare su questa stessa domanda oppure iniziarne una nuova:</p>
       <p style="margin:22px 0">
-        <a href="${recoverUrl}" style="display:inline-block;background:linear-gradient(135deg,#e6c587,#b88a3e);color:#1a1208;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:700;letter-spacing:.06em">
-          Continua con i tuoi crediti
-        </a>
+        ${ctaButton(continueUrl, 'Continua questa lettura', true)}
+        ${ctaButton(newUrl, 'Nuova lettura', false)}
       </p>
-      <p style="color:#9a91a8;font-size:12px;word-break:break-all">${recoverUrl}</p>
+      <p style="color:#9a91a8;font-size:12px;word-break:break-all">Continua: ${continueUrl}<br/>Nuova: ${newUrl}</p>
     `;
   } else {
-    title = 'Conferma acquisto Luxseetarot';
+    title = 'La tua lettura Luxseetarot';
     subject = title;
     htmlBody = `
-      <p>Ciao ${name || ''},</p>
-      <p>Il pagamento è andato a buon fine: la tua <strong style="color:#d4af6a">lettura completa</strong> è disponibile.</p>
-      <p>Usa il link qui sotto per riaprire la lettura e scaricare il PDF. Questo acquisto include una sola lettura: per approfondire o farne una nuova serve un nuovo acquisto o un pack.</p>
+      <p>Ciao ${escapeHtml(name || '')},</p>
+      <p>Il pagamento è andato a buon fine. Ecco la tua <strong style="color:#d4af6a">lettura completa</strong>.</p>
+      ${qLine}
+      ${cardsLine}
+      ${readingHtml || '<p>La lettura è disponibile nella tua casella: se non la vedi sotto, controlla anche lo spam.</p>'}
+      <p>Vuoi un’altra consultazione?</p>
       <p style="margin:22px 0">
-        <a href="${recoverUrl}" style="display:inline-block;background:linear-gradient(135deg,#e6c587,#b88a3e);color:#1a1208;text-decoration:none;padding:12px 20px;border-radius:10px;font-weight:700;letter-spacing:.06em">
-          Riapri la tua lettura
-        </a>
+        ${ctaButton(newUrl, 'Nuova lettura', true)}
       </p>
-      <p style="color:#9a91a8;font-size:12px;word-break:break-all">${recoverUrl}</p>
+      <p style="color:#9a91a8;font-size:12px;word-break:break-all">${newUrl}</p>
     `;
   }
 

@@ -1,5 +1,13 @@
 ﻿import Stripe from 'stripe';
-import { checkRateLimit, cors, verifyUnlockToken, signUnlock, consumeCreditStripe, signCheckoutPass } from './_lib/unlock.js';
+import {
+  checkRateLimit,
+  cors,
+  verifyUnlockToken,
+  signUnlock,
+  consumeCreditStripe,
+  signCheckoutPass,
+  encodeReadingMeta,
+} from './_lib/unlock.js';
 import { verifyTurnstileToken } from './_lib/turnstile.js';
 import { recordTeaser } from './_lib/funnel.js';
 import { getGptModel, getSiteSettings, FULL_READING_SECTIONS } from './_lib/site-settings.js';
@@ -191,6 +199,8 @@ export default async function handler(req, res) {
     let nextToken = null;
     let emailSent = false;
     let emailError = null;
+    let fullSessionId = null;
+    let stripeClient = null;
 
     if (isFull) {
       const unlocked = verifyUnlockToken(unlockToken);
@@ -199,31 +209,16 @@ export default async function handler(req, res) {
       }
       const stripeKey = process.env.STRIPE_SECRET_KEY;
       if (!stripeKey) return res.status(500).json({ ok: false, error: 'Stripe non configurato.' });
-      const stripe = new Stripe(stripeKey);
-      const consumed = await consumeCreditStripe(stripe, unlocked.sessionId);
+      stripeClient = new Stripe(stripeKey);
+      const consumed = await consumeCreditStripe(stripeClient, unlocked.sessionId);
       if (!consumed.ok) {
         return res.status(402).json({ ok: false, error: 'Crediti esauriti. Acquista un nuovo pack.' });
       }
+      fullSessionId = unlocked.sessionId;
       remainingCredits = consumed.remaining;
       nextToken = remainingCredits > 0
         ? signUnlock({ sessionId: unlocked.sessionId, credits: unlocked.credits, exp: unlocked.exp })
         : null;
-
-      // Conferma email subito dopo il consumo, prima della generazione AI (evita timeout).
-      try {
-        const mail = await sendPurchaseConfirmation(stripe, unlocked.sessionId, {
-          force: false,
-          nameFallback: String(name || ''),
-        });
-        emailSent = !!(mail.ok && mail.emailSent);
-        if (!mail.ok && !mail.alreadySent) {
-          emailError = mail.error || 'Invio email fallito.';
-          console.error('Full-reading purchase email failed:', emailError);
-        }
-      } catch (e) {
-        emailError = 'Invio email fallito.';
-        console.error('Full-reading purchase email exception:', e);
-      }
     }
 
     const systemPrompt = buildSystemPrompt(isFull ? 'full' : 'teaser', { deepen: isDeepen, paywallVariant, teaserContext });
@@ -332,6 +327,47 @@ export default async function handler(req, res) {
     if (!parsedSections) {
       reading = reading.replace(/—/g, ',');
       reading = reading.replace(/\n{3,}/g, '\n\n');
+    }
+
+    // Dopo lettura completa: salva su Stripe e invia email con il testo.
+    if (isFull && stripeClient && fullSessionId) {
+      const draft = {
+        form: {
+          name: String(name || '').slice(0, 80),
+          birthDate: String(birthDate || '').slice(0, 32),
+          email: String((req.body && req.body.email) || '').slice(0, 120),
+          question: String(question || '').slice(0, 500),
+        },
+        cards: (Array.isArray(cards) ? cards : []).slice(0, 3).map((c) => String(c || '').slice(0, 64)),
+        teaserText: null,
+        fullText: reading,
+      };
+      try {
+        const fresh = await stripeClient.checkout.sessions.retrieve(fullSessionId);
+        const meta = {
+          ...(fresh.metadata || {}),
+          ...encodeReadingMeta(draft, fresh.metadata || {}),
+        };
+        await stripeClient.checkout.sessions.update(fullSessionId, { metadata: meta });
+      } catch (e) {
+        console.error('Persist full reading meta failed:', e);
+      }
+      try {
+        const mail = await sendPurchaseConfirmation(stripeClient, fullSessionId, {
+          force: true,
+          nameFallback: String(name || ''),
+          readingDraft: draft,
+          requireReading: true,
+        });
+        emailSent = !!(mail.ok && mail.emailSent);
+        if (!mail.ok && !mail.deferred) {
+          emailError = mail.error || 'Invio email fallito.';
+          console.error('Full-reading delivery email failed:', emailError);
+        }
+      } catch (e) {
+        emailError = 'Invio email fallito.';
+        console.error('Full-reading delivery email exception:', e);
+      }
     }
 
     // Dopo il teaser il token Turnstile è già stato consumato: emetti un pass per l'acquisto.

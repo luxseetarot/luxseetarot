@@ -1,6 +1,6 @@
-/** Invio conferma acquisto / link recupero lettura. */
+/** Invio email con lettura completa dopo generazione / reinvio admin. */
 
-import { getSessionCredits } from './unlock.js';
+import { getSessionCredits, decodeReadingMeta, encodeReadingMeta } from './unlock.js';
 import { sendCreditsEmail } from './email.js';
 
 export function emailConfigStatus() {
@@ -15,10 +15,16 @@ export function emailConfigStatus() {
 }
 
 /**
- * Invia (o reinvia) email di conferma per una Checkout Session pagata.
- * options.force = true ignora credits_email_sent.
+ * Invia email con il testo della lettura.
+ * - readingDraft: bozza corrente (preferita)
+ * - requireReading: se true e manca fullText, non invia (defer)
+ * - force: ignora credits_email_sent (usato dopo ogni lettura completa e per reinvio)
  */
-export async function sendPurchaseConfirmation(stripe, sessionId, { force = false, nameFallback = '' } = {}) {
+export async function sendPurchaseConfirmation(
+  stripe,
+  sessionId,
+  { force = false, nameFallback = '', readingDraft = null, requireReading = true } = {}
+) {
   if (!stripe || !sessionId) {
     return { ok: false, error: 'Sessione mancante.' };
   }
@@ -34,7 +40,14 @@ export async function sendPurchaseConfirmation(stripe, sessionId, { force = fals
     return { ok: false, error: 'Email cliente assente sulla sessione Stripe.' };
   }
 
+  const saved = readingDraft || decodeReadingMeta(info.session.metadata || {}) || null;
+  const fullText = String(saved?.fullText || '').trim();
+  if (requireReading && !fullText) {
+    return { ok: true, deferred: true, email: to };
+  }
+
   const already = info.session.metadata?.credits_email_sent === '1';
+  // force=true: nuova lettura appena generata o reinvio admin.
   if (already && !force) {
     return { ok: true, alreadySent: true, email: to };
   }
@@ -47,11 +60,14 @@ export async function sendPurchaseConfirmation(stripe, sessionId, { force = fals
 
   const mail = await sendCreditsEmail({
     to,
-    name: info.session.metadata?.name || nameFallback || '',
+    name: info.session.metadata?.name || nameFallback || saved?.form?.name || '',
     remaining: info.remaining,
     max: info.max,
     sessionId,
     product: info.product || 'full',
+    fullText,
+    question: saved?.form?.question || '',
+    cards: saved?.cards || [],
   });
 
   if (!mail.ok) {
@@ -67,14 +83,16 @@ export async function sendPurchaseConfirmation(stripe, sessionId, { force = fals
 
   try {
     const fresh = await stripe.checkout.sessions.retrieve(sessionId);
-    await stripe.checkout.sessions.update(sessionId, {
-      metadata: {
-        ...(fresh.metadata || {}),
-        credits_email_sent: '1',
-      },
-    });
+    const metaPatch = {
+      ...(fresh.metadata || {}),
+      credits_email_sent: '1',
+    };
+    if (readingDraft) {
+      Object.assign(metaPatch, encodeReadingMeta(readingDraft, fresh.metadata || {}));
+    }
+    await stripe.checkout.sessions.update(sessionId, { metadata: metaPatch });
   } catch (e) {
-    console.error('Mark credits_email_sent failed:', e);
+    console.error('Mark credits_email_sent / save reading meta failed:', e);
   }
 
   return { ok: true, emailSent: true, email: to };

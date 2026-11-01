@@ -13,7 +13,8 @@ export default async function handler(req, res) {
     const secret = process.env.STRIPE_SECRET_KEY;
     if (!secret) return res.status(500).json({ ok: false, error: 'Stripe non configurato.' });
 
-    const { sessionId, sendEmail = true, resendEmail = false, unlockToken: bodyUnlock } = req.body || {};
+    // sendEmail default false: la lettura arriva via email solo dopo la generazione completa.
+    const { sessionId, sendEmail = false, resendEmail = false, unlockToken: bodyUnlock } = req.body || {};
     let sid = String(sessionId || '').trim();
     if (!sid && bodyUnlock) {
       const unlocked = verifyUnlockToken(bodyUnlock);

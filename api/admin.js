@@ -267,6 +267,10 @@ export default async function handler(req, res) {
         max: 1,
         sessionId: 'test-session',
         product: 'full',
+        fullText:
+          'Questa è un’email di prova Luxseetarot.\n\n**La Luna**\nNel passato emerge un tema di intuizione e attesa.\n\n**Il Sole**\nNel presente arriva più chiarezza.\n\n**La Stella**\nNel futuro si apre una direzione più serena.',
+        question: 'Domanda di prova',
+        cards: ['La Luna', 'Il Sole', 'La Stella'],
       });
       if (!mail.ok) {
         return res.status(502).json({
