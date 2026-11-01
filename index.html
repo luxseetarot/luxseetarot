@@ -1086,18 +1086,26 @@
 
   .cta-text{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:18px;margin:0 0 22px;color:var(--fg)}
 
-  .locked-sections{margin:28px 0 20px}
-  .locked-sections-title{font-family:'Cinzel',serif;letter-spacing:.18em;font-size:13px;color:var(--gold-soft);margin:0 0 16px;text-transform:uppercase}
-  .locked-section{margin:0 0 12px;padding:12px;border:1px solid rgba(212,175,106,.15);border-radius:10px;background:rgba(11,10,20,.35)}
-  .locked-section-header{display:flex;align-items:center;gap:8px;margin:0 0 8px}
-  .locked-section-icon{font-size:14px;opacity:.7}
-  .locked-section-title{font-family:'Cormorant Garamond',serif;font-size:15px;color:var(--fg);font-style:italic}
-  .locked-section-skeleton{display:flex;flex-direction:column;gap:6px}
-  .skeleton-line{height:10px;background:linear-gradient(90deg,rgba(212,175,106,.1),rgba(212,175,106,.2),rgba(212,175,106,.1));background-size:200% 100%;border-radius:4px;animation:skeleton-pulse 1.5s ease-in-out infinite}
-  .skeleton-line:first-child{width:85%}
-  .skeleton-line:last-child{width:60%}
+  .locked-sections{margin:24px 0 8px}
+  .locked-sections-title{font-family:'Cinzel',serif;letter-spacing:.14em;font-size:14px;color:var(--gold);margin:0 0 14px;text-transform:uppercase}
+  .locked-section{
+    margin:0 0 12px;padding:14px 14px 12px;border:1px solid rgba(212,175,106,.28);border-radius:12px;
+    background:linear-gradient(180deg,rgba(30,24,48,.72),rgba(11,10,20,.55));
+    position:relative;overflow:hidden;
+  }
+  .locked-section-header{display:flex;align-items:center;gap:10px;margin:0 0 10px}
+  .locked-section-icon{
+    width:22px;height:22px;flex:0 0 auto;color:var(--gold);opacity:.95;display:inline-flex;align-items:center;justify-content:center;
+  }
+  .locked-section-icon svg{width:18px;height:18px;display:block}
+  .locked-section-title{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.04em;color:rgba(236,230,216,.95);font-style:normal}
+  .locked-section-skeleton{display:flex;flex-direction:column;gap:7px;filter:blur(2.5px);opacity:.55;user-select:none;pointer-events:none}
+  .skeleton-line{height:11px;background:linear-gradient(90deg,rgba(212,175,106,.12),rgba(212,175,106,.28),rgba(212,175,106,.12));background-size:200% 100%;border-radius:4px;animation:skeleton-pulse 1.5s ease-in-out infinite}
+  .skeleton-line:nth-child(1){width:92%}
+  .skeleton-line:nth-child(2){width:78%}
+  .skeleton-line:nth-child(3){width:64%}
   @keyframes skeleton-pulse{0%{background-position:200% 0}100%{background-position:-200% 0}}
-  .cta-secure-note{font-family:'Inter',sans-serif;font-size:12px;color:var(--muted);margin:12px 0 0;letter-spacing:.04em}
+  .cta-secure-note{font-family:'Cormorant Garamond',serif;font-size:15px;color:rgba(154,145,168,.9);margin:14px 0 0;letter-spacing:normal;line-height:1.45}
 
   .restart{display:block;margin:22px auto 0;background:none;border:none;color:var(--muted);font-size:13px;letter-spacing:.3em;text-transform:uppercase;cursor:pointer;transition:color .2s}
 
@@ -1522,12 +1530,12 @@
           <input type="number" id="admin-set-pack-price" min="0.50" max="1000" step="0.10" inputmode="decimal" />
           <label for="admin-set-pack-credits">Numero letture nel pack</label>
           <input type="number" id="admin-set-pack-credits" min="2" max="50" step="1" />
-          <div class="phase-tag" style="margin:18px 0 10px">PAYWALL</div>
-          <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Variante del paywall anteprima.</p>
+          <div class="phase-tag" style="margin:18px 0 10px">PAYWALL / CURIOSITY</div>
+          <p style="margin:0 0 12px;font-size:13px;color:rgba(154,145,168,.9);line-height:1.55">Controlla quanto svela l’anteprima gratuita. <strong style="color:rgba(236,230,216,.9);font-weight:500">Curiosity</strong> (consigliata): solo un gancio sul Passato; Presente, Futuro e sintesi restano con lucchetto. <strong style="color:rgba(236,230,216,.9);font-weight:500">Classic</strong>: testo continuo più corto (~160–200 parole).</p>
           <label for="admin-set-paywall-variant">Variante</label>
           <select id="admin-set-paywall-variant" aria-label="Variante paywall">
-            <option value="classic">Classic (comportamento attuale)</option>
-            <option value="curiosity">Curiosity (nuova anteprima a sezioni)</option>
+            <option value="curiosity">Curiosity — anteprima corta + lucchetti</option>
+            <option value="classic">Classic — testo continuo (assaggio)</option>
           </select>
           <div class="phase-tag" style="margin:18px 0 10px">MODELLO GPT</div>
           <p style="margin:0 0 12px;font-size:12px;color:rgba(154,145,168,.8);line-height:1.45">Usato per anteprima e lettura completa. Cambia solo modelli disponibili sul tuo account OpenAI.</p>
@@ -1882,6 +1890,12 @@
     'Un passo concreto per le prossime settimane',
     'Il segnale da riconoscere',
   ];
+  /** Sezioni mostrate con lucchetto sotto l’anteprima curiosity (oltre al Passato gratis). */
+  var CURIOSITY_LOCKED_SECTIONS = [
+    'Presente — cosa sta succedendo ora',
+    'Futuro — dove porta questa dinamica',
+  ].concat(FULL_READING_SECTIONS);
+  var LOCK_ICON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>';
 
   var LANDING_VARIANTS = {
     1: {
@@ -2379,6 +2393,7 @@
       form: state.form,
       cards: state.lastCards,
       teaserText: state.teaserText || null,
+      teaserSections: state.teaserSections || null,
       fullText: state.fullText || null,
       savedAt: Date.now()
     };
@@ -2408,6 +2423,7 @@
         form: saved.form,
         cards: saved.cards,
         teaserText: saved.teaserText || null,
+        teaserSections: saved.teaserSections || null,
         fullText: saved.fullText || null,
         savedAt: saved.savedAt || Date.now()
       }));
@@ -2662,6 +2678,7 @@
     state.form = saved.form;
     state.lastCards = saved.cards.slice();
     state.teaserText = saved.teaserText || null;
+    state.teaserSections = saved.teaserSections || null;
     state.fullText = saved.fullText || null;
 
     document.querySelectorAll('section.phase').forEach(function(s){
@@ -2692,8 +2709,12 @@
     } else if(state.teaserText){
       state.mode = 'teaser';
       setReadingMode('teaser');
-      readingEl.innerHTML = renderMarkdown(state.teaserText, 'teaser');
-      ctaEl.classList.add('show');
+      if(state.paywallVariant === 'curiosity' && state.teaserSections){
+        renderCuriosityTeaser(state.teaserSections);
+      } else {
+        readingEl.innerHTML = renderMarkdown(state.teaserText, 'teaser');
+        ctaEl.classList.add('show');
+      }
       showToast('Lettura precedente ripristinata.');
       refreshCreditsUI();
     } else {
@@ -2709,6 +2730,7 @@
     var from = (prev && prev.form) || state.form || {};
     clearReadingDraft();
     state.teaserText = null;
+    state.teaserSections = null;
     state.fullText = null;
     state.lastCards = null;
     state.selected = [];
@@ -2719,6 +2741,13 @@
     ctaEl.classList.remove('show');
     var ctaTitleReset = ctaEl.querySelector('.cta-title');
     if(ctaTitleReset) ctaTitleReset.textContent = 'VUOI LA LETTURA INTERA?';
+    var ctaTextReset = document.getElementById('cta-teaser-text');
+    if(ctaTextReset){
+      ctaTextReset.style.display = '';
+      ctaTextReset.textContent = 'L’anteprima ti ha dato il filo. Nella versione completa trovi la lettura intera sulla tua domanda, in un testo che puoi rileggere e salvare in PDF — senza fissare una chiamata.';
+    }
+    var oldSecure = ctaEl.querySelector('.cta-secure-note');
+    if(oldSecure) oldSecure.remove();
     if(ctaFullEl) ctaFullEl.classList.remove('show');
     readingEl.innerHTML = '';
     threeCards.innerHTML = '';
@@ -4156,75 +4185,83 @@
       '</div>'
     );
   }
-  function renderCuriosityTeaser(sections){
-    console.log('renderCuriosityTeaser called with sections:', sections);
-    if(!sections) return;
-    var html = '';
-    html += '<p>' + escapeHtml(sections.apertura || '') + '</p>';
-    html += '<p><strong>Passato</strong><br/>' + escapeHtml(sections.passato || '') + '</p>';
-    html += '<p><strong>Presente</strong><br/>' + escapeHtml(sections.presente || '') + '</p>';
-    html += '<p><strong>Futuro</strong><br/>' + escapeHtml(sections.futuro || '') + '</p>';
-    html += '<p>' + escapeHtml(sections.chiusura || '') + '</p>';
-
-    // Usa typewriter per l'effetto digitazione
-    typewriter(html, readingEl, function(){
-      console.log('Typewriter completed');
-    });
-
-    // Mostra sezioni bloccate
+  function buildLockedSectionsEl(){
     var lockedSections = document.createElement('div');
     lockedSections.className = 'locked-sections';
-    lockedSections.innerHTML = '<div class="locked-sections-title">Nella lettura completa</div>';
-    FULL_READING_SECTIONS.forEach(function(title){
+    lockedSections.innerHTML = '<div class="locked-sections-title">Ancora bloccato nella lettura completa</div>';
+    CURIOSITY_LOCKED_SECTIONS.forEach(function(title){
       lockedSections.innerHTML += ''+
         '<div class="locked-section">'+
           '<div class="locked-section-header">'+
-            '<span class="locked-section-icon" aria-label="Contenuto bloccato">🔒</span>'+
+            '<span class="locked-section-icon" aria-label="Contenuto bloccato">'+LOCK_ICON_SVG+'</span>'+
             '<span class="locked-section-title">'+escapeHtml(title)+'</span>'+
           '</div>'+
-          '<div class="locked-section-skeleton">'+
+          '<div class="locked-section-skeleton" aria-hidden="true">'+
+            '<div class="skeleton-line"></div>'+
             '<div class="skeleton-line"></div>'+
             '<div class="skeleton-line"></div>'+
           '</div>'+
         '</div>';
     });
-    readingEl.appendChild(lockedSections);
-
-    // Aggiorna UI paywall
+    return lockedSections;
+  }
+  function applyCuriosityPaywallUI(){
     var ctaTitle = ctaEl.querySelector('.cta-title');
     var ctaText = document.getElementById('cta-teaser-text');
     var unlockFull = document.getElementById('btn-unlock-full');
     var unlockPack = document.getElementById('btn-unlock-pack');
     var packHint = document.getElementById('cta-pack-hint');
-
-    // Rimuovi eventuale secure-note precedente
     var oldSecureNote = ctaEl.querySelector('.cta-secure-note');
     if(oldSecureNote) oldSecureNote.remove();
 
-    if(ctaTitle) ctaTitle.textContent = 'Cosa dicono le tre carte insieme';
-    if(ctaText) ctaText.style.display = 'none';
-    if(packHint) packHint.style.display = 'none';
+    if(ctaTitle) ctaTitle.textContent = 'Sblocca Presente, Futuro e la risposta completa';
+    if(ctaText){
+      ctaText.style.display = '';
+      ctaText.textContent = 'Hai visto solo un pezzo del Passato. Nella lettura completa trovi Presente, Futuro, cosa dicono le tre carte insieme e un passo concreto sulla tua domanda — testo da rileggere e PDF.';
+    }
+    if(packHint) packHint.style.display = '';
 
     var p = getPricing();
     var u = getUnlock();
     var hasCredits = u && u.unlockToken && Number(u.credits) > 0;
-
     if(hasCredits){
-      if(unlockFull) unlockFull.textContent = 'Usa 1 credito per leggere la lettura completa';
+      if(unlockFull) unlockFull.textContent = 'Usa 1 credito — sblocca tutta la lettura';
       if(unlockPack) unlockPack.style.display = 'none';
     } else {
-      if(unlockFull) unlockFull.textContent = 'Leggi cosa dicono le tre carte insieme · ' + formatPriceEuro(p.fullPriceCents);
-      if(unlockPack) unlockPack.textContent = p.packCredits + ' letture a ' + formatPriceEuro(p.packPriceCents) + ' (' + formatPriceEuro(Math.floor(p.packPriceCents / p.packCredits)) + ' a lettura)';
+      if(unlockFull) unlockFull.textContent = 'SBLOCCA LETTURA COMPLETA — ' + formatPriceEuro(p.fullPriceCents);
+      if(unlockPack){
+        unlockPack.style.display = '';
+        unlockPack.textContent = 'PACK ' + p.packCredits + ' LETTURE — ' + formatPriceEuro(p.packPriceCents);
+      }
     }
 
-    // Sotto CTA
     var secureNote = document.createElement('p');
     secureNote.className = 'cta-secure-note';
-    secureNote.textContent = 'Pagamento sicuro con Stripe · Pagamento una tantum, nessun abbonamento';
+    secureNote.textContent = 'Pagamento sicuro con Stripe · Una tantum, nessun abbonamento';
     ctaEl.appendChild(secureNote);
-
     ctaEl.classList.add('show');
+    if(!state.checkoutPass) ensureCheckoutTurnstile();
+    else {
+      var wrap = document.getElementById('turnstile-checkout-wrap');
+      if(wrap) wrap.style.display = 'none';
+    }
     refreshCreditsUI();
+  }
+  function renderCuriosityTeaser(sections){
+    if(!sections || !readingEl) return;
+    state.teaserSections = sections;
+    var html = '';
+    if(sections.apertura) html += '<p>' + escapeHtml(sections.apertura) + '</p>';
+    if(sections.passato) html += '<p><strong>Passato</strong><br/>' + escapeHtml(sections.passato) + '</p>';
+    if(sections.chiusura) html += '<p>' + escapeHtml(sections.chiusura) + '</p>';
+
+    // Typewriter riscrive innerHTML: i lucchetti vanno aggiunti SOLO a fine digitazione
+    typewriter(html, readingEl, function(){
+      var oldLocks = readingEl.querySelector('.locked-sections');
+      if(oldLocks) oldLocks.remove();
+      readingEl.appendChild(buildLockedSectionsEl());
+      applyCuriosityPaywallUI();
+    });
   }
 
   function renderMarkdown(text, mode){

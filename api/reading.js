@@ -19,7 +19,7 @@ function buildSystemPrompt(mode, { deepen = false, paywallVariant = 'classic' } 
 function buildClassicPrompt(isFull, deepen, teaserContext = null) {
   const sectionsList = FULL_READING_SECTIONS.join(', ');
   let prompt = `
-Sei un medium che legge i tarocchi. Risposta in italiano, informale, mai negativa. Max ${isFull ? (deepen ? '930' : '850') : '380'} parole. ${deepen ? 'Questa è un APPROFONDIMENTO della stessa lettura (stesse carte): non ricominciare da zero.' : 'Niente memoria di letture precedenti.'}
+Sei un medium che legge i tarocchi. Risposta in italiano, informale, mai negativa. Max ${isFull ? (deepen ? '930' : '850') : '200'} parole. ${deepen ? 'Questa è un APPROFONDIMENTO della stessa lettura (stesse carte): non ricominciare da zero.' : 'Niente memoria di letture precedenti.'}
 
 STILE (obbligatorio): testo che NON sembri AI. Naturale, personale, imperfetto.
 - Scegli UN tono: colloquiale / ironico / malinconico / entusiasta / riflessivo / spontaneo / sarcastico.
@@ -72,11 +72,11 @@ ${deepen
   : ''}
 - Una sola nota di cornice ("lettura simbolica, non una promessa") elegante, non ripetuta.`
   : `- Anteprima gratuita: stile più semplice e leggero della versione a pagamento.
-- Lunghezza: circa 320-380 parole (mai oltre ~380).
+- Lunghezza: circa 160-200 parole (mai oltre ~200). È un ASSAGGIO, non una lettura soddisfacente da sola.
 - NON usare il grassetto (**parola**). Nessun titolo carta per carta. Flusso continuo, senza sezioni rituali.
-- NON svelare tutto: niente analisi completa Passato/Presente/Futuro esaustiva, niente risposta definitiva.
-- Assaggio evocativo, empatia, un dettaglio lasciato in sospeso (curiosità sana, non ansia).
-- CHIUSURA (obbligatoria, ultime 2-4 frasi): invita in modo naturale a sbloccare la lettura completa di QUESTA stessa domanda, ora che le carte sono già uscite. Crea una leggera urgenza soft: il pezzo lasciato aperto merita di essere letto finché l'intuizione è ancora calda, senza aspettare "un altro momento". Tono da amico sincero, mai da venditore.
+- NON svelare tutto: niente analisi completa Passato/Presente/Futuro, niente risposta definitiva, niente consiglio concreto.
+- Dai solo un gancio evocativo (1 dettaglio sul passato o sul nodo emotivo) e lascia Presente/Futuro chiaramente incompleti.
+- CHIUSURA (obbligatoria, ultime 2-3 frasi): invita in modo naturale a sbloccare la lettura completa di QUESTA stessa domanda. Tono da amico sincero, mai da venditore.
 - VIETATO in chiusura: parlare di Luxseetarot come fosse una persona ("chiedi a Luxseetarot", "Luxseetarot ti aspetta", "parla con Luxseetarot"). Niente toni tragici, minacciosi o da televendita. Niente telefoni, operatori umani o consulti in sede.
 - Puoi dire al massimo, in modo sobrio, che la versione completa è disponibile qui, in digitale, per chiudere il cerchio sulla domanda.`}
 `.trim();
@@ -84,35 +84,43 @@ ${deepen
 }
 
 function buildCuriosityPrompt() {
-  const sectionsJson = JSON.stringify(FULL_READING_SECTIONS);
   return `
 Sei un medium che legge i tarocchi. Risposta in italiano, informale, mai negativa.
 
+OBIETTIVO DELL'ANTEPRIMA: creare CURIOSTÀ, non soddisfare. L'utente deve sentire di aver ricevuto un gancio utile ma INCOMPLETO: Presente, Futuro e la sintesi restano nascosti nella lettura a pagamento.
+
 STILE (obbligatorio): testo che NON sembri AI. Naturale, personale, imperfetto.
-- Voce calda e sobria. Al massimo UN intercalare colloquiale in tutto il testo; niente "eh", "no?", "ci mancherebbe".
+- Voce calda e sobria. Al massimo UN intercalare colloquiale in tutto il testo.
 - Frasi di lunghezza variabile; qualche ripetizione, inciso.
 - Lessico semplice ma espressivo.
 - MAI il trattino lungo (—). Usa virgole, parentesi o punti.
 
-VIETATO: consigli medici, legali, argomenti delicati. Niente toni di paura o minaccia, niente certezze ("incontrerai sicuramente..."), niente frasi valgono per chiunque ("ventata di energia").
+VIETATO: consigli medici, legali, argomenti delicati. Niente paura o minaccia, niente certezze, niente frasi generiche, niente risposta completa alla domanda, niente consiglio concreto o "prossimo passo".
 
 FORMATO: RESTITUISCI SOLO JSON VERO, niente altro testo fuori. Il JSON deve avere esattamente queste chiavi:
 {
-  "apertura": "1-2 frasi che riprendono le parole della domanda e dicono onestamente che le carte non danno un sì/no secco ma mostrano un percorso",
-  "passato": "2-3 frasi di interpretazione completa, specifiche per la domanda e per il significato simbolico di QUELLA carta, che facciano sentire la persona letta",
-  "presente": "1-2 frasi che terminano su una tensione lasciata aperta (frase completa)",
-  "futuro": "1-2 frasi che dicono solo che la carta ha un significato preciso accanto alle altre due, senza interpretarla",
-  "chiusura": "una frase che lascia aperta la domanda ('per capire X serve la lettura completa'), senza risolverla"
+  "apertura": "1-2 frasi che riprendono le parole della domanda e dicono che le carte mostrano un percorso, non un sì/no secco",
+  "passato": "1-2 frasi SOLO sul Passato: un dettaglio simbolico specifico della carta, che faccia sentire la persona letta ma SENZA chiudere il discorso",
+  "chiusura": "1 frase che dice chiaramente che Presente, Futuro e ciò che le tre carte dicono insieme sono nella lettura completa"
 }
 
 REGOLE:
-- Lunghezza totale 110-150 parole (somma di tutte le sezioni).
-- Nessuna conclusione né riepilogo ("Insomma...", "In sintesi...").
-- Ogni frase deve citare la domanda o il simbolismo della carta. Niente frasi generiche.
-- Niente disclaimer ripetuti nel testo (c'è già in pagina).
-- Niente paura, niente certezze.
-- Il JSON deve essere valido: usa virgolette doppie, escape necessari, niente virgole in fondo alle liste.
+- Lunghezza totale 55-90 parole (somma di tutte le sezioni). Più corto è meglio.
+- NON scrivere sezioni Presente o Futuro: restano bloccate in pagina.
+- NON interpretare la carta del Presente né del Futuro.
+- NON risolvere la domanda. NON fare sintesi. NON dare un consiglio pratico.
+- Ogni frase deve citare la domanda o il simbolismo della carta del Passato.
+- Niente disclaimer ripetuti. Niente paura. Niente certezze.
+- Il JSON deve essere valido: virgolette doppie, escape necessari.
 `.trim();
+}
+
+function curiositySectionsToPlainText(sections) {
+  const s = sections && typeof sections === 'object' ? sections : {};
+  return [s.apertura, s.passato, s.chiusura]
+    .map((x) => String(x || '').trim())
+    .filter(Boolean)
+    .join('\n\n');
 }
 
 export default async function handler(req, res) {
@@ -273,17 +281,27 @@ export default async function handler(req, res) {
     if (!isFull && paywallVariant === 'curiosity') {
       console.log('Curiosity mode detected, attempting JSON parse. Raw response:', reading.substring(0, 200));
       try {
-        parsedSections = JSON.parse(reading);
+        // Tollerante a markdown ```json ... ```
+        let rawJson = reading.trim();
+        const fenced = rawJson.match(/```(?:json)?\s*([\s\S]*?)```/i);
+        if (fenced) rawJson = fenced[1].trim();
+        parsedSections = JSON.parse(rawJson);
         console.log('JSON parsed successfully:', Object.keys(parsedSections));
-        // Verifica che abbia le chiavi richieste
-        const requiredKeys = ['apertura', 'passato', 'presente', 'futuro', 'chiusura'];
-        if (!requiredKeys.every(k => k in parsedSections)) {
+        const requiredKeys = ['apertura', 'passato', 'chiusura'];
+        if (!requiredKeys.every((k) => k in parsedSections && String(parsedSections[k] || '').trim())) {
           console.log('Missing required keys, keys found:', Object.keys(parsedSections));
           throw new Error('Missing required keys');
         }
+        // Non esporre Presente/Futuro gratis anche se il modello li inventa
+        parsedSections = {
+          apertura: String(parsedSections.apertura || '').trim(),
+          passato: String(parsedSections.passato || '').trim(),
+          chiusura: String(parsedSections.chiusura || '').trim(),
+        };
+        reading = curiositySectionsToPlainText(parsedSections);
       } catch (e) {
         console.error('JSON parsing failed for curiosity teaser, retrying with classic prompt:', e.message);
-        // Retry con prompt classico
+        // Retry con prompt classico (già abbreviato)
         const classicPrompt = buildClassicPrompt(false, false, null);
         const retryResponse = await fetch('https://api.openai.com/v1/chat/completions', {
           method: 'POST',

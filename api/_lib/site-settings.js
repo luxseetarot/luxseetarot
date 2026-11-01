@@ -65,8 +65,8 @@ export function defaultSiteSettings() {
     gptModel: 'gpt-4.1-nano',
     /** Landing homepage attiva (1–10). Gli URL /l1…/l10 forzano sempre la rispettiva variante. */
     landingVariant: 1,
-    /** Variante paywall: 'classic' (comportamento attuale) o 'curiosity' (nuova anteprima a sezioni). */
-    paywallVariant: 'classic',
+    /** Variante paywall: 'classic' o 'curiosity' (anteprima corta + lucchetti; consigliata per conversione). */
+    paywallVariant: 'curiosity',
     metaPixel: defaultMetaPixel(),
     updatedAt: null,
   };
