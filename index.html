@@ -199,14 +199,13 @@
 
   h1.title{font-family:'Cinzel',serif;font-weight:600;font-size:clamp(32px,5vw,50px);margin:18px 0 10px;color:var(--gold);letter-spacing:.06em}
 
-  .brand-trust{
-    margin:12px 0 0;font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.45;
-    color:rgba(170,162,184,.85);
-  }
-  .brand-trust a{color:rgba(212,175,106,.85);text-decoration:none;border-bottom:1px solid rgba(212,175,106,.28)}
-  .brand-trust a:hover{color:var(--gold);border-bottom-color:rgba(212,175,106,.55)}
-
+  .hero-heading{max-width:100%;margin:0 auto}
   .subtitle{font-family:'Cormorant Garamond',serif;font-style:normal;font-weight:500;color:rgba(220,214,230,.98);font-size:clamp(22px,3.2vw,26px);max-width:520px;margin:0 auto;line-height:1.5}
+  @media(min-width:768px){
+    .hero-heading{width:fit-content}
+    .hero-heading h1.title{margin-left:0;margin-right:0}
+    .hero-heading #hero-subtitle{width:0;min-width:100%;max-width:none;margin:0}
+  }
   .hero-note{font-family:'Cormorant Garamond',serif;font-style:normal;font-weight:500;color:rgba(200,192,214,.95);font-size:clamp(21px,3vw,24px);max-width:480px;margin:12px auto 0;line-height:1.5}
   .hero-freemium{
     font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(18px,2.6vw,21px);
@@ -1186,9 +1185,10 @@
 
     </div>
 
-    <h1 class="title" id="hero-title">Lettura tarocchi online</h1>
-    <p class="brand-trust">Letture digitali scritte · <a href="/chi-siamo.html">Chi siamo</a> · <a href="/privacy.html">Privacy</a></p>
-    <p class="subtitle" id="hero-subtitle">Estrai tre carte, fai una domanda e leggi subito l’anteprima — in privato, senza chiamata e senza appuntamento.</p>
+    <div class="hero-heading">
+      <h1 class="title" id="hero-title">Lettura tarocchi online</h1>
+      <p class="subtitle" id="hero-subtitle">Estrai tre carte, fai una domanda e leggi subito l’anteprima — in privato, senza chiamata e senza appuntamento.</p>
+    </div>
     <p class="hero-note" id="hero-note">Testo chiaro da rileggere quando vuoi. Niente pressione al telefono.</p>
     <p class="hero-freemium" id="hero-freemium">Anteprima gratis · lettura completa opzionale da €4,90 (via email)</p>
   </header>
