@@ -199,8 +199,19 @@
 
   h1.title{font-family:'Cinzel',serif;font-weight:600;font-size:clamp(32px,5vw,50px);margin:18px 0 10px;color:var(--gold);letter-spacing:.06em}
 
+  .brand-trust{
+    margin:12px 0 0;font-family:'Cormorant Garamond',serif;font-size:17px;line-height:1.45;
+    color:rgba(170,162,184,.85);
+  }
+  .brand-trust a{color:rgba(212,175,106,.85);text-decoration:none;border-bottom:1px solid rgba(212,175,106,.28)}
+  .brand-trust a:hover{color:var(--gold);border-bottom-color:rgba(212,175,106,.55)}
+
   .subtitle{font-family:'Cormorant Garamond',serif;font-style:normal;font-weight:500;color:rgba(220,214,230,.98);font-size:clamp(22px,3.2vw,26px);max-width:520px;margin:0 auto;line-height:1.5}
   .hero-note{font-family:'Cormorant Garamond',serif;font-style:normal;font-weight:500;color:rgba(200,192,214,.95);font-size:clamp(21px,3vw,24px);max-width:480px;margin:12px auto 0;line-height:1.5}
+  .hero-freemium{
+    font-family:'Cormorant Garamond',serif;font-weight:500;font-size:clamp(18px,2.6vw,21px);
+    color:rgba(212,196,160,.92);max-width:520px;margin:14px auto 0;line-height:1.45;
+  }
   .hero-benefits{
     display:grid;grid-template-columns:1fr;gap:12px;max-width:440px;margin:12px auto 10px;padding:0 4px;
   }
@@ -1176,6 +1187,10 @@
     </div>
 
     <h1 class="title" id="hero-title">Lettura tarocchi online</h1>
+    <p class="brand-trust">Letture digitali scritte · <a href="/chi-siamo.html">Chi siamo</a> · <a href="/privacy.html">Privacy</a></p>
+    <p class="subtitle" id="hero-subtitle">Estrai tre carte, fai una domanda e leggi subito l’anteprima — in privato, senza chiamata e senza appuntamento.</p>
+    <p class="hero-note" id="hero-note">Testo chiaro da rileggere quando vuoi. Niente pressione al telefono.</p>
+    <p class="hero-freemium" id="hero-freemium">Anteprima gratis · lettura completa opzionale da €4,90 (via email)</p>
   </header>
 
 
@@ -1185,14 +1200,14 @@
   <section class="phase active" id="phase-input">
 
     <div class="hero-benefits" id="hero-benefits" aria-label="Perché scegliere Luxseetarot">
-      <div class="hero-benefit"><strong>Subito</strong><span>Risposta in pochi minuti, 24/7</span></div>
+      <div class="hero-benefit"><strong>Subito</strong><span>Anteprima in pochi minuti, 24/7</span></div>
       <div class="hero-benefit"><strong>Privato</strong><span>Solo tu e le carte, nessuna voce al telefono</span></div>
-      <div class="hero-benefit"><strong>Scritto</strong><span>Approfondisci e ricevi la lettura via email</span></div>
+      <div class="hero-benefit"><strong>Chiaro</strong><span>Completa a pagamento solo se vuoi approfondire</span></div>
     </div>
 
     <form class="card-form" id="form">
 
-      <div class="phase-tag">FASE I</div>
+      <div class="phase-tag">La domanda</div>
 
       <h2 class="subtitle-h" id="hero-form-title">Presentati alle carte</h2>
 
@@ -1218,7 +1233,7 @@
 
       <button type="submit" class="gold-btn full" id="btn-start-reading">INIZIA LA LETTURA</button>
 
-      <p class="privacy" id="form-privacy">Anteprima gratis, senza account. <a href="/privacy.html">Privacy</a></p>
+      <p class="privacy" id="form-privacy">Anteprima gratis · completa opzionale da €4,90. <a href="/privacy.html">Privacy</a></p>
       <p class="form-legal">Servizio di intrattenimento e riflessione. Non sostituisce consigli medici, legali o finanziari. I testi sono generati digitalmente.</p>
       <button type="button" class="credits-pill credits-pill--home" id="credits-pill-home" title="Clicca per gestire i crediti" style="display:none"></button>
 
@@ -1234,7 +1249,7 @@
 
     <div style="text-align:center">
 
-      <div class="phase-tag">FASE II</div>
+      <div class="phase-tag">Le carte</div>
 
       <h2 class="subtitle-h">Scegli tre carte</h2>
 
@@ -1260,7 +1275,7 @@
 
     <div style="text-align:center">
 
-      <div class="phase-tag">FASE III</div>
+      <div class="phase-tag">Il responso</div>
 
       <h2 class="subtitle-h">Le tre carte parlano</h2>
 
@@ -1602,53 +1617,37 @@
 
 <section class="seo-panel" id="seo-panel" aria-label="Informazioni sul servizio">
   <h2>Lettura tarocchi online in italiano</h2>
-  <p>Luxseetarot è un servizio di <strong style="color:rgba(236,230,216,.9);font-weight:500">lettura tarocchi online</strong>: poni una domanda, estrai tre carte e ricevi un testo simbolico per riflettere. Puoi leggere subito un’anteprima; se vuoi, approfondisci la lettura completa. Per iniziare senza account, vedi anche <a href="/tarocchi-gratis.html" style="color:rgba(212,175,106,.85)">come funziona l’anteprima</a>.</p>
-  <p>Non si tratta di un consulto medico, legale o finanziario: è un’esperienza di intrattenimento e introspezione, con testi generati digitalmente.</p>
+  <p>Luxseetarot è un servizio di <strong style="color:rgba(236,230,216,.9);font-weight:500">lettura tarocchi online</strong> con modello freemium: poni una domanda, estrai tre carte e leggi subito un’anteprima. La lettura completa è opzionale e a pagamento (da €4,90), inviata via email. I testi sono generati digitalmente — intrattenimento e riflessione, non un consulto medico, legale o finanziario.</p>
 
   <h2>Come funziona</h2>
   <ul>
-    <li>Inserisci nome e la tua domanda.</li>
-    <li>Estrai tre carte dal mazzo (passato, presente, futuro).</li>
-    <li>Ricevi subito un’anteprima della lettura.</li>
-    <li>Se vuoi, sblocca la lettura completa o approfondisci con nuove domande.</li>
+    <li>Inserisci nome e la tua domanda (senza account).</li>
+    <li>Estrai tre carte (passato, presente, futuro).</li>
+    <li>Leggi subito l’anteprima, senza costo.</li>
+    <li>Se vuoi approfondire, sblocchi la lettura completa a pagamento oppure un pack di letture.</li>
   </ul>
 
-  <h2>Perché scegliere Luxseetarot</h2>
-  <h3>Chiaro e immediato</h3>
-  <p>Nessun account obbligatorio per iniziare: in pochi minuti ottieni una lettura a tre carte leggibile e personale rispetto alla tua domanda.</p>
+  <h2>Perché Luxseetarot</h2>
+  <h3>Chiaro fin dall’inizio</h3>
+  <p>Sai subito cosa è gratis e cosa è a pagamento: niente chiamata, niente pressione, testo scritto da rileggere.</p>
   <h3>Pensato per riflettere</h3>
-  <p>Il focus è sul significato simbolico delle carte e su spunti di riflessione, non su promesse assolute o “predizioni certe”.</p>
-  <h3>Disponibile quando vuoi</h3>
-  <p>Puoi fare una lettura quando ti serve un momento di chiarezza, da computer o smartphone — in privato, senza chiamata.</p>
+  <p>Il focus è sul significato simbolico delle carte, non su promesse assolute o “predizioni certe”.</p>
+  <h3>Quando vuoi tu</h3>
+  <p>Da computer o smartphone, in privato, senza appuntamento.</p>
 
-  <h2>Letture per tema</h2>
-  <p>Approfondisci l’argomento che ti interessa.</p>
+  <h2>Guide utili</h2>
   <ul>
-    <li><a href="/tarocchi-gratis.html" style="color:rgba(212,175,106,.85)">Anteprima a tre carte</a> — inizia senza account obbligatorio</li>
-    <li><a href="/tarocchi-amore.html" style="color:rgba(212,175,106,.85)">Tarocchi amore</a> — relazioni, sentimenti, nuovi incontri</li>
-    <li><a href="/tarocchi-lavoro.html" style="color:rgba(212,175,106,.85)">Tarocchi lavoro</a> — carriera, scelte, prossimi passi</li>
-    <li><a href="/tarocchi-futuro.html" style="color:rgba(212,175,106,.85)">Tarocchi futuro</a> — tendenze e direzioni da esplorare</li>
-  </ul>
-
-  <h2>Dal blog tarocchi</h2>
-  <p>Guide pratiche per fare una domanda ai tarocchi e leggere lo spread a tre carte.</p>
-  <ul>
-    <li><a href="/blog/come-fare-una-domanda-ai-tarocchi" style="color:rgba(212,175,106,.85)">Come fare una domanda ai tarocchi</a> — formula chiara, esempi e errori da evitare</li>
-    <li><a href="/blog/lettura-tarocchi-tre-carte" style="color:rgba(212,175,106,.85)">Lettura a tre carte</a> — passato, presente e futuro spiegati</li>
-    <li><a href="/blog/tarocchi-amore-domande-esempi" style="color:rgba(212,175,106,.85)">Domande tarocchi amore</a> — 20 esempi utili</li>
-    <li><a href="/blog/significato-tarocchi-amore" style="color:rgba(212,175,106,.85)">Significato dei tarocchi in amore</a> — dinamiche e lettura pratica</li>
-    <li><a href="/blog/tarocchi-si-o-no" style="color:rgba(212,175,106,.85)">Tarocchi sì o no</a> — quando ha senso (e quando no)</li>
-    <li><a href="/blog/tarocchi-gratis-online-come-funzionano" style="color:rgba(212,175,106,.85)">Come funzionano le letture online</a> — anteprima e lettura completa</li>
-    <li><a href="/blog/significato-carta-il-matto" style="color:rgba(212,175,106,.85)">Carta Il Matto</a> — significato e lettura pratica</li>
-    <li><a href="/chi-siamo.html" style="color:rgba(212,175,106,.85)">Chi siamo</a> — Luxseetarot in breve</li>
-    <li><a href="/blog.html" style="color:rgba(212,175,106,.85)">Blog tarocchi</a> — tutte le guide in italiano</li>
+    <li><a href="/blog/come-fare-una-domanda-ai-tarocchi" style="color:rgba(212,175,106,.85)">Come fare una domanda ai tarocchi</a></li>
+    <li><a href="/blog/lettura-tarocchi-tre-carte" style="color:rgba(212,175,106,.85)">Lettura a tre carte</a></li>
+    <li><a href="/blog/tarocchi-gratis-online-come-funzionano" style="color:rgba(212,175,106,.85)">Come funzionano anteprima e lettura completa</a></li>
+    <li><a href="/blog.html" style="color:rgba(212,175,106,.85)">Tutte le guide del blog</a></li>
   </ul>
 
   <h2>Domande frequenti</h2>
   <div class="seo-faq" id="faq">
     <details>
-      <summary>L’anteprima è davvero senza costo?</summary>
-      <p>Sì: puoi iniziare con un’anteprima a tre carte. La lettura completa e gli approfondimenti sono opzionali e a pagamento. Maggiori dettagli sulla pagina <a href="/tarocchi-gratis.html" style="color:rgba(212,175,106,.85)">anteprima a tre carte</a>.</p>
+      <summary>Cosa è gratis e cosa si paga?</summary>
+      <p>L’anteprima a tre carte è senza costo e senza account. La lettura completa è opzionale (da €4,90) e arriva via email; c’è anche un pack se vuoi approfondire più volte. Dettagli su <a href="/tarocchi-gratis.html" style="color:rgba(212,175,106,.85)">come funziona l’anteprima</a>.</p>
     </details>
     <details>
       <summary>Come fare una domanda ai tarocchi?</summary>
@@ -1684,10 +1683,10 @@
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "L’anteprima è davvero senza costo?",
+      "name": "Cosa è gratis e cosa si paga?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sì: puoi iniziare con un’anteprima a tre carte. La lettura completa e gli approfondimenti sono opzionali e a pagamento."
+        "text": "L’anteprima a tre carte è senza costo e senza account. La lettura completa è opzionale (da 4,90 euro) e arriva via email; c’è anche un pack se vuoi approfondire più volte."
       }
     },
     {
@@ -1903,14 +1902,14 @@
       blurb: 'Master: layout classico.',
       title: 'Lettura tarocchi online',
       subtitle: 'Estrai tre carte, fai una domanda e leggi subito l’anteprima — in privato, senza chiamata e senza appuntamento.',
-      note: 'Anteprima gratis, senza account. Testo chiaro da rileggere quando vuoi.',
+      note: 'Testo chiaro da rileggere quando vuoi. Niente pressione al telefono.',
       formTitle: 'Presentati alle carte',
       cta: 'INIZIA LA LETTURA',
       docTitle: 'Lettura Tarocchi Online | Luxseetarot',
       benefits: [
-        { k: 'Subito', v: 'Risposta in pochi minuti, 24/7' },
+        { k: 'Subito', v: 'Anteprima in pochi minuti, 24/7' },
         { k: 'Privato', v: 'Solo tu e le carte, nessuna voce al telefono' },
-        { k: 'Scritto', v: 'Approfondisci e ricevi la lettura via email' }
+        { k: 'Chiaro', v: 'Completa a pagamento solo se vuoi approfondire' }
       ]
     },
     2: {
@@ -2128,6 +2127,7 @@
 
   // Applica subito se l’URL forza una variante (ADS), senza aspettare /api/config
   resolveAndApplyLanding(1);
+  applyPricingUI();
 
   var POSITIONS = ['Passato','Presente','Futuro'];
   var STORAGE_KEY = 'luxsee_unlock';
@@ -2278,6 +2278,10 @@
     if(deepenBuyPack) deepenBuyPack.textContent = 'PACK ' + packCredits + ' LETTURE — ' + packLabel + ' (PIÙ CONVENIENTE)';
     if(deepenNote){
       deepenNote.textContent = 'La lettura singola costa ' + fullLabel + '. Il pack da ' + packCredits + ' letture costa ' + packLabel + ' e conviene se vuoi approfondire più volte.';
+    }
+    var freemiumEl = document.getElementById('hero-freemium');
+    if(freemiumEl){
+      freemiumEl.textContent = 'Anteprima gratis · lettura completa opzionale da ' + fullLabel + ' (via email)';
     }
     refreshCreditsUI();
   }
@@ -2461,7 +2465,8 @@
       if(hasCredits){
         formPrivacy.textContent = 'La lettura completa userà 1 dei tuoi crediti.';
       } else {
-        formPrivacy.innerHTML = 'Anteprima gratis, senza account. <a href="/privacy.html">Privacy</a>';
+        var fullLabel = formatPriceEuro(getPricing().fullPriceCents);
+        formPrivacy.innerHTML = 'Anteprima gratis · completa opzionale da ' + fullLabel + '. <a href="/privacy.html">Privacy</a>';
       }
     }
     if(formTitle){
