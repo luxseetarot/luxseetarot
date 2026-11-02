@@ -1,7 +1,7 @@
 /** Programmazione pubblicazione automatica bozze blog (+ Facebook via setPostStatus). */
 
 import { funnelStorageMode } from './funnel.js';
-import { listPosts, setPostStatus } from './blog.js';
+import { listPosts, setPostStatus, seedDemoArticle } from './blog.js';
 
 const SCHEDULE_KEY = 'lux:blog:schedule';
 const LOCK_KEY = 'lux:blog:schedule:lock';
@@ -253,6 +253,13 @@ export async function runScheduledBlogPublish({ force = false } = {}) {
         ).schedule;
         return { ok: true, skipped: true, reason: check.reason, schedule };
       }
+    }
+
+    // Aggiorna SEO/AI sulle bozze prima di pubblicare (senza intervento manuale).
+    try {
+      await seedDemoArticle({ force: false, syncContent: true });
+    } catch (e) {
+      console.error('schedule seed sync before publish failed:', e);
     }
 
     const draft = await pickNextDraft();
