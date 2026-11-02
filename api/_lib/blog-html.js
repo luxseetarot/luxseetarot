@@ -1,5 +1,7 @@
 /** HTML server-side per articoli blog (indicizzabile quando published). */
 
+import { resolveBlogCover } from './blog-covers.js';
+
 function escapeHtml(s) {
   return String(s || '')
     .replace(/&/g, '&amp;')
@@ -109,7 +111,7 @@ export function renderBlogArticleHtml(post, { preview = false, related = [] } = 
   const cleanUrl = `${site}/blog/${encodeURIComponent(post.slug)}`;
   const title = `${post.title} | Luxseetarot`;
   const description = post.description || '';
-  const coverPath = post.coverImage || '/og-image.jpg';
+  const coverPath = resolveBlogCover(post.slug, post.coverImage);
   const cover = absUrl(coverPath);
   const robots = preview || post.status !== 'published' ? 'noindex,nofollow' : 'index,follow';
   const faq = Array.isArray(post.faq) ? post.faq : [];

@@ -10,7 +10,7 @@ import { getSeedArticlesF } from './blog-seed-articles-f.js';
 import { getSeedArticlesG } from './blog-seed-articles-g.js';
 import { facebookConfigured, shareBlogPostOnFacebook } from './facebook.js';
 import { withSeoKeywords } from './blog-seed-seo.js';
-import { defaultCoverForSlug } from './blog-covers.js';
+import { resolveBlogCover } from './blog-covers.js';
 
 const INDEX_KEY = 'lux:blog:index';
 const PUBLISHED_KEY = 'lux:blog:published';
@@ -151,9 +151,7 @@ function sanitizePost(raw) {
   if (coverImage && !/^https?:\/\//i.test(coverImage) && !coverImage.startsWith('/')) {
     coverImage = `/${coverImage}`;
   }
-  if (!coverImage) {
-    coverImage = defaultCoverForSlug(slug) || '';
-  }
+  coverImage = resolveBlogCover(slug, coverImage);
   return {
     slug,
     title: String(raw.title || '').trim().slice(0, 160),
@@ -353,7 +351,7 @@ export async function setPostStatus(slug, status, { skipFacebook = false } = {})
   post.updatedAt = new Date().toISOString();
   if (next === 'published') {
     post.publishedAt = post.publishedAt || post.updatedAt;
-    if (!post.coverImage) post.coverImage = defaultCoverForSlug(post.slug) || '';
+    post.coverImage = resolveBlogCover(post.slug, post.coverImage);
   }
   const saved = await savePost(post);
   if (!saved.ok) return saved;
@@ -567,11 +565,13 @@ function applySeedSeo(post) {
   if (!post || !post.slug) return post;
   const seed = seedSeoBySlug().get(post.slug);
   if (!seed) {
-    const cover = post.coverImage || defaultCoverForSlug(post.slug);
+    const cover = resolveBlogCover(post.slug, post.coverImage);
     return cover && cover !== post.coverImage ? { ...post, coverImage: cover } : post;
   }
-  const coverImage =
-    seed.coverImage || post.coverImage || defaultCoverForSlug(post.slug) || '';
+  const coverImage = resolveBlogCover(
+    post.slug,
+    seed.coverImage || post.coverImage || ''
+  );
   return {
     ...post,
     title: seed.title || post.title,
@@ -671,8 +671,10 @@ export async function seedDemoArticle({ force = false, syncContent = false } = {
         keyword: demo.keyword,
         bodyHtml: demo.bodyHtml,
         faq: demo.faq || existing.faq || [],
-        coverImage:
-          demo.coverImage || existing.coverImage || defaultCoverForSlug(demo.slug) || '',
+        coverImage: resolveBlogCover(
+          demo.slug,
+          demo.coverImage || existing.coverImage || ''
+        ),
         coverAlt: demo.coverAlt || existing.coverAlt || demo.title || '',
         status: nextStatus,
         createdAt: existing.createdAt,

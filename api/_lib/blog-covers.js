@@ -44,6 +44,7 @@ export const BLOG_COVER_SLUGS = new Set([
   'numeri-arcani-minori',
   'preparazione-prima-di-una-lettura',
   'quando-fare-una-lettura-dei-tarocchi',
+  'sibille-amore-gratis-tre-carte',
   'significato-as-di-bastoni',
   'significato-as-di-coppe',
   'significato-as-di-denari',
@@ -93,7 +94,10 @@ export const BLOG_COVER_SLUGS = new Set([
   'stesa-passato-presente-futuro',
   'stesa-tarocchi-amore',
   'stesa-tarocchi-lavoro',
+  'tarocchi-1-carta-gratis',
+  'tarocchi-10-carte-gratis',
   'tarocchi-amicizia-e-rapporti',
+  'tarocchi-amore-con-data-di-nascita-gratis',
   'tarocchi-amore-domande-esempi',
   'tarocchi-cambiamento-di-lavoro',
   'tarocchi-cambiamento-e-trasformazione',
@@ -103,6 +107,8 @@ export const BLOG_COVER_SLUGS = new Set([
   'tarocchi-confini-personali',
   'tarocchi-cosa-pensa-di-me',
   'tarocchi-creativita-bloccata',
+  'tarocchi-decani-gratis',
+  'tarocchi-del-destino-gratis',
   'tarocchi-dopo-una-delusione',
   'tarocchi-e-ansia-usarli-bene',
   'tarocchi-e-burnout',
@@ -115,19 +121,23 @@ export const BLOG_COVER_SLUGS = new Set([
   'tarocchi-energia-della-settimana',
   'tarocchi-ex-e-ricongiungimento',
   'tarocchi-famiglia-e-genitori',
+  'tarocchi-futuro-imminente-9-carte',
   'tarocchi-futuro-prossimo',
   'tarocchi-gelosia',
   'tarocchi-gratis-online-come-funzionano',
   'tarocchi-lavoro-carriera',
   'tarocchi-luna-nuova-rituale-soft',
   'tarocchi-marsiglia-vs-rider-waite',
+  'tarocchi-napoletane-gratis',
   'tarocchi-nuova-relazione',
   'tarocchi-offerta-di-lavoro',
   'tarocchi-online-come-scegliere',
+  'tarocchi-online-gratis-attendibili',
   'tarocchi-online-gratis-senza-app',
   'tarocchi-per-principianti-guida',
   'tarocchi-per-single',
   'tarocchi-perdono',
+  'tarocchi-potenti-gratis',
   'tarocchi-prima-di-un-colloquio',
   'tarocchi-quotidiani-abitudine-consapevole',
   'tarocchi-relazione-a-distanza',
@@ -140,12 +150,47 @@ export const BLOG_COVER_SLUGS = new Set([
   'tarocchi-soldi-e-risorse',
   'tarocchi-tradimento',
   'tarocchi-viaggio-e-trasloco',
+  'tarocchi-zingara-gratis',
   'timing-simbolico-nei-tarocchi',
 ]);
+
+/** Fallback tematici se manca il file esatto dello slug. */
+const THEME_FALLBACKS = [
+  { re: /amore|ex|relazion|coppia|single|fiamma|sibill/i, cover: 'significato-tarocchi-amore' },
+  { re: /lavoro|carriera|soldi|denar|colloquio/i, cover: 'tarocchi-lavoro-carriera' },
+  { re: /futuro|destino|imminente|prossimo/i, cover: 'tarocchi-futuro-prossimo' },
+  { re: /gratis|online|cartomanzia|attendibil/i, cover: 'tarocchi-gratis-online-come-funzionano' },
+  { re: /domanda|chied/i, cover: 'come-fare-una-domanda-ai-tarocchi' },
+  { re: /tre.carte|stesa|spread/i, cover: 'lettura-tarocchi-tre-carte' },
+];
 
 export function defaultCoverForSlug(slug) {
   const s = String(slug || "").trim();
   if (s && BLOG_COVER_SLUGS.has(s)) return `/images/blog/${s}.jpg`;
   return "";
+}
+
+/** Risolve una cover reale: evita URL rotti tipo /images/blog/slug-inesistente.jpg */
+export function resolveBlogCover(slug, preferred = "") {
+  const s = String(slug || "").trim();
+  const pref = String(preferred || "").trim().split("?")[0];
+  if (pref) {
+    const m = pref.match(/\/images\/blog\/([^/.]+)\.(?:jpe?g|png|webp)$/i);
+    if (m && BLOG_COVER_SLUGS.has(m[1])) return `/images/blog/${m[1]}.jpg`;
+    if (/^https?:\/\//i.test(pref)) return pref;
+    if (pref === "/og-image.jpg" || pref.endsWith("/og-image.jpg")) return "/og-image.jpg";
+  }
+  const exact = defaultCoverForSlug(s);
+  if (exact) return exact;
+  const hay = s;
+  for (const row of THEME_FALLBACKS) {
+    if (row.re.test(hay) && BLOG_COVER_SLUGS.has(row.cover)) {
+      return `/images/blog/${row.cover}.jpg`;
+    }
+  }
+  if (BLOG_COVER_SLUGS.has('come-fare-una-domanda-ai-tarocchi')) {
+    return '/images/blog/come-fare-una-domanda-ai-tarocchi.jpg';
+  }
+  return '/og-image.jpg';
 }
 

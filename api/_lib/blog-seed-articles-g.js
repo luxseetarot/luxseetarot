@@ -5,12 +5,11 @@
  */
 
 import { withSeoKeywords } from './blog-seed-seo.js';
+import { resolveBlogCover } from './blog-covers.js';
 
 function article(partial) {
   const slug = String(partial.slug || '');
-  const coverImage =
-    partial.coverImage ||
-    (slug ? `/images/blog/${slug}.jpg?v=1` : '');
+  const coverImage = resolveBlogCover(slug, partial.coverImage || '');
   return withSeoKeywords({
     status: 'draft',
     faq: partial.faq || [],

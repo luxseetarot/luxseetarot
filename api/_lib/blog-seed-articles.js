@@ -4,6 +4,7 @@
  */
 
 import { withSeoKeywords } from './blog-seed-seo.js';
+import { resolveBlogCover } from './blog-covers.js';
 
 const CTA = `<p><a href="/tarocchi-gratis.html">Prova i tarocchi gratis su Luxseetarot →</a></p>`;
 const GRATIS_RELATED = ['/tarocchi-gratis.html', 'Tarocchi gratis: anteprima a tre carte'];
@@ -620,9 +621,7 @@ ${extraNote}
 
 function article(partial) {
   const slug = String(partial.slug || '');
-  const coverImage =
-    partial.coverImage ||
-    (slug ? `/images/blog/${slug}.jpg?v=3` : '');
+  const coverImage = resolveBlogCover(slug, partial.coverImage || '');
   let bodyHtml = String(partial.bodyHtml || '');
   const expansion = EXPANSIONS[slug];
   if (expansion && bodyHtml.includes(CTA)) {
