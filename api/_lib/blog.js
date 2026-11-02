@@ -151,6 +151,9 @@ function sanitizePost(raw) {
   if (coverImage && !/^https?:\/\//i.test(coverImage) && !coverImage.startsWith('/')) {
     coverImage = `/${coverImage}`;
   }
+  if (!coverImage) {
+    coverImage = defaultCoverForSlug(slug) || '';
+  }
   return {
     slug,
     title: String(raw.title || '').trim().slice(0, 160),
@@ -341,6 +344,7 @@ export async function savePost(input) {
 }
 
 export async function setPostStatus(slug, status, { skipFacebook = false } = {}) {
+  // getPost applica già SEO/AI seed: così in pubblicazione la bozza salvata è ottimizzata.
   const post = await getPost(slug);
   if (!post) return { ok: false, error: 'Articolo non trovato.' };
   const prevStatus = post.status;
@@ -349,6 +353,7 @@ export async function setPostStatus(slug, status, { skipFacebook = false } = {})
   post.updatedAt = new Date().toISOString();
   if (next === 'published') {
     post.publishedAt = post.publishedAt || post.updatedAt;
+    if (!post.coverImage) post.coverImage = defaultCoverForSlug(post.slug) || '';
   }
   const saved = await savePost(post);
   if (!saved.ok) return saved;
@@ -658,6 +663,7 @@ export async function seedDemoArticle({ force = false, syncContent = false } = {
         existing.status !== 'published' &&
         existing.status !== 'deleted';
       const nextStatus = promote ? 'published' : existing.status || 'draft';
+      // Aggiorna anche le bozze: body/FAQ/cover SEO-AI pronti prima della pubblicazione.
       const post = sanitizePost({
         ...existing,
         title: demo.title,
@@ -665,8 +671,9 @@ export async function seedDemoArticle({ force = false, syncContent = false } = {
         keyword: demo.keyword,
         bodyHtml: demo.bodyHtml,
         faq: demo.faq || existing.faq || [],
-        coverImage: demo.coverImage || existing.coverImage || '',
-        coverAlt: demo.coverAlt || existing.coverAlt || '',
+        coverImage:
+          demo.coverImage || existing.coverImage || defaultCoverForSlug(demo.slug) || '',
+        coverAlt: demo.coverAlt || existing.coverAlt || demo.title || '',
         status: nextStatus,
         createdAt: existing.createdAt,
         publishedAt: promote

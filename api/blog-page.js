@@ -62,20 +62,21 @@ export default async function handler(req, res) {
       post = await promoteIfSeedPublished(post);
     }
 
-    if (post.status !== 'published') {
-      if (!(preview && isAdmin)) {
-        return sendHtml(res, 404, renderBlogNotFoundHtml());
-      }
-      return sendHtml(res, 200, renderBlogArticleHtml(post, { preview: true }), {
-        cache: 'private, no-store',
-      });
-    }
-
     let related = [];
     try {
       related = await listRelatedPosts(post, 5);
     } catch (relErr) {
       console.error('related posts error:', relErr);
+    }
+
+    // Bozza: stesso HTML ottimizzato AI dei pubblicati (noindex), così è pronto alla pubblicazione
+    if (post.status !== 'published') {
+      if (!(preview && isAdmin)) {
+        return sendHtml(res, 404, renderBlogNotFoundHtml());
+      }
+      return sendHtml(res, 200, renderBlogArticleHtml(post, { preview: true, related }), {
+        cache: 'private, no-store',
+      });
     }
 
     // Pubblicato: HTML completo indicizzabile

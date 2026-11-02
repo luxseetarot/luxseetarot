@@ -115,8 +115,9 @@ export default async function handler(req, res) {
     }
 
     if (action === 'blog-list') {
-      // Solo inserisce slug mancanti (nessuna riscrittura massiva)
-      await seedDemoArticle({ force: false, syncContent: false });
+      // Sincronizza bozze + pubblicati col catalogo SEO/AI (cover, body, FAQ) così
+      // le bozze sono già ottimizzate quando verranno pubblicate.
+      await seedDemoArticle({ force: false, syncContent: true });
       const posts = await listPosts({ includeDeleted: true });
       const schedule = await getBlogSchedule();
       const nextDraft = await pickNextDraft();
